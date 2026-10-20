@@ -1,0 +1,5 @@
+# Never upload this huge, regenerable folder to GitHub — anyone can rebuild it with "npm install"
+node_modules
+
+# Never upload this — it contains secrets (database password, API keys)
+.env

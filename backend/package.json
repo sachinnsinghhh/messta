@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "MESSTA backend",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "clean-db": "node scripts/wipeTestData.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "crypto": "^1.0.1",
+    "dotenv": "^18.0.4",
+    "express": "^5.2.1",
+    "firebase-admin": "^14.5.0",
+    "mongoose": "^9.10.2",
+    "razorpay": "^2.9.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
