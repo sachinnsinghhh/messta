@@ -72,6 +72,8 @@ export default function Login() {
         setError("An account with this email already exists. Try signing in instead.");
       } else if (err.code === "auth/weak-password") {
         setError("Password should be at least 6 characters long.");
+      } else if (err.code === "auth/unauthorized-domain") {
+        setError("Domain not authorized: Please add your Vercel domain in Firebase Console (Authentication > Settings > Authorized domains).");
       } else {
         setError(err.message || "Authentication failed.");
       }
@@ -107,7 +109,11 @@ export default function Login() {
         navigate("/", { replace: true });
       }
     } catch (err) {
-      setError(err.message || "Failed to sign in with Google.");
+      if (err.code === "auth/unauthorized-domain") {
+        setError("Domain not authorized: Please add your Vercel domain in Firebase Console (Authentication > Settings > Authorized domains).");
+      } else {
+        setError(err.message || "Failed to sign in with Google.");
+      }
     } finally {
       setLoading(false);
     }
