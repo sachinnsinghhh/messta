@@ -63,53 +63,8 @@ export default function Navbar() {
           {/* Desktop Navigation Links based strictly on authenticated role */}
           {currentUser && (
             <nav className="hidden md:flex items-center gap-1 lg:gap-2">
-              {activeRole === "admin" ? (
-                <>
-                  <Link
-                    to="/admin/finance"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
-                      isActive("/admin/finance") || isActive("/admin")
-                        ? "bg-purple-600 text-white shadow-xs font-bold"
-                        : "text-gray-700 hover:text-purple-700 hover:bg-purple-50"
-                    }`}
-                  >
-                    <span>📊</span>
-                    <span>Financial Command</span>
-                  </Link>
-                  <Link
-                    to="/admin/verifications"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
-                      isActive("/admin/verifications")
-                        ? "bg-purple-600 text-white shadow-xs font-bold"
-                        : "text-gray-700 hover:text-purple-700 hover:bg-purple-50"
-                    }`}
-                  >
-                    <span>🛡️</span>
-                    <span>FSSAI Queue</span>
-                  </Link>
-                  <Link
-                    to="/owner"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
-                      isActive("/owner") || location.pathname.startsWith("/owner/")
-                        ? "bg-amber-600 text-white shadow-xs font-bold"
-                        : "text-gray-700 hover:text-amber-800 hover:bg-amber-50"
-                    }`}
-                  >
-                    <span>🏪</span>
-                    <span>Mess Owner Studio</span>
-                  </Link>
-                  <Link
-                    to="/mess"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                      isActive("/mess")
-                        ? "bg-purple-100 text-purple-900 font-bold"
-                        : "text-gray-700 hover:text-purple-700 hover:bg-purple-50"
-                    }`}
-                  >
-                    All Outlets Catalog
-                  </Link>
-                </>
-              ) : activeRole === "owner" ? (
+              {/* If user is inside Mess Owner Portal (whether logged in as regular owner or SuperAdmin) */}
+              {(activeRole === "owner" || location.pathname.startsWith("/owner")) ? (
                 <>
                   <Link
                     to="/owner"
@@ -158,6 +113,64 @@ export default function Navbar() {
                     }`}
                   >
                     Finance & P&L
+                  </Link>
+
+                  {/* SuperAdmin quick toggle to jump to Platform Finance Console */}
+                  {activeRole === "admin" && (
+                    <Link
+                      to="/admin/finance"
+                      className="ml-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-100 text-purple-900 hover:bg-purple-200 border border-purple-300 transition-colors flex items-center gap-1 shadow-2xs"
+                      title="Switch to SuperAdmin Financial Command Center"
+                    >
+                      <span>🛡️</span>
+                      <span>SuperAdmin Console</span>
+                    </Link>
+                  )}
+                </>
+              ) : activeRole === "admin" ? (
+                <>
+                  <Link
+                    to="/admin/finance"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                      isActive("/admin/finance") || isActive("/admin")
+                        ? "bg-purple-600 text-white shadow-xs font-bold"
+                        : "text-gray-700 hover:text-purple-700 hover:bg-purple-50"
+                    }`}
+                  >
+                    <span>📊</span>
+                    <span>Financial Command</span>
+                  </Link>
+                  <Link
+                    to="/admin/verifications"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                      isActive("/admin/verifications")
+                        ? "bg-purple-600 text-white shadow-xs font-bold"
+                        : "text-gray-700 hover:text-purple-700 hover:bg-purple-50"
+                    }`}
+                  >
+                    <span>🛡️</span>
+                    <span>FSSAI Queue</span>
+                  </Link>
+                  <Link
+                    to="/owner"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                      isActive("/owner") || location.pathname.startsWith("/owner/")
+                        ? "bg-amber-600 text-white shadow-xs font-bold"
+                        : "text-gray-700 hover:text-amber-800 hover:bg-amber-50"
+                    }`}
+                  >
+                    <span>🏪</span>
+                    <span>Mess Owner Studio</span>
+                  </Link>
+                  <Link
+                    to="/mess"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                      isActive("/mess")
+                        ? "bg-purple-100 text-purple-900 font-bold"
+                        : "text-gray-700 hover:text-purple-700 hover:bg-purple-50"
+                    }`}
+                  >
+                    All Outlets Catalog
                   </Link>
                 </>
               ) : (
@@ -258,38 +271,7 @@ export default function Navbar() {
       {/* Mobile Drawer Dropdown */}
       {mobileMenuOpen && currentUser && (
         <div className="md:hidden border-t border-gray-200 bg-white px-4 pt-3 pb-6 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-          {activeRole === "admin" ? (
-            <div className="flex flex-col gap-2">
-              <Link
-                to="/admin/finance"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-bold text-purple-700 py-1.5 flex items-center gap-2"
-              >
-                <span>📊</span> Financial Command Center
-              </Link>
-              <Link
-                to="/admin/verifications"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-semibold text-gray-700 py-1.5 flex items-center gap-2"
-              >
-                <span>🛡️</span> FSSAI Inspection Queue
-              </Link>
-              <Link
-                to="/owner"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-semibold text-amber-800 py-1.5 flex items-center gap-2"
-              >
-                <span>🏪</span> Mess Owner Studio
-              </Link>
-              <Link
-                to="/mess"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-semibold text-gray-700 py-1.5"
-              >
-                All Outlets Directory
-              </Link>
-            </div>
-          ) : activeRole === "owner" ? (
+          {(activeRole === "owner" || location.pathname.startsWith("/owner")) ? (
             <div className="flex flex-col gap-2">
               <Link
                 to="/owner"
@@ -332,6 +314,46 @@ export default function Navbar() {
                 className="text-sm font-semibold text-gray-700 py-1.5"
               >
                 Finance & P&L Intelligence
+              </Link>
+              {activeRole === "admin" && (
+                <Link
+                  to="/admin/finance"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-sm font-bold text-purple-700 py-1.5 flex items-center gap-1.5 border-t border-gray-100 pt-2"
+                >
+                  <span>🛡️</span> SuperAdmin Finance Console
+                </Link>
+              )}
+            </div>
+          ) : activeRole === "admin" ? (
+            <div className="flex flex-col gap-2">
+              <Link
+                to="/admin/finance"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-bold text-purple-700 py-1.5 flex items-center gap-2"
+              >
+                <span>📊</span> Financial Command Center
+              </Link>
+              <Link
+                to="/admin/verifications"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-semibold text-gray-700 py-1.5 flex items-center gap-2"
+              >
+                <span>🛡️</span> FSSAI Inspection Queue
+              </Link>
+              <Link
+                to="/owner"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-semibold text-amber-800 py-1.5 flex items-center gap-2"
+              >
+                <span>🏪</span> Mess Owner Studio
+              </Link>
+              <Link
+                to="/mess"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-semibold text-gray-700 py-1.5"
+              >
+                All Outlets Directory
               </Link>
             </div>
           ) : (

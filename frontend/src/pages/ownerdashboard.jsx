@@ -245,7 +245,10 @@ export default function OwnerDashboard() {
   // Handle SuperAdmin updating owner permissions on active mess
   const handleUpdatePermissions = async (e) => {
     e.preventDefault();
-    if (!activeMessId || !permOwnerEmail.trim()) return;
+    if (!activeMessId || !permOwnerEmail.trim()) {
+      setStatusMessage({ text: "Please enter a valid Google or email address.", type: "error" });
+      return;
+    }
     setPermSaving(true);
 
     try {
@@ -264,7 +267,7 @@ export default function OwnerDashboard() {
       const data = await res.json();
       if (res.ok && data.success) {
         setStatusMessage({
-          text: `Permissions updated! Mess is now granted to ${permOwnerEmail.trim()}. 🎉`,
+          text: `Access granted to ${permOwnerEmail.trim()}! When this user logs in or signs up with this Google or email account, "${activeMess?.name}" will appear directly in their Mess Owner portal. 🎉`,
           type: "success",
         });
         refreshMesses();
@@ -281,14 +284,10 @@ export default function OwnerDashboard() {
     }
   };
 
-  // Handle Register New Mess Outlet & Pre-Grant Access (SuperAdmin or Normal Owner)
+  // Handle Register New Mess Outlet (SuperAdmin or Normal Owner)
   const handleCreateMess = async (e) => {
     e.preventDefault();
     if (!newMessName.trim() || !newLocality.trim()) return;
-    if (isSuperAdmin && !newOwnerEmail.trim()) {
-      setStatusMessage({ text: "Target mess owner email is required to grant access.", type: "error" });
-      return;
-    }
     setActionLoading(true);
 
     try {
@@ -296,6 +295,10 @@ export default function OwnerDashboard() {
       if (isSuperAdmin) {
         headers["x-admin-key"] = getStoredAdminKey();
       }
+
+      const targetOwnerEmail = isSuperAdmin
+        ? (newOwnerEmail.trim() || currentUser?.email || "admin@messta.com")
+        : (currentUser?.email || "owner@messta.com");
 
       const res = await fetch(`${API_BASE_URL}/api/mess`, {
         method: "POST",
@@ -307,9 +310,9 @@ export default function OwnerDashboard() {
           phone: newPhone || "+91 98765 43210",
           seatingCapacity: Number(newCapacity),
           pricePerMeal: Number(newPricePerMeal || 80),
-          ownerEmail: isSuperAdmin ? newOwnerEmail.trim() : (currentUser?.email || "owner@messta.com"),
+          ownerEmail: targetOwnerEmail,
           ownerId: isSuperAdmin ? "" : (currentUser?.uid || ""),
-          allowedManagerEmails: isSuperAdmin ? newManagerEmails : [],
+          allowedManagerEmails: newManagerEmails ? newManagerEmails.split(",").map((s) => s.trim()).filter(Boolean) : [],
           isOpen: true,
         }),
       });
@@ -328,7 +331,9 @@ export default function OwnerDashboard() {
         }
         setStatusMessage({
           text: isSuperAdmin
-            ? `New mess "${data.data?.name}" created and access pre-granted to ${data.data?.ownerEmail}! 🚀`
+            ? newOwnerEmail.trim()
+              ? `New mess "${data.data?.name}" created and access granted to ${newOwnerEmail.trim()}! 🚀`
+              : `New mess "${data.data?.name}" created successfully! You can switch to it now, or edit permissions in Outlet Settings below to grant access to any Google or email ID. 🚀`
             : `Mess "${data.data?.name}" registered successfully under your account! 🚀`,
           type: "success",
         });
@@ -694,10 +699,10 @@ export default function OwnerDashboard() {
               type="button"
               onClick={() => setShowAddMess(!showAddMess)}
               className="px-4 py-2.5 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-transform active:scale-95 flex items-center gap-1.5 border border-purple-500/30"
-              title="SuperAdmin Tool: Pre-create a mess and grant access to an email address"
+              title="Add a new mess outlet to the platform"
             >
               <span>+</span>
-              <span>Add Mess & Grant Access</span>
+              <span>Add Mess</span>
             </button>
           ) : (
             <button
@@ -929,7 +934,7 @@ export default function OwnerDashboard() {
         </>
       )}
 
-      {/* ── COLLAPSIBLE: REGISTER NEW MESS (NORMAL OWNER OR SUPERADMIN PROVISIONING) ── */}
+      {/* ── COLLAPSIBLE: REGISTER NEW MESS (NORMAL OWNER OR SUPERADMIN) ── */}
       {showAddMess && (
         <div
           className={`rounded-3xl p-6 sm:p-8 border shadow-md space-y-5 animate-in fade-in slide-in-from-top-4 duration-300 ${
@@ -948,17 +953,17 @@ export default function OwnerDashboard() {
                 }`}
               >
                 {isSuperAdmin
-                  ? "🛡️ SuperAdmin Access Provisioning Engine"
+                  ? "🛡️ Add Mess Outlet (Universal Studio)"
                   : "🏢 Mess Outlet Self-Registration"}
               </span>
               <h2 className="text-lg font-black text-gray-900 tracking-tight">
                 {isSuperAdmin
-                  ? "Pre-Create Mess Outlet & Grant Owner Access"
+                  ? "Add New Mess Outlet"
                   : "Register Your New Mess Outlet"}
               </h2>
               <p className="text-xs text-gray-600 max-w-2xl">
                 {isSuperAdmin
-                  ? "Set up a new mess outlet and assign management permissions to a partner email. When that partner logs into Messta using their email or Google account, the outlet will automatically link to them."
+                  ? "Register a new mess branch like normal (e.g. Annapurna, Mom's Kitchen). You can immediately manage its thalis, slots, inventory, staff and finance, or assign access to any Google or email ID below or anytime in Outlet Settings."
                   : `Launch a new mess or campus canteen branch directly under your account (${currentUser?.email || "you"}). You can immediately publish thalis, slot bookings, and manage kitchen prep.`}
               </p>
             </div>
@@ -1038,52 +1043,6 @@ export default function OwnerDashboard() {
               />
             </div>
 
-            {/* SuperAdmin Specific: Grant Owner Access to specific email */}
-            {isSuperAdmin ? (
-              <>
-                <div className="lg:col-span-3">
-                  <label className="block text-[11px] font-extrabold uppercase text-purple-900 mb-1 flex items-center gap-1.5">
-                    <span>🔑</span>
-                    <span>Grant Owner Access To Email Address *</span>
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="messowner@gmail.com"
-                    value={newOwnerEmail}
-                    onChange={(e) => setNewOwnerEmail(e.target.value)}
-                    className="w-full p-2.5 text-xs bg-white border-2 border-purple-400 rounded-xl focus:ring-2 focus:ring-purple-600 font-bold text-purple-950 placeholder-purple-300"
-                  />
-                  <p className="text-[10px] text-purple-700 mt-1 font-medium">
-                    The partner can freely sign up or log in using this email or Google account. The system will auto-link this outlet.
-                  </p>
-                </div>
-
-                <div className="lg:col-span-3">
-                  <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">
-                    Additional Manager Emails (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="manager1@gmail.com, staff@gmail.com"
-                    value={newManagerEmails}
-                    onChange={(e) => setNewManagerEmails(e.target.value)}
-                    className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500"
-                  />
-                  <p className="text-[10px] text-gray-500 mt-1">
-                    Comma-separated secondary emails also permitted to manage this outlet.
-                  </p>
-                </div>
-              </>
-            ) : (
-              <div className="lg:col-span-4 bg-orange-100/70 border border-orange-200 rounded-xl p-3 flex items-center gap-2 text-xs text-orange-950 font-medium">
-                <span>ℹ️</span>
-                <span>
-                  This outlet will be registered under your verified email: <strong className="font-bold">{currentUser?.email}</strong>.
-                </span>
-              </div>
-            )}
-
             <div>
               <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">Seating Capacity</label>
               <input
@@ -1116,7 +1075,52 @@ export default function OwnerDashboard() {
               />
             </div>
 
-            <div className={`flex items-end justify-end pt-2 ${isSuperAdmin ? "sm:col-span-2 lg:col-span-4" : "sm:col-span-2 lg:col-span-6"}`}>
+            {/* Optional Owner Email assignment */}
+            {isSuperAdmin ? (
+              <>
+                <div className="lg:col-span-3">
+                  <label className="block text-[11px] font-bold uppercase text-purple-900 mb-1 flex items-center gap-1.5">
+                    <span>🔑</span>
+                    <span>Assign Owner Google / Email ID (Optional)</span>
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="e.g. messowner@gmail.com (Leave blank to assign later)"
+                    value={newOwnerEmail}
+                    onChange={(e) => setNewOwnerEmail(e.target.value)}
+                    className="w-full p-2.5 text-xs bg-white border border-purple-300 rounded-xl focus:ring-2 focus:ring-purple-600 font-semibold text-gray-900 placeholder-gray-400"
+                  />
+                  <p className="text-[10px] text-purple-700 mt-1">
+                    Optional. You can also grant or update access to any Google or email ID at any time in Outlet Settings.
+                  </p>
+                </div>
+
+                <div className="lg:col-span-3">
+                  <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">
+                    Additional Manager Emails (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="manager1@gmail.com, staff@gmail.com"
+                    value={newManagerEmails}
+                    onChange={(e) => setNewManagerEmails(e.target.value)}
+                    className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-1">
+                    Comma-separated secondary emails also permitted to manage this outlet.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="lg:col-span-6 bg-orange-100/70 border border-orange-200 rounded-xl p-3 flex items-center gap-2 text-xs text-orange-950 font-medium">
+                <span>ℹ️</span>
+                <span>
+                  This outlet will be registered under your verified email: <strong className="font-bold">{currentUser?.email}</strong>.
+                </span>
+              </div>
+            )}
+
+            <div className="lg:col-span-6 flex items-center justify-end pt-2">
               <button
                 type="submit"
                 disabled={actionLoading}
@@ -1128,10 +1132,10 @@ export default function OwnerDashboard() {
               >
                 <span>
                   {actionLoading
-                    ? "Processing..."
+                    ? "Registering..."
                     : isSuperAdmin
-                    ? "Provision Mess & Grant Access 🚀"
-                    : "Launch Mess Branch 🚀"}
+                    ? "Add Mess Outlet 🚀"
+                    : "Register Mess Branch 🚀"}
                 </span>
               </button>
             </div>
@@ -1635,10 +1639,10 @@ export default function OwnerDashboard() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div className="space-y-0.5">
                           <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 bg-purple-200/80 px-2 py-0.5 rounded-md">
-                            🛡️ SuperAdmin Access Grant
+                            🛡️ SuperAdmin Access Control
                           </span>
                           <h4 className="text-sm font-black text-gray-900">
-                            Outlet Ownership & Permissions
+                            Give Access to Google or Email Account
                           </h4>
                         </div>
                         <span
@@ -1654,18 +1658,22 @@ export default function OwnerDashboard() {
                         </span>
                       </div>
 
+                      <p className="text-xs text-purple-900 leading-relaxed">
+                        Enter any mess owner&rsquo;s Google account or email address. When that mess owner logs in or signs up with that Google or email ID, <strong>&ldquo;{activeMess.name}&rdquo;</strong> will automatically be linked to their portal with full operational access!
+                      </p>
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div>
                           <label className="block text-[11px] font-bold uppercase text-purple-900 mb-1">
-                            Primary Mess Owner Email *
+                            Mess Owner Google / Email Address *
                           </label>
                           <input
                             type="email"
                             required
                             value={permOwnerEmail}
                             onChange={(e) => setPermOwnerEmail(e.target.value)}
-                            placeholder="owner@gmail.com"
-                            className="w-full p-2.5 text-xs bg-white border border-purple-300 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold text-gray-900"
+                            placeholder="e.g. momskitchen@gmail.com"
+                            className="w-full p-2.5 text-xs bg-white border-2 border-purple-300 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold text-gray-900 placeholder-gray-400"
                           />
                         </div>
 
@@ -1688,9 +1696,9 @@ export default function OwnerDashboard() {
                           type="button"
                           onClick={handleUpdatePermissions}
                           disabled={permSaving}
-                          className="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs disabled:opacity-50 flex items-center gap-1.5"
+                          className="px-5 py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs disabled:opacity-50 flex items-center gap-1.5"
                         >
-                          <span>{permSaving ? "Updating..." : "Update Permissions 🔑"}</span>
+                          <span>{permSaving ? "Granting Access..." : "Give Access 🔑"}</span>
                         </button>
                       </div>
                     </div>
