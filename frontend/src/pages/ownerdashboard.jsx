@@ -703,11 +703,11 @@ export default function OwnerDashboard() {
             <button
               type="button"
               onClick={() => setShowAddMess(!showAddMess)}
-              className="px-4 py-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-transform active:scale-95 flex items-center gap-1.5 border border-orange-500/30"
-              title="Register a new mess branch under your account"
+              className="px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-transform active:scale-95 flex items-center gap-1.5"
+              title="Add a new mess branch under your account"
             >
               <span>+</span>
-              <span>Register New Mess</span>
+              <span>Add Branch</span>
             </button>
           )}
 
