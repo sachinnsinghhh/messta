@@ -1,9 +1,16 @@
 import { API_BASE_URL } from "../config/api";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useAuth } from "./useAuth";
+import { getStoredAdminKey } from "../config/adminSecurity";
 
 const STORAGE_KEY = "messta_activeMessId";
 
-export function useActiveMess() {
+export function useActiveMess(passedUser) {
+  const auth = useAuth() || {};
+  const currentUser = passedUser || auth.currentUser;
+  const activeRole = auth.activeRole || localStorage.getItem("messta_role") || "user";
+  const isSuperAdmin = activeRole === "admin";
+
   const [allMesses, setAllMesses] = useState([]);
   const [activeMessId, setActiveMessIdState] = useState(() => {
     return (
@@ -16,7 +23,10 @@ export function useActiveMess() {
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
 
+  const hasClaimedRef = useRef(false);
+
   const refreshMesses = useCallback(() => {
+    hasClaimedRef.current = false;
     setRefreshKey((k) => k + 1);
   }, []);
 
@@ -26,7 +36,37 @@ export function useActiveMess() {
     async function loadMesses() {
       try {
         setLoadingMesses(true);
-        const res = await fetch(`${API_BASE_URL}/api/mess?showAll=true`);
+
+        // 1. If regular mess owner, auto-claim pre-created mess matching their email once per session/refresh
+        if (!isSuperAdmin && activeRole === "owner" && currentUser?.email && !hasClaimedRef.current) {
+          try {
+            await fetch(`${API_BASE_URL}/api/mess/claim-by-email`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: currentUser.email,
+                uid: currentUser.uid || "",
+              }),
+            });
+            hasClaimedRef.current = true;
+          } catch (claimErr) {
+            console.warn("Auto-claim check notice:", claimErr.message);
+          }
+        }
+
+        // 2. Fetch mess outlets with role-based scoping
+        let url = `${API_BASE_URL}/api/mess?showAll=true`;
+        const headers = {};
+
+        if (isSuperAdmin) {
+          // SuperAdmin gets universal view of all mess outlets across the platform
+          headers["x-admin-key"] = getStoredAdminKey();
+        } else if (activeRole === "owner" && currentUser?.email) {
+          // Regular mess owner is strictly restricted to their assigned mess(es)
+          url += `&ownerEmail=${encodeURIComponent(currentUser.email)}&ownerUid=${encodeURIComponent(currentUser.uid || "")}`;
+        }
+
+        const res = await fetch(url, { headers });
         if (!res.ok) throw new Error("Failed to load outlets");
         const result = await res.json();
         const list = result.data || [];
@@ -48,6 +88,10 @@ export function useActiveMess() {
             setActiveMessIdState(fallbackId);
             sessionStorage.setItem(STORAGE_KEY, fallbackId);
             localStorage.setItem(STORAGE_KEY, fallbackId);
+          } else {
+            setActiveMessIdState("");
+            sessionStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(STORAGE_KEY);
           }
         }
       } catch (err) {
@@ -70,7 +114,7 @@ export function useActiveMess() {
       ignore = true;
       window.removeEventListener("messta_mess_changed", handleMessChanged);
     };
-  }, [refreshKey, activeMessId]);
+  }, [refreshKey, activeMessId, isSuperAdmin, activeRole, currentUser?.email, currentUser?.uid]);
 
   const switchMess = useCallback((id) => {
     if (!id) return;
@@ -85,8 +129,14 @@ export function useActiveMess() {
       const targetId = idToDelete || activeMessId;
       if (!targetId) throw new Error("No mess selected to delete");
 
+      const headers = {};
+      if (isSuperAdmin) {
+        headers["x-admin-key"] = getStoredAdminKey();
+      }
+
       const res = await fetch(`${API_BASE_URL}/api/mess/${targetId}`, {
         method: "DELETE",
+        headers,
       });
       const data = await res.json();
       if (!res.ok) {
@@ -116,7 +166,7 @@ export function useActiveMess() {
 
       return data;
     },
-    [activeMessId, allMesses]
+    [activeMessId, allMesses, isSuperAdmin]
   );
 
   const activeMess = allMesses.find((m) => (m._id || m.id) === activeMessId) || null;
@@ -130,5 +180,7 @@ export function useActiveMess() {
     deleteMess,
     refreshMesses,
     error,
+    isSuperAdmin,
+    currentUser,
   };
 }

@@ -82,27 +82,57 @@ const getDefaultThalis = () => [
 
 // @desc    Get all mess listings with search, cuisine filter, and city
 // @route   GET /api/mess?search=kothrud&cuisine=North Indian
-// @access  Public
+// @access  Public / Owner / Admin
 exports.getAllMesses = async (req, res) => {
   try {
-    const { search, cuisine, city, showAll } = req.query;
+    const { search, cuisine, city, showAll, ownerEmail, ownerUid } = req.query;
+    const adminKey = req.headers["x-admin-key"] || req.query.adminKey;
+    const isSuperAdmin = checkAdminKey(adminKey);
 
     let query = {};
-    if (showAll !== "true") {
+
+    // 1. Regular Mess Owner Scoped Query (strictly restrict to their assigned mess)
+    if ((ownerEmail || ownerUid) && !isSuperAdmin) {
+      const ownerConditions = [];
+      if (ownerEmail && ownerEmail.trim()) {
+        const cleanEmail = ownerEmail.toLowerCase().trim();
+        ownerConditions.push({ ownerEmail: cleanEmail });
+        ownerConditions.push({ allowedManagerEmails: cleanEmail });
+      }
+      if (ownerUid && ownerUid.trim()) {
+        ownerConditions.push({ ownerId: ownerUid.trim() });
+      }
+
+      if (ownerConditions.length > 0) {
+        query.$or = ownerConditions;
+      }
+    } else if (showAll !== "true" && !isSuperAdmin) {
+      // 2. Public Student Dining Portal (only verified and open messes)
       query.isOpen = true;
       query.$or = [
         { verificationStatus: "verified" },
         { isVerified: true },
       ];
     }
+    // 3. SuperAdmin universal view or unrestricted showAll: query has no owner restriction
 
     if (search && search.trim()) {
       const term = search.trim();
-      query.$or = [
+      const searchConditions = [
         { name: { $regex: term, $options: "i" } },
         { locality: { $regex: term, $options: "i" } },
         { cuisineType: { $regex: term, $options: "i" } },
       ];
+      if (query.$or) {
+        query = {
+          $and: [
+            { $or: query.$or },
+            { $or: searchConditions },
+          ],
+        };
+      } else {
+        query.$or = searchConditions;
+      }
     }
 
     if (cuisine && cuisine !== "All") {
@@ -130,6 +160,7 @@ exports.getAllMesses = async (req, res) => {
     return res.status(200).json({
       success: true,
       count: populated.length,
+      isSuperAdminView: isSuperAdmin,
       data: populated,
     });
   } catch (error) {
@@ -181,12 +212,192 @@ exports.getMessById = async (req, res) => {
   }
 };
 
-// @desc    Create a new mess listing
+// @desc    Auto-link / claim pre-created messes when owner signs up or logs in
+// @route   POST /api/mess/claim-by-email
+// @access  Public / Authenticated Owner
+exports.claimMessByEmail = async (req, res) => {
+  try {
+    const { email, uid } = req.body;
+    if (!email || !email.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Email address is required to link mess account.",
+      });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanUid = uid ? String(uid).trim() : "";
+
+    // Find all messes where ownerEmail or allowedManagerEmails matches cleanEmail
+    const matchingMesses = await Mess.find({
+      $or: [
+        { ownerEmail: cleanEmail },
+        { allowedManagerEmails: cleanEmail },
+      ],
+    });
+
+    if (!matchingMesses || matchingMesses.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No unlinked or pre-created mess found for this email address.",
+        claimedCount: 0,
+        data: [],
+      });
+    }
+
+    let claimedCount = 0;
+    const updatedMesses = [];
+
+    for (const mess of matchingMesses) {
+      let modified = false;
+
+      // If this user is the primary owner and ownerId is missing or needs updating
+      if (mess.ownerEmail === cleanEmail) {
+        if (!mess.ownerId && cleanUid) {
+          mess.ownerId = cleanUid;
+          modified = true;
+        }
+        if (!mess.isClaimed) {
+          mess.isClaimed = true;
+          mess.claimedAt = new Date();
+          mess.claimedByUid = cleanUid;
+          modified = true;
+        }
+      }
+
+      if (modified) {
+        await mess.save();
+        claimedCount++;
+      }
+      updatedMesses.push(mess);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Account linked to ${matchingMesses.length} mess outlet(s) successfully.`,
+      claimedCount,
+      data: updatedMesses,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error during mess account linking.",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Grant or update owner access permissions for a specific mess
+// @route   PUT /api/mess/:id/grant-access
+// @access  SuperAdmin Only
+exports.grantMessAccess = async (req, res) => {
+  try {
+    const adminKey = req.headers["x-admin-key"] || req.body.adminKey;
+    if (!checkAdminKey(adminKey)) {
+      return res.status(403).json({
+        success: false,
+        message: "Access Denied: SuperAdmin master passkey required to grant mess access.",
+      });
+    }
+
+    const mess = await Mess.findById(req.params.id);
+    if (!mess) {
+      return res.status(404).json({
+        success: false,
+        message: "Mess listing not found.",
+      });
+    }
+
+    const { ownerEmail, allowedManagerEmails } = req.body;
+
+    if (ownerEmail && ownerEmail.trim()) {
+      const cleanEmail = ownerEmail.toLowerCase().trim();
+      if (cleanEmail !== mess.ownerEmail) {
+        mess.ownerEmail = cleanEmail;
+        // Reset claim so the new owner can claim it upon login
+        mess.isClaimed = false;
+        mess.ownerId = "";
+        mess.claimedAt = null;
+        mess.claimedByUid = "";
+      }
+    }
+
+    if (Array.isArray(allowedManagerEmails)) {
+      mess.allowedManagerEmails = allowedManagerEmails
+        .map((e) => (typeof e === "string" ? e.toLowerCase().trim() : ""))
+        .filter(Boolean);
+    } else if (typeof allowedManagerEmails === "string") {
+      mess.allowedManagerEmails = allowedManagerEmails
+        .split(",")
+        .map((e) => e.toLowerCase().trim())
+        .filter(Boolean);
+    }
+
+    await mess.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Access permissions updated successfully! Assigned to ${mess.ownerEmail}.`,
+      data: mess,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error updating mess permissions.",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Create a new mess listing (SuperAdmin pre-creation or owner registration)
 // @route   POST /api/mess
-// @access  Public / Owner
+// @access  Public / Owner / SuperAdmin
 exports.createMess = async (req, res) => {
   try {
+    const adminKey = req.headers["x-admin-key"] || req.body.adminKey;
+    const isSuperAdmin = checkAdminKey(adminKey);
+
     const messData = { ...req.body };
+
+    // Standardize owner email (required for hybrid model)
+    if (messData.ownerEmail && typeof messData.ownerEmail === "string") {
+      messData.ownerEmail = messData.ownerEmail.toLowerCase().trim();
+    } else {
+      messData.ownerEmail = "owner@messta.com";
+    }
+
+    // Standardize additional manager emails
+    if (Array.isArray(messData.allowedManagerEmails)) {
+      messData.allowedManagerEmails = messData.allowedManagerEmails
+        .map((e) => (typeof e === "string" ? e.toLowerCase().trim() : ""))
+        .filter(Boolean);
+    } else if (typeof messData.allowedManagerEmails === "string") {
+      messData.allowedManagerEmails = messData.allowedManagerEmails
+        .split(",")
+        .map((e) => e.toLowerCase().trim())
+        .filter(Boolean);
+    } else {
+      messData.allowedManagerEmails = [];
+    }
+
+    if (isSuperAdmin) {
+      messData.isPreCreatedByAdmin = true;
+      messData.createdByRole = "superadmin";
+      // If UID was explicitly provided (e.g. existing user), link immediately; otherwise leave for auto-claim
+      if (messData.ownerId && messData.ownerId.trim()) {
+        messData.isClaimed = true;
+        messData.claimedAt = new Date();
+      } else {
+        messData.isClaimed = false;
+      }
+    } else {
+      // If created by regular owner
+      messData.isPreCreatedByAdmin = false;
+      messData.createdByRole = "owner";
+      messData.isClaimed = true;
+      messData.claimedAt = new Date();
+    }
+
     if (!messData.timeSlots) {
       messData.timeSlots = getDefaultTimeSlots();
     }
@@ -197,7 +408,9 @@ exports.createMess = async (req, res) => {
     const mess = await Mess.create(messData);
     return res.status(201).json({
       success: true,
-      message: "Mess created successfully.",
+      message: isSuperAdmin
+        ? `Mess "${mess.name}" pre-created successfully and access granted to ${mess.ownerEmail}.`
+        : "Mess created successfully.",
       data: mess,
     });
   } catch (error) {

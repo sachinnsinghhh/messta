@@ -38,7 +38,14 @@ const messSchema = new mongoose.Schema(
     },
     seatingCapacity: { type: Number, default: 40, min: 0 },
     isOpen: { type: Boolean, default: true },
-    ownerEmail: { type: String, default: "owner@messta.com", index: true },
+    ownerEmail: { type: String, default: "owner@messta.com", lowercase: true, trim: true, index: true },
+    ownerId: { type: String, default: "", index: true },
+    allowedManagerEmails: [{ type: String, lowercase: true, trim: true }],
+    isPreCreatedByAdmin: { type: Boolean, default: false, index: true },
+    isClaimed: { type: Boolean, default: false, index: true },
+    claimedAt: { type: Date, default: null },
+    claimedByUid: { type: String, default: "" },
+    createdByRole: { type: String, enum: ["superadmin", "owner"], default: "superadmin" },
     pricePerMeal: { type: Number, default: 80, min: 0 },
 
     todayMenu: {

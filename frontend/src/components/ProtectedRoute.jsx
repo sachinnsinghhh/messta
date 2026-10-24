@@ -29,9 +29,9 @@ export default function ProtectedRoute({
     return <Navigate to={activeRole === "owner" ? "/owner" : "/"} replace />;
   }
 
-  // If page requires owner privileges but user is not owner
-  if (requireOwner && activeRole !== "owner") {
-    return <Navigate to={activeRole === "admin" ? "/admin/verifications" : "/"} replace />;
+  // If page requires owner privileges but user is neither owner nor admin (SuperAdmin has universal owner portal access)
+  if (requireOwner && activeRole !== "owner" && activeRole !== "admin") {
+    return <Navigate to="/" replace />;
   }
 
   // If page requires student privileges but user is an owner or admin

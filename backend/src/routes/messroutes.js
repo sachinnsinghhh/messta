@@ -6,6 +6,8 @@ const {
   createMess,
   updateMess,
   deleteMess,
+  claimMessByEmail,
+  grantMessAccess,
   updateTimeSlots,
   publishThali,
   deleteThali,
@@ -21,8 +23,15 @@ const {
 // Admin Verification Queue (Must precede :id)
 router.get("/admin/verifications", getVerificationQueue);
 
+// Hybrid Access: Auto-claim mess by owner email (Must precede :id)
+router.post("/claim-by-email", claimMessByEmail);
+
 // Base mess routes
 router.route("/").get(getAllMesses).post(createMess);
+
+// Grant/update mess owner permission
+router.put("/:id/grant-access", grantMessAccess);
+
 router.route("/:id").get(getMessById).put(updateMess).delete(deleteMess);
 
 // Advance Slot Booking Cut-Off Engine & Kitchen Headcount Report

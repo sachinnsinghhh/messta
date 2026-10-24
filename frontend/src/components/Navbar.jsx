@@ -74,7 +74,7 @@ export default function Navbar() {
                     }`}
                   >
                     <span>📊</span>
-                    <span>Financial Command Center</span>
+                    <span>Financial Command</span>
                   </Link>
                   <Link
                     to="/admin/verifications"
@@ -86,6 +86,17 @@ export default function Navbar() {
                   >
                     <span>🛡️</span>
                     <span>FSSAI Queue</span>
+                  </Link>
+                  <Link
+                    to="/owner"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                      isActive("/owner") || location.pathname.startsWith("/owner/")
+                        ? "bg-amber-600 text-white shadow-xs font-bold"
+                        : "text-gray-700 hover:text-amber-800 hover:bg-amber-50"
+                    }`}
+                  >
+                    <span>🏪</span>
+                    <span>Mess Owner Studio</span>
                   </Link>
                   <Link
                     to="/mess"
@@ -262,6 +273,13 @@ export default function Navbar() {
                 className="text-sm font-semibold text-gray-700 py-1.5 flex items-center gap-2"
               >
                 <span>🛡️</span> FSSAI Inspection Queue
+              </Link>
+              <Link
+                to="/owner"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-semibold text-amber-800 py-1.5 flex items-center gap-2"
+              >
+                <span>🏪</span> Mess Owner Studio
               </Link>
               <Link
                 to="/mess"
