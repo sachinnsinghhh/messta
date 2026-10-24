@@ -8,7 +8,13 @@ export default function Login() {
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user"); // "user" (Student), "owner" (Mess Partner), or "admin" (SuperAdmin)
+  // Track portal type: "user" (Student) or "mess" (Mess Operations)
+  const [portalType, setPortalType] = useState("mess"); 
+  // Track mess portal sub-role: "owner" (Normal Mess Owner) or "admin" (SuperAdmin Master Login)
+  const [messMode, setMessMode] = useState("owner");
+
+  const role = portalType === "user" ? "user" : messMode;
+
   const [adminPasskey, setAdminPasskey] = useState("");
   const [showAdminPasskey, setShowAdminPasskey] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -21,9 +27,7 @@ export default function Login() {
   // If already logged in, redirect directly to their respective framework
   useEffect(() => {
     if (currentUser) {
-      if (activeRole === "admin") {
-        navigate("/admin/finance", { replace: true });
-      } else if (activeRole === "owner") {
+      if (activeRole === "admin" || activeRole === "owner") {
         navigate("/owner", { replace: true });
       } else {
         navigate("/", { replace: true });
@@ -58,9 +62,7 @@ export default function Login() {
       }
 
       // Direct to respective framework immediately
-      if (role === "admin") {
-        navigate("/admin/finance", { replace: true });
-      } else if (role === "owner") {
+      if (role === "admin" || role === "owner") {
         navigate("/owner", { replace: true });
       } else {
         navigate("/", { replace: true });
@@ -101,9 +103,7 @@ export default function Login() {
 
     try {
       await loginWithGoogle(role);
-      if (role === "admin") {
-        navigate("/admin/finance", { replace: true });
-      } else if (role === "owner") {
+      if (role === "admin" || role === "owner") {
         navigate("/owner", { replace: true });
       } else {
         navigate("/", { replace: true });
@@ -138,120 +138,150 @@ export default function Login() {
           </p>
         </div>
 
-        {/* ── STEP 1: PORTAL SELECTION (Student vs. Mess Partner vs. SuperAdmin) ── */}
+        {/* ── STEP 1: PORTAL SELECTION (Student vs. Mess Operations) ── */}
         <div className="space-y-3">
           <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400 text-center">
-            Select Your Account Type
+            Select Your Operating Portal
           </label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => setRole("user")}
-              className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                role === "user"
-                  ? "border-orange-500 bg-orange-50/60 ring-2 ring-orange-500/20 shadow-xs"
+              onClick={() => setPortalType("user")}
+              className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                portalType === "user"
+                  ? "border-orange-500 bg-orange-50/70 ring-2 ring-orange-500/20 shadow-xs"
                   : "border-gray-200 bg-gray-50/70 hover:border-gray-300 text-gray-600"
               }`}
             >
-              <div className="flex items-center justify-between w-full mb-1">
-                <span className="text-xl">🎓</span>
-                {role === "user" && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-600"></span>
+              <div className="flex items-center justify-between w-full mb-1.5">
+                <span className="text-2xl">🎓</span>
+                {portalType === "user" && (
+                  <span className="w-2 h-2 rounded-full bg-orange-600"></span>
                 )}
               </div>
               <div>
-                <span className="font-black text-xs text-gray-900 block">Student</span>
-                <span className="text-[9px] text-gray-500 leading-tight block">
-                  Passes & Dining
+                <span className="font-black text-xs text-gray-900 block">Student Dining Portal</span>
+                <span className="text-[10px] text-gray-500 leading-tight block">
+                  Find messes & daily QR meal passes
                 </span>
               </div>
             </button>
 
             <button
               type="button"
-              onClick={() => setRole("owner")}
-              className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                role === "owner"
+              onClick={() => setPortalType("mess")}
+              className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                portalType === "mess"
                   ? "border-amber-600 bg-amber-50/80 ring-2 ring-amber-500/20 shadow-xs"
                   : "border-gray-200 bg-gray-50/70 hover:border-gray-300 text-gray-600"
               }`}
             >
-              <div className="flex items-center justify-between w-full mb-1">
-                <span className="text-xl">🏢</span>
-                {role === "owner" && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+              <div className="flex items-center justify-between w-full mb-1.5">
+                <span className="text-2xl">🏢</span>
+                {portalType === "mess" && (
+                  <span className="w-2 h-2 rounded-full bg-amber-600"></span>
                 )}
               </div>
               <div>
-                <span className="font-black text-xs text-gray-900 block">Mess Owner</span>
-                <span className="text-[9px] text-gray-500 leading-tight block">
-                  Kitchen & CRM
-                </span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setRole("admin")}
-              className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                role === "admin"
-                  ? "border-purple-600 bg-purple-50/90 ring-2 ring-purple-500/20 shadow-xs"
-                  : "border-gray-200 bg-gray-50/70 hover:border-gray-300 text-gray-600"
-              }`}
-            >
-              <div className="flex items-center justify-between w-full mb-1">
-                <span className="text-xl">🛡️</span>
-                {role === "admin" && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-                )}
-              </div>
-              <div>
-                <span className="font-black text-xs text-gray-900 block">SuperAdmin</span>
-                <span className="text-[9px] text-gray-500 leading-tight block">
-                  Trust & Safety
+                <span className="font-black text-xs text-gray-900 block">Mess Operations Portal</span>
+                <span className="text-[10px] text-gray-500 leading-tight block">
+                  Kitchen, Thalis & Counter Desk
                 </span>
               </div>
             </button>
           </div>
 
-          {/* SuperAdmin Passkey Security Gate */}
-          {role === "admin" && (
-            <div className="bg-purple-50/80 border border-purple-200/90 rounded-2xl p-3.5 space-y-2 text-xs animate-in fade-in duration-200">
+          {/* ── MESS PORTAL DUAL-PURPOSE ROLE SELECTOR (Normal Owner vs. SuperAdmin) ── */}
+          {portalType === "mess" && (
+            <div className="bg-amber-50/70 border border-amber-200/90 rounded-2xl p-3.5 space-y-3 animate-in fade-in duration-200">
               <div className="flex items-center justify-between">
-                <span className="font-black text-purple-950 flex items-center gap-1.5 text-[11px]">
-                  <span>🔐</span> Master Security Passkey
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-950 flex items-center gap-1">
+                  <span>⚙️</span>
+                  <span>Mess Portal Identity</span>
+                </span>
+                <span className="text-[10px] font-bold text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full">
+                  {messMode === "owner" ? "Normal Owner Mode" : "SuperAdmin Mode"}
                 </span>
               </div>
-              <div className="relative">
-                <input
-                  type={showAdminPasskey ? "text" : "password"}
-                  value={adminPasskey}
-                  onChange={(e) => setAdminPasskey(e.target.value)}
-                  placeholder="Enter Platform Master Security Passkey..."
-                  className="w-full p-2.5 pr-10 text-xs bg-white border border-purple-300 rounded-xl focus:ring-2 focus:ring-purple-500 font-mono text-purple-900"
-                />
+
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowAdminPasskey(!showAdminPasskey)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-purple-600 hover:text-purple-900 p-1 cursor-pointer transition"
-                  title={showAdminPasskey ? "Hide security key" : "Show security key"}
-                  aria-label={showAdminPasskey ? "Hide security key" : "Show security key"}
+                  onClick={() => setMessMode("owner")}
+                  className={`p-2.5 rounded-xl border text-left transition-all ${
+                    messMode === "owner"
+                      ? "bg-white border-amber-600 ring-2 ring-amber-500/20 text-gray-900 shadow-xs font-bold"
+                      : "bg-white/60 border-amber-200 text-gray-600 hover:bg-white"
+                  }`}
                 >
-                  {showAdminPasskey ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  )}
+                  <div className="flex items-center gap-1.5 text-xs text-gray-900 font-extrabold">
+                    <span>🏢</span>
+                    <span>Normal Mess Owner</span>
+                  </div>
+                  <p className="text-[10px] text-gray-500 mt-0.5 font-normal leading-snug">
+                    Self-serve: manage your mess or register a new one.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMessMode("admin")}
+                  className={`p-2.5 rounded-xl border text-left transition-all ${
+                    messMode === "admin"
+                      ? "bg-white border-purple-600 ring-2 ring-purple-500/20 text-purple-950 shadow-xs font-bold"
+                      : "bg-white/60 border-purple-200 text-gray-600 hover:bg-white"
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 text-xs text-purple-950 font-extrabold">
+                    <span>🛡️</span>
+                    <span>SuperAdmin Login</span>
+                  </div>
+                  <p className="text-[10px] text-gray-500 mt-0.5 font-normal leading-snug">
+                    Universal studio + grant access to any email.
+                  </p>
                 </button>
               </div>
-              <p className="text-[10px] text-purple-700 leading-snug">
-                Restricted access for authorized Messta SuperAdmin personnel only.
-              </p>
+
+              {/* SuperAdmin Passkey Security Gate */}
+              {messMode === "admin" && (
+                <div className="bg-purple-50 border border-purple-200/90 rounded-xl p-3 space-y-2 text-xs animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between">
+                    <span className="font-black text-purple-950 flex items-center gap-1.5 text-[11px]">
+                      <span>🔐</span> SuperAdmin Master Security Passkey
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showAdminPasskey ? "text" : "password"}
+                      value={adminPasskey}
+                      onChange={(e) => setAdminPasskey(e.target.value)}
+                      placeholder="Enter SuperAdmin Master Passkey..."
+                      className="w-full p-2.5 pr-10 text-xs bg-white border border-purple-300 rounded-xl focus:ring-2 focus:ring-purple-500 font-mono text-purple-900"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminPasskey(!showAdminPasskey)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-purple-600 hover:text-purple-900 p-1 cursor-pointer transition"
+                      title={showAdminPasskey ? "Hide security key" : "Show security key"}
+                      aria-label={showAdminPasskey ? "Hide security key" : "Show security key"}
+                    >
+                      {showAdminPasskey ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-purple-700 leading-snug">
+                    Enter master passkey to unlock the universal outlet switcher and the permission-granting tool.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

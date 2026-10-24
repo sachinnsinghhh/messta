@@ -281,7 +281,7 @@ export default function OwnerDashboard() {
     }
   };
 
-  // Handle Register New Mess Outlet & Pre-Grant Access (SuperAdmin Exclusive)
+  // Handle Register New Mess Outlet & Pre-Grant Access (SuperAdmin or Normal Owner)
   const handleCreateMess = async (e) => {
     e.preventDefault();
     if (!newMessName.trim() || !newLocality.trim()) return;
@@ -308,6 +308,7 @@ export default function OwnerDashboard() {
           seatingCapacity: Number(newCapacity),
           pricePerMeal: Number(newPricePerMeal || 80),
           ownerEmail: isSuperAdmin ? newOwnerEmail.trim() : (currentUser?.email || "owner@messta.com"),
+          ownerId: isSuperAdmin ? "" : (currentUser?.uid || ""),
           allowedManagerEmails: isSuperAdmin ? newManagerEmails : [],
           isOpen: true,
         }),
@@ -328,7 +329,7 @@ export default function OwnerDashboard() {
         setStatusMessage({
           text: isSuperAdmin
             ? `New mess "${data.data?.name}" created and access pre-granted to ${data.data?.ownerEmail}! 🚀`
-            : "New outlet branch registered successfully!",
+            : `Mess "${data.data?.name}" registered successfully under your account! 🚀`,
           type: "success",
         });
       } else {
@@ -687,8 +688,8 @@ export default function OwnerDashboard() {
             </span>
           </div>
 
-          {/* SuperAdmin Exclusive: Add New Mess & Grant Owner Access */}
-          {isSuperAdmin && (
+          {/* Add Mess / Provisioning Action (Available to both Normal Owner and SuperAdmin) */}
+          {isSuperAdmin ? (
             <button
               type="button"
               onClick={() => setShowAddMess(!showAddMess)}
@@ -698,9 +699,19 @@ export default function OwnerDashboard() {
               <span>+</span>
               <span>Add Mess & Grant Access</span>
             </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowAddMess(!showAddMess)}
+              className="px-4 py-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-transform active:scale-95 flex items-center gap-1.5 border border-orange-500/30"
+              title="Register a new mess branch under your account"
+            >
+              <span>+</span>
+              <span>Register New Mess</span>
+            </button>
           )}
 
-          {isSuperAdmin && activeMess && (
+          {activeMess && (
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
@@ -737,35 +748,52 @@ export default function OwnerDashboard() {
         </div>
       )}
 
-      {/* ── ZERO STATE: NO OUTLET ASSIGNED TO REGULAR OWNER ── */}
+      {/* ── ZERO STATE: NO OUTLET REGISTERED / ASSIGNED YET ── */}
       {!loadingMesses && allMesses.length === 0 && (
-        <div className="bg-white rounded-3xl p-8 sm:p-12 text-center border border-amber-200 shadow-sm max-w-xl mx-auto space-y-4">
-          <div className="w-16 h-16 rounded-3xl bg-amber-100 text-amber-700 flex items-center justify-center text-3xl mx-auto">
+        <div className="bg-white rounded-3xl p-8 sm:p-12 text-center border border-amber-200 shadow-sm max-w-xl mx-auto space-y-5 animate-in fade-in duration-200">
+          <div className="w-16 h-16 rounded-3xl bg-amber-100 text-amber-700 flex items-center justify-center text-3xl mx-auto shadow-2xs">
             🏪
           </div>
-          <h2 className="text-xl font-black text-gray-900 tracking-tight">
-            Welcome to Messta Partner Portal
-          </h2>
-          <p className="text-xs text-gray-600">
-            Logged in as <strong className="text-gray-900">{currentUser?.email}</strong>
-          </p>
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-900 text-left space-y-2">
-            <div className="flex items-center gap-2 font-bold text-amber-950">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-              <span>Mess Outlet Provisioning in Progress</span>
-            </div>
-            <p>
-              Your mess outlet is being assigned to your email address by the platform SuperAdmin. Once linked, your full operations console (Thali Matrix, live bookings, QR counter, and finances) will activate here immediately.
-            </p>
-            <p className="text-[11px] text-amber-800">
-              Need immediate assistance? Contact platform support: <span className="font-mono font-bold">admin@messta.com</span>
+          <div className="space-y-1">
+            <h2 className="text-xl font-black text-gray-900 tracking-tight">
+              Welcome to Messta Partner Portal
+            </h2>
+            <p className="text-xs text-gray-600">
+              Operating account: <strong className="text-gray-900">{currentUser?.email}</strong>
             </p>
           </div>
-          <div className="pt-2">
+
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-950 text-left space-y-2">
+            <div className="flex items-center gap-2 font-bold text-amber-900">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              <span>No Active Mess Outlets Found</span>
+            </div>
+            <p className="leading-relaxed">
+              You can get started in two flexible ways:
+            </p>
+            <div className="space-y-1.5 pl-2 text-[11px] text-amber-900 font-medium">
+              <p>
+                <strong>1. Self-Registration (Instant):</strong> Click &ldquo;Register My Mess Outlet&rdquo; below to set up your canteen branch and start publishing daily thalis right now.
+              </p>
+              <p>
+                <strong>2. SuperAdmin Pre-Creation:</strong> If the platform SuperAdmin has pre-provisioned your mess, it will link to your account automatically upon creation.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => setShowAddMess(true)}
+              className="px-6 py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs flex items-center gap-2 active:scale-95"
+            >
+              <span>+</span>
+              <span>Register My Mess Outlet 🚀</span>
+            </button>
             <button
               type="button"
               onClick={refreshMesses}
-              className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition shadow-xs"
+              className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs uppercase tracking-wider rounded-xl transition active:scale-95"
             >
               🔄 Refresh Outlets
             </button>
@@ -901,19 +929,37 @@ export default function OwnerDashboard() {
         </>
       )}
 
-      {/* ── COLLAPSIBLE: SUPERADMIN PRE-CREATE MESS & GRANT OWNER ACCESS ── */}
-      {isSuperAdmin && showAddMess && (
-        <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100/60 rounded-3xl p-6 sm:p-8 border border-purple-200 shadow-md space-y-5 animate-in fade-in slide-in-from-top-4 duration-300">
+      {/* ── COLLAPSIBLE: REGISTER NEW MESS (NORMAL OWNER OR SUPERADMIN PROVISIONING) ── */}
+      {showAddMess && (
+        <div
+          className={`rounded-3xl p-6 sm:p-8 border shadow-md space-y-5 animate-in fade-in slide-in-from-top-4 duration-300 ${
+            isSuperAdmin
+              ? "bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100/60 border-purple-200"
+              : "bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100/60 border-orange-200"
+          }`}
+        >
           <div className="flex justify-between items-start">
             <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 bg-purple-200/80 px-2.5 py-0.5 rounded-full border border-purple-300">
-                🛡️ SuperAdmin Access Provisioning Engine
+              <span
+                className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
+                  isSuperAdmin
+                    ? "text-purple-700 bg-purple-200/80 border-purple-300"
+                    : "text-amber-800 bg-amber-200/80 border-amber-300"
+                }`}
+              >
+                {isSuperAdmin
+                  ? "🛡️ SuperAdmin Access Provisioning Engine"
+                  : "🏢 Mess Outlet Self-Registration"}
               </span>
               <h2 className="text-lg font-black text-gray-900 tracking-tight">
-                Pre-Create Mess Outlet & Grant Owner Access
+                {isSuperAdmin
+                  ? "Pre-Create Mess Outlet & Grant Owner Access"
+                  : "Register Your New Mess Outlet"}
               </h2>
               <p className="text-xs text-gray-600 max-w-2xl">
-                Set up a new mess outlet and assign management permissions to a specific partner email. When that mess partner signs up or logs into Messta using their email or Google account, their account will automatically and securely link to this outlet.
+                {isSuperAdmin
+                  ? "Set up a new mess outlet and assign management permissions to a partner email. When that partner logs into Messta using their email or Google account, the outlet will automatically link to them."
+                  : `Launch a new mess or campus canteen branch directly under your account (${currentUser?.email || "you"}). You can immediately publish thalis, slot bookings, and manage kitchen prep.`}
               </p>
             </div>
             <button
@@ -934,7 +980,11 @@ export default function OwnerDashboard() {
                 placeholder="e.g. Annapurna Dining Hall"
                 value={newMessName}
                 onChange={(e) => setNewMessName(e.target.value)}
-                className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                className={`w-full p-2.5 text-xs bg-white border rounded-xl font-semibold ${
+                  isSuperAdmin
+                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
+                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
+                }`}
               />
             </div>
 
@@ -946,7 +996,11 @@ export default function OwnerDashboard() {
                 placeholder="e.g. FC Road / Kothrud, Pune"
                 value={newLocality}
                 onChange={(e) => setNewLocality(e.target.value)}
-                className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                className={`w-full p-2.5 text-xs bg-white border rounded-xl font-semibold ${
+                  isSuperAdmin
+                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
+                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
+                }`}
               />
             </div>
 
@@ -955,7 +1009,11 @@ export default function OwnerDashboard() {
               <select
                 value={newCuisineType}
                 onChange={(e) => setNewCuisineType(e.target.value)}
-                className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 font-semibold"
+                className={`w-full p-2.5 text-xs bg-white border rounded-xl font-semibold ${
+                  isSuperAdmin
+                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
+                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
+                }`}
               >
                 <option value="North Indian">North Indian</option>
                 <option value="South Indian">South Indian</option>
@@ -972,43 +1030,59 @@ export default function OwnerDashboard() {
                 placeholder="+91 98765 43210"
                 value={newPhone}
                 onChange={(e) => setNewPhone(e.target.value)}
-                className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500"
+                className={`w-full p-2.5 text-xs bg-white border rounded-xl ${
+                  isSuperAdmin
+                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
+                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
+                }`}
               />
             </div>
 
-            <div className="lg:col-span-3">
-              <label className="block text-[11px] font-extrabold uppercase text-purple-900 mb-1 flex items-center gap-1.5">
-                <span>🔑</span>
-                <span>Grant Owner Access To Email Address *</span>
-              </label>
-              <input
-                type="email"
-                required
-                placeholder="messowner@gmail.com"
-                value={newOwnerEmail}
-                onChange={(e) => setNewOwnerEmail(e.target.value)}
-                className="w-full p-2.5 text-xs bg-white border-2 border-purple-400 rounded-xl focus:ring-2 focus:ring-purple-600 font-bold text-purple-950 placeholder-purple-300"
-              />
-              <p className="text-[10px] text-purple-700 mt-1 font-medium">
-                The partner can freely sign up or log in using this email or Google account. The system will auto-link this outlet.
-              </p>
-            </div>
+            {/* SuperAdmin Specific: Grant Owner Access to specific email */}
+            {isSuperAdmin ? (
+              <>
+                <div className="lg:col-span-3">
+                  <label className="block text-[11px] font-extrabold uppercase text-purple-900 mb-1 flex items-center gap-1.5">
+                    <span>🔑</span>
+                    <span>Grant Owner Access To Email Address *</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="messowner@gmail.com"
+                    value={newOwnerEmail}
+                    onChange={(e) => setNewOwnerEmail(e.target.value)}
+                    className="w-full p-2.5 text-xs bg-white border-2 border-purple-400 rounded-xl focus:ring-2 focus:ring-purple-600 font-bold text-purple-950 placeholder-purple-300"
+                  />
+                  <p className="text-[10px] text-purple-700 mt-1 font-medium">
+                    The partner can freely sign up or log in using this email or Google account. The system will auto-link this outlet.
+                  </p>
+                </div>
 
-            <div className="lg:col-span-3">
-              <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">
-                Additional Manager Emails (Optional)
-              </label>
-              <input
-                type="text"
-                placeholder="manager1@gmail.com, staff@gmail.com"
-                value={newManagerEmails}
-                onChange={(e) => setNewManagerEmails(e.target.value)}
-                className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500"
-              />
-              <p className="text-[10px] text-gray-500 mt-1">
-                Comma-separated secondary emails also permitted to manage this outlet.
-              </p>
-            </div>
+                <div className="lg:col-span-3">
+                  <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">
+                    Additional Manager Emails (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="manager1@gmail.com, staff@gmail.com"
+                    value={newManagerEmails}
+                    onChange={(e) => setNewManagerEmails(e.target.value)}
+                    className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-1">
+                    Comma-separated secondary emails also permitted to manage this outlet.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="lg:col-span-4 bg-orange-100/70 border border-orange-200 rounded-xl p-3 flex items-center gap-2 text-xs text-orange-950 font-medium">
+                <span>ℹ️</span>
+                <span>
+                  This outlet will be registered under your verified email: <strong className="font-bold">{currentUser?.email}</strong>.
+                </span>
+              </div>
+            )}
 
             <div>
               <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">Seating Capacity</label>
@@ -1018,7 +1092,11 @@ export default function OwnerDashboard() {
                 max="500"
                 value={newCapacity}
                 onChange={(e) => setNewCapacity(e.target.value)}
-                className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500"
+                className={`w-full p-2.5 text-xs bg-white border rounded-xl ${
+                  isSuperAdmin
+                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
+                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
+                }`}
               />
             </div>
 
@@ -1030,17 +1108,31 @@ export default function OwnerDashboard() {
                 max="500"
                 value={newPricePerMeal}
                 onChange={(e) => setNewPricePerMeal(e.target.value)}
-                className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500"
+                className={`w-full p-2.5 text-xs bg-white border rounded-xl ${
+                  isSuperAdmin
+                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
+                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
+                }`}
               />
             </div>
 
-            <div className="sm:col-span-2 lg:col-span-4 flex items-end justify-end pt-2">
+            <div className={`flex items-end justify-end pt-2 ${isSuperAdmin ? "sm:col-span-2 lg:col-span-4" : "sm:col-span-2 lg:col-span-6"}`}>
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="px-6 py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs disabled:opacity-50 flex items-center gap-2"
+                className={`px-6 py-2.5 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs disabled:opacity-50 flex items-center gap-2 ${
+                  isSuperAdmin
+                    ? "bg-purple-700 hover:bg-purple-800"
+                    : "bg-orange-600 hover:bg-orange-700"
+                }`}
               >
-                <span>{actionLoading ? "Provisioning..." : "Provision Mess & Grant Access 🚀"}</span>
+                <span>
+                  {actionLoading
+                    ? "Processing..."
+                    : isSuperAdmin
+                    ? "Provision Mess & Grant Access 🚀"
+                    : "Launch Mess Branch 🚀"}
+                </span>
               </button>
             </div>
           </form>
