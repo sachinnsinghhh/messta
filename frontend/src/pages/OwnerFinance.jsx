@@ -247,7 +247,6 @@ export default function OwnerFinance() {
         netAmount: summary.staffPayrollExpense,
         paymentMode: "bank_neft",
         transactionDate: `${selectedMonth}-01`,
-        actionLink: "/owner/staff",
       });
     }
 
@@ -263,7 +262,6 @@ export default function OwnerFinance() {
         netAmount: summary.inventoryProcurementExpense,
         paymentMode: "cash",
         transactionDate: `${selectedMonth}-01`,
-        actionLink: "/owner/inventory",
       });
     }
 
@@ -751,9 +749,6 @@ export default function OwnerFinance() {
                     <span className="text-xs font-black text-purple-950 font-mono block">
                       ₹{(summary?.staffPayrollExpense || 0).toLocaleString()}
                     </span>
-                    <Link to="/owner/staff" className="text-[10px] font-bold text-orange-600 hover:underline">
-                      View Staff ➔
-                    </Link>
                   </div>
                 </div>
 
@@ -777,9 +772,6 @@ export default function OwnerFinance() {
                     <span className="text-xs font-black text-emerald-950 font-mono block">
                       ₹{(summary?.inventoryProcurementExpense || 0).toLocaleString()}
                     </span>
-                    <Link to="/owner/inventory" className="text-[10px] font-bold text-orange-600 hover:underline">
-                      View Stock ➔
-                    </Link>
                   </div>
                 </div>
 
@@ -1042,12 +1034,18 @@ export default function OwnerFinance() {
                         </td>
                         <td className="py-3 px-4 text-center">
                           {item.isAuto ? (
-                            <Link
-                              to={item.actionLink}
-                              className="px-2 py-1 bg-gray-100 hover:bg-orange-100 text-orange-700 text-[10px] font-bold rounded-lg transition"
-                            >
-                              Manage ➔
-                            </Link>
+                            item.actionLink ? (
+                              <Link
+                                to={item.actionLink}
+                                className="px-2 py-1 bg-gray-100 hover:bg-orange-100 text-orange-700 text-[10px] font-bold rounded-lg transition"
+                              >
+                                Manage ➔
+                              </Link>
+                            ) : (
+                              <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-bold rounded">
+                                Auto
+                              </span>
+                            )
                           ) : (
                             <button
                               type="button"

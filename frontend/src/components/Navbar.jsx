@@ -91,22 +91,6 @@ export default function Navbar() {
                     Plans & Subscriber CRM
                   </Link>
                   <Link
-                    to="/owner/inventory"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                      isActive("/owner/inventory") ? "bg-amber-50 text-amber-700 font-bold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
-                  >
-                    Inventory & Kitchen
-                  </Link>
-                  <Link
-                    to="/owner/staff"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                      isActive("/owner/staff") ? "bg-amber-50 text-amber-700 font-bold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
-                  >
-                    Staff & Shifts
-                  </Link>
-                  <Link
                     to="/owner/finance"
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                       isActive("/owner/finance") ? "bg-amber-50 text-amber-700 font-bold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -293,20 +277,6 @@ export default function Navbar() {
                 className="text-sm font-bold text-orange-600 py-1.5"
               >
                 Plans & Subscriber CRM
-              </Link>
-              <Link
-                to="/owner/inventory"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-semibold text-gray-700 py-1.5"
-              >
-                Inventory & Kitchen OS
-              </Link>
-              <Link
-                to="/owner/staff"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-semibold text-gray-700 py-1.5"
-              >
-                Staff & Shift Roster
               </Link>
               <Link
                 to="/owner/finance"

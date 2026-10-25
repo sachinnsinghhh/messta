@@ -1237,13 +1237,6 @@ export default function OwnerDashboard() {
                   </select>
                 </div>
               </div>
-
-              <Link
-                to="/owner/staff"
-                className="px-2.5 py-1 bg-white hover:bg-orange-100 text-orange-700 font-extrabold text-[10px] uppercase rounded-lg border border-orange-200 transition shrink-0 shadow-2xs"
-              >
-                Staff Roster →
-              </Link>
             </div>
 
             {/* Camera Viewport or Open Camera CTA */}
