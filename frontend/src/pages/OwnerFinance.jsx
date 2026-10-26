@@ -4,15 +4,15 @@ import { Link } from "react-router-dom";
 import { useActiveMess } from "../context/useActiveMess";
 
 const EXPENSE_CATEGORIES = [
-  { key: "lpg_gas", label: "⛽ Commercial LPG Gas", color: "bg-red-50 text-red-700 border-red-200" },
-  { key: "electricity", label: "⚡ Electricity & Power", color: "bg-yellow-50 text-yellow-800 border-yellow-200" },
-  { key: "rent", label: "🏬 Mess Hall Rent", color: "bg-blue-50 text-blue-700 border-blue-200" },
-  { key: "inventory_purchase", label: "🥦 Vegetables & Kitchen Rations", color: "bg-emerald-50 text-emerald-800 border-emerald-200" },
-  { key: "staff_payroll", label: "👥 Staff Payroll & Wages", color: "bg-purple-50 text-purple-700 border-purple-200" },
-  { key: "kitchen_maintenance", label: "🔧 Equipment & Burner Repair", color: "bg-orange-50 text-orange-700 border-orange-200" },
-  { key: "water_supply", label: "💧 Water Tanker & RO Service", color: "bg-cyan-50 text-cyan-700 border-cyan-200" },
-  { key: "packaging_disposables", label: "📦 Takeaway Boxes & Disposables", color: "bg-amber-50 text-amber-700 border-amber-200" },
-  { key: "misc_overhead", label: "📑 General / Misc Overhead", color: "bg-gray-100 text-gray-700 border-gray-200" },
+  { key: "lpg_gas", label: "Commercial LPG Gas", color: "bg-stone-50 text-stone-700 border-stone-200" },
+  { key: "electricity", label: "Electricity & Power", color: "bg-stone-50 text-stone-700 border-stone-200" },
+  { key: "rent", label: "Mess Premises Rent", color: "bg-stone-50 text-stone-700 border-stone-200" },
+  { key: "inventory_purchase", label: "Vegetables & Kitchen Rations", color: "bg-stone-50 text-stone-700 border-stone-200" },
+  { key: "staff_payroll", label: "Staff Payroll & Wages", color: "bg-stone-50 text-stone-700 border-stone-200" },
+  { key: "kitchen_maintenance", label: "Equipment & Burner Repair", color: "bg-stone-50 text-stone-700 border-stone-200" },
+  { key: "water_supply", label: "Water Tanker & RO Service", color: "bg-stone-50 text-stone-700 border-stone-200" },
+  { key: "packaging_disposables", label: "Takeaway Boxes & Disposables", color: "bg-stone-50 text-stone-700 border-stone-200" },
+  { key: "misc_overhead", label: "General & Miscellaneous Overhead", color: "bg-stone-50 text-stone-700 border-stone-200" },
 ];
 
 export default function OwnerFinance() {
@@ -240,7 +240,7 @@ export default function OwnerFinance() {
       list.push({
         _id: "auto_staff_payroll",
         isAuto: true,
-        sourceLabel: "⚡ Auto-Synced: Staff Module",
+        sourceLabel: "Staff Records",
         category: "staff_payroll",
         title: `Staff Payroll & Wages (${evalPeriod === "month" ? "Monthly Total" : "Yearly Total"})`,
         description: `${summary?.staffCount || 4} Active Personnel (${summary?.monthlyStaffCount || 0} Monthly Fixed + ${summary?.dailyWageStaffCount || 0} Daily Wage Helpers)`,
@@ -255,7 +255,7 @@ export default function OwnerFinance() {
       list.push({
         _id: "auto_inventory_procurement",
         isAuto: true,
-        sourceLabel: "⚡ Auto-Synced: Stock Master",
+        sourceLabel: "Inventory Records",
         category: "inventory_purchase",
         title: `Kitchen Inventory & Rations (${evalPeriod === "month" ? "Monthly Total" : "Yearly Total"})`,
         description: `${summary?.inventoryRestockCount || 6} Mandi & Grocery Restock Purchases Accounted`,
@@ -312,32 +312,32 @@ export default function OwnerFinance() {
   }, [dailyLog, dailyLogSearch]);
 
   return (
-    <div className="min-h-screen bg-gray-50/70 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-200">
+    <div className="min-h-screen bg-stone-50/60 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-150">
       
       {/* ── TOP HEADER & EVALUATION TIME CONTROLLER ── */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-600">
-              Commercial Financial Ledger • {activeMess?.name || "Active Mess Outlet"}
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wide">
+              {activeMess?.name || "Active Mess"} • Commercial Ledger
             </span>
             {loading && (
-              <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md animate-pulse">
-                Syncing...
+              <span className="text-[10px] font-medium text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md">
+                Updating...
               </span>
             )}
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
-            Finance & Profitability Management
+          <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+            Finances & Cash Flow
           </h1>
-          <p className="text-xs text-gray-500 max-w-2xl">
-            Unified monthly and yearly financial evaluation. Auto-synchronizes staff wages from Staff attendance, kitchen ration procurement from Stock Master, and live subscription vs per-plate earnings.
+          <p className="text-xs text-stone-500 max-w-2xl">
+            Unified monthly and annual performance. Track dining receipts, log daily expenditures, and review bank payouts.
           </p>
         </div>
 
         {/* Evaluation Period Selector (Monthly vs Yearly) & Actions */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           
           {/* Multi-Mess Outlet Switcher */}
           <div className="relative">
@@ -345,55 +345,56 @@ export default function OwnerFinance() {
               value={activeMessId}
               onChange={(e) => switchMess(e.target.value)}
               disabled={loadingMesses}
-              className="appearance-none bg-gray-50 border border-gray-300 rounded-2xl py-2.5 pl-4 pr-10 text-xs font-bold text-gray-800 shadow-2xs hover:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="bg-stone-50 border border-stone-300 rounded-lg py-2 pl-3 pr-8 text-xs font-medium text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 cursor-pointer"
             >
               {allMesses.map((m) => (
                 <option key={m.id || m._id} value={m.id || m._id}>
-                  📍 {m.name} ({m.locality})
+                  {m.name} ({m.locality})
                 </option>
               ))}
             </select>
-            <span className="absolute right-3.5 top-3 text-[10px] pointer-events-none text-gray-400">▼</span>
           </div>
 
           {/* Period Mode Toggle: Monthly vs Yearly */}
-          <div className="flex bg-gray-100 p-1 rounded-2xl border border-gray-200 shadow-2xs">
+          <div className="flex bg-stone-100 p-0.5 rounded-lg border border-stone-200 text-xs">
             <button
               type="button"
               onClick={() => setEvalPeriod("month")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition ${
-                evalPeriod === "month" ? "bg-white text-orange-600 shadow-2xs" : "text-gray-600 hover:text-gray-900"
+              className={`px-3 py-1.5 rounded-md font-medium transition ${
+                evalPeriod === "month" ? "bg-white text-stone-900 shadow-xs" : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              📅 Monthly
+              Monthly
             </button>
             <button
               type="button"
               onClick={() => setEvalPeriod("year")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition ${
-                evalPeriod === "year" ? "bg-white text-orange-600 shadow-2xs" : "text-gray-600 hover:text-gray-900"
+              className={`px-3 py-1.5 rounded-md font-medium transition ${
+                evalPeriod === "year" ? "bg-white text-stone-900 shadow-xs" : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              📆 Yearly
+              Yearly
             </button>
           </div>
 
           {/* If Monthly Mode: Month Dropdown + Steppers */}
           {evalPeriod === "month" ? (
-            <div className="flex items-center gap-1 bg-orange-50/80 border border-orange-200/90 rounded-2xl p-1 shadow-2xs">
+            <div className="flex items-center gap-1 bg-stone-50 border border-stone-300 rounded-lg p-0.5">
               <button
                 type="button"
                 onClick={() => handleStepMonth(-1)}
-                className="w-7 h-7 flex items-center justify-center rounded-xl bg-white text-orange-800 hover:bg-orange-100 text-xs font-black shadow-2xs transition"
+                className="w-6 h-6 flex items-center justify-center rounded-md text-stone-600 hover:bg-stone-200 transition"
                 title="Previous Month"
               >
-                ◀
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
 
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="bg-transparent border-none text-orange-950 font-black text-xs py-1 px-2 focus:outline-none cursor-pointer"
+                className="bg-transparent border-none text-stone-900 font-medium text-xs py-1 px-1.5 focus:outline-none cursor-pointer"
               >
                 {monthOptions.map((opt) => (
                   <option key={opt.key} value={opt.key}>
@@ -405,10 +406,12 @@ export default function OwnerFinance() {
               <button
                 type="button"
                 onClick={() => handleStepMonth(1)}
-                className="w-7 h-7 flex items-center justify-center rounded-xl bg-white text-orange-800 hover:bg-orange-100 text-xs font-black shadow-2xs transition"
+                className="w-6 h-6 flex items-center justify-center rounded-md text-stone-600 hover:bg-stone-200 transition"
                 title="Next Month"
               >
-                ▶
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
           ) : (
@@ -417,15 +420,14 @@ export default function OwnerFinance() {
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="appearance-none bg-orange-50 border border-orange-200 text-orange-900 font-black text-xs rounded-2xl py-2.5 pl-4 pr-9 shadow-2xs focus:outline-none"
+                className="bg-stone-50 border border-stone-300 text-stone-900 font-medium text-xs rounded-lg py-2 pl-3 pr-8 focus:outline-none"
               >
                 {yearOptions.map((yr) => (
                   <option key={yr} value={yr}>
-                    Year {yr} Evaluation
+                    Year {yr}
                   </option>
                 ))}
               </select>
-              <span className="absolute right-3.5 top-3 text-[10px] pointer-events-none text-orange-400">▼</span>
             </div>
           )}
 
@@ -440,21 +442,25 @@ export default function OwnerFinance() {
               setExpenseDate(new Date().toISOString().split("T")[0]);
               setShowExpenseModal(true);
             }}
-            className="px-4 py-2.5 bg-orange-600 hover:bg-orange-700 active:scale-95 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-xs transition flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium text-xs rounded-lg shadow-xs transition flex items-center gap-1.5"
           >
-            <span>✏️</span>
-            <span>+ Add Expenditure</span>
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Record Expense</span>
           </button>
 
           {/* Export Report */}
           <button
             type="button"
             onClick={handleExportCSV}
-            className="px-3.5 py-2.5 bg-white border border-gray-300 hover:border-gray-400 text-gray-700 font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-xs transition flex items-center gap-1.5"
+            className="px-3 py-2 bg-white border border-stone-300 hover:bg-stone-50 text-stone-700 font-medium text-xs rounded-lg transition flex items-center gap-1.5"
             title="Download CSV report"
           >
-            <span>📥</span>
-            <span className="hidden sm:inline">Export Statement</span>
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span className="hidden sm:inline">Export</span>
           </button>
         </div>
       </div>
@@ -462,15 +468,17 @@ export default function OwnerFinance() {
       {/* ── FEEDBACK ALERT ── */}
       {feedback.text && (
         <div
-          className={`p-4 rounded-2xl border flex items-center justify-between text-xs font-bold transition-all ${
+          className={`p-3.5 rounded-xl border flex items-center justify-between text-xs font-medium transition-all ${
             feedback.type === "success"
               ? "bg-emerald-50 text-emerald-900 border-emerald-200"
-              : "bg-red-50 text-red-900 border-red-200"
+              : "bg-rose-50 text-rose-900 border-rose-200"
           }`}
         >
           <span>{feedback.text}</span>
-          <button type="button" onClick={() => setFeedback({ text: "", type: "" })} className="text-gray-500 hover:text-gray-900">
-            ✕
+          <button type="button" onClick={() => setFeedback({ text: "", type: "" })} className="text-stone-400 hover:text-stone-600">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
       )}
@@ -479,127 +487,143 @@ export default function OwnerFinance() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* Card 1: Total Revenue (Inflow) */}
-        <div className="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-xs space-y-2.5">
+        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs space-y-2.5">
           <div className="flex justify-between items-start">
-            <span className="text-xl p-2 bg-emerald-50 rounded-xl border border-emerald-100">💰</span>
-            <span className="text-[10px] font-black uppercase text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-100">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <span className="text-[10px] font-medium uppercase text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
               Total Inflow
             </span>
           </div>
           <div>
-            <span className="text-2xl font-black text-gray-900 block font-mono">
+            <span className="text-2xl font-bold text-stone-900 block font-mono">
               ₹{(summary?.totalRevenue || 0).toLocaleString()}
             </span>
-            <span className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wide">
+            <span className="text-[11px] text-stone-500">
               Net Inflow: ₹{(summary?.netRevenue || 0).toLocaleString()}
             </span>
           </div>
-          <div className="pt-2 border-t border-gray-100 text-[10px] space-y-0.5">
-            <div className="flex justify-between text-gray-600 font-bold">
-              <span>🎫 Membership Passes:</span>
-              <span className="text-gray-900 font-mono">₹{(summary?.membershipRevenue || 0).toLocaleString()}</span>
+          <div className="pt-2 border-t border-stone-100 text-[11px] space-y-0.5">
+            <div className="flex justify-between text-stone-600">
+              <span>Membership Passes:</span>
+              <span className="text-stone-900 font-mono font-medium">₹{(summary?.membershipRevenue || 0).toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-gray-600 font-bold">
-              <span>🍽️ Walk-in Per-Plate:</span>
-              <span className="text-gray-900 font-mono">₹{(summary?.perPlateRevenue || 0).toLocaleString()}</span>
+            <div className="flex justify-between text-stone-600">
+              <span>Walk-in Per-Plate:</span>
+              <span className="text-stone-900 font-mono font-medium">₹{(summary?.perPlateRevenue || 0).toLocaleString()}</span>
             </div>
           </div>
         </div>
 
         {/* Card 2: Total Operating Expenditures (Outflow) */}
-        <div className="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-xs space-y-2.5">
+        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs space-y-2.5">
           <div className="flex justify-between items-start">
-            <span className="text-xl p-2 bg-rose-50 rounded-xl border border-rose-100">📉</span>
-            <span className="text-[10px] font-black uppercase text-rose-800 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+            <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center border border-rose-100">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+              </svg>
+            </div>
+            <span className="text-[10px] font-medium uppercase text-rose-800 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
               Total Outflow
             </span>
           </div>
           <div>
-            <span className="text-2xl font-black text-gray-900 block font-mono">
+            <span className="text-2xl font-bold text-stone-900 block font-mono">
               ₹{(summary?.totalExpenditures || 0).toLocaleString()}
             </span>
-            <span className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wide">
+            <span className="text-[11px] text-stone-500">
               {evalPeriod === "month" ? "Monthly Expenditure" : "Yearly Expenditure"}
             </span>
           </div>
-          <div className="pt-2 border-t border-gray-100 text-[10px] space-y-0.5">
-            <div className="flex justify-between text-purple-700 font-bold">
-              <span>👥 Staff Payroll (⚡ Auto):</span>
-              <span className="font-mono">₹{(summary?.staffPayrollExpense || 0).toLocaleString()}</span>
+          <div className="pt-2 border-t border-stone-100 text-[11px] space-y-0.5">
+            <div className="flex justify-between text-stone-600">
+              <span>Staff Wages:</span>
+              <span className="font-mono font-medium text-stone-900">₹{(summary?.staffPayrollExpense || 0).toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-emerald-800 font-bold">
-              <span>🥦 Kitchen Stock (⚡ Auto):</span>
-              <span className="font-mono">₹{(summary?.inventoryProcurementExpense || 0).toLocaleString()}</span>
+            <div className="flex justify-between text-stone-600">
+              <span>Kitchen Stock:</span>
+              <span className="font-mono font-medium text-stone-900">₹{(summary?.inventoryProcurementExpense || 0).toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-blue-700 font-bold">
-              <span>🏬 Rent & Overheads:</span>
-              <span className="font-mono">₹{(summary?.manualOverheadsExpense || 0).toLocaleString()}</span>
+            <div className="flex justify-between text-stone-600">
+              <span>Rent & Overheads:</span>
+              <span className="font-mono font-medium text-stone-900">₹{(summary?.manualOverheadsExpense || 0).toLocaleString()}</span>
             </div>
           </div>
         </div>
 
         {/* Card 3: Real Net Bottom Line Profit */}
-        <div className="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-xs space-y-2.5">
+        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs space-y-2.5">
           <div className="flex justify-between items-start">
-            <span className="text-xl p-2 bg-emerald-50 rounded-xl border border-emerald-100">🚀</span>
+            <div className="w-8 h-8 rounded-lg bg-stone-100 text-stone-700 flex items-center justify-center border border-stone-200">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
             <span
-              className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
+              className={`text-[10px] font-medium uppercase px-2 py-0.5 rounded-md border ${
                 (summary?.netProfit || 0) >= 0
                   ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                  : "bg-red-50 text-red-800 border-red-200"
+                  : "bg-rose-50 text-rose-800 border-rose-200"
               }`}
             >
-              {(summary?.netProfit || 0) >= 0 ? "✨ Real Profit" : "Net Deficit"}
+              {(summary?.netProfit || 0) >= 0 ? "Net Profit" : "Net Deficit"}
             </span>
           </div>
           <div>
             <span
-              className={`text-2xl font-black block font-mono ${
-                (summary?.netProfit || 0) >= 0 ? "text-emerald-600" : "text-red-600"
+              className={`text-2xl font-bold block font-mono ${
+                (summary?.netProfit || 0) >= 0 ? "text-emerald-700" : "text-rose-700"
               }`}
             >
               {(summary?.netProfit || 0) >= 0 ? "+" : ""}₹{(summary?.netProfit || 0).toLocaleString()}
             </span>
-            <span className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wide">
-              Bottom Line Net Earnings
+            <span className="text-[11px] text-stone-500">
+              Net Bottom Line
             </span>
           </div>
-          <div className="pt-2 border-t border-gray-100 text-[10px] space-y-0.5">
-            <div className="flex justify-between text-gray-600 font-bold">
+          <div className="pt-2 border-t border-stone-100 text-[11px] space-y-0.5">
+            <div className="flex justify-between text-stone-600">
               <span>Profit Margin:</span>
-              <span className="font-mono font-black text-emerald-600">+{summary?.profitMargin || 0}%</span>
+              <span className="font-mono font-medium text-emerald-700">+{summary?.profitMargin || 0}%</span>
             </div>
-            <div className="flex justify-between text-gray-500">
-              <span>Commercial Health:</span>
-              <span className="font-bold text-gray-800">{summary?.healthStatus || "Healthy"}</span>
+            <div className="flex justify-between text-stone-600">
+              <span>Financial Status:</span>
+              <span className="font-medium text-stone-800">{summary?.healthStatus || "Healthy"}</span>
             </div>
           </div>
         </div>
 
         {/* Card 4: Escrow & Cleared to Bank */}
-        <div className="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-xs space-y-2.5">
+        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs space-y-2.5">
           <div className="flex justify-between items-start">
-            <span className="text-xl p-2 bg-blue-50 rounded-xl border border-blue-100">🏦</span>
-            <span className="text-[10px] font-black uppercase text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
-              Bank Escrow
+            <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center border border-sky-100">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            </div>
+            <span className="text-[10px] font-medium uppercase text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200">
+              Bank Settlements
             </span>
           </div>
           <div>
-            <span className="text-2xl font-black text-gray-900 block font-mono">
+            <span className="text-2xl font-bold text-stone-900 block font-mono">
               ₹{(summary?.settledToBank || 0).toLocaleString()}
             </span>
-            <span className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wide">
-              Cleared to Bank Account
+            <span className="text-[11px] text-stone-500">
+              Settled to Bank Account
             </span>
           </div>
-          <div className="pt-2 border-t border-gray-100 text-[10px] space-y-0.5">
-            <div className="flex justify-between text-amber-700 font-bold">
-              <span>Pending Gateway UTR:</span>
-              <span className="font-mono">₹{(summary?.pendingSettlement || 0).toLocaleString()}</span>
+          <div className="pt-2 border-t border-stone-100 text-[11px] space-y-0.5">
+            <div className="flex justify-between text-stone-600">
+              <span>Pending Settlement:</span>
+              <span className="font-mono font-medium text-amber-700">₹{(summary?.pendingSettlement || 0).toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-gray-500">
-              <span>Fee Deductions:</span>
-              <span className="font-mono text-gray-700">₹{(summary?.gatewayFees || 0).toLocaleString()}</span>
+            <div className="flex justify-between text-stone-600">
+              <span>Gateway Fees:</span>
+              <span className="font-mono text-stone-700">₹{(summary?.gatewayFees || 0).toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -607,29 +631,29 @@ export default function OwnerFinance() {
       </div>
 
       {/* ── 5 NAVIGATION TABS ── */}
-      <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-stone-200 pb-2">
         {[
-          { key: "overview", label: "📊 P&L Statement & Streams", count: null },
-          { key: "expenses", label: "💸 Expenditures & Add Expense", count: filteredExpenditures.length },
-          { key: "revenue", label: "💰 Earnings & Revenue Ledger", count: null },
-          { key: "daily-log", label: "📅 Day-by-Day Activity Log", count: `${dailyLog.length} Days` },
-          { key: "settlements", label: "💼 Messta Virtual Wallet & Payouts", count: settlements.length },
+          { key: "overview", label: "P&L Statement", count: null },
+          { key: "expenses", label: "Expenditures", count: filteredExpenditures.length },
+          { key: "revenue", label: "Revenue Ledger", count: null },
+          { key: "daily-log", label: "Daily Activity Log", count: `${dailyLog.length} Days` },
+          { key: "settlements", label: "Wallet & Settlements", count: settlements.length },
         ].map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-black transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-medium transition flex items-center gap-2 ${
               activeTab === tab.key
-                ? "bg-orange-600 text-white shadow-xs"
-                : "bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-gray-200/80"
+                ? "bg-stone-900 text-white shadow-xs"
+                : "bg-white text-stone-600 hover:text-stone-900 hover:bg-stone-100 border border-stone-200"
             }`}
           >
             <span>{tab.label}</span>
             {tab.count !== null && (
               <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                  activeTab === tab.key ? "bg-orange-800 text-orange-100" : "bg-gray-100 text-gray-600"
+                className={`text-[10px] px-1.5 py-0.5 rounded-md ${
+                  activeTab === tab.key ? "bg-stone-700 text-stone-200" : "bg-stone-100 text-stone-600"
                 }`}
               >
                 {tab.count}
@@ -939,25 +963,25 @@ export default function OwnerFinance() {
                 className="p-1.5 px-2.5 text-xs bg-gray-50 border border-gray-300 rounded-xl font-bold text-gray-800"
               >
                 <option value="all">All Categories</option>
-                <option value="staff_payroll">👥 Staff Payroll</option>
-                <option value="inventory_purchase">🥦 Kitchen Inventory</option>
-                <option value="rent">🏬 Mess Rent</option>
-                <option value="lpg_gas">⛽ LPG Gas</option>
-                <option value="electricity">⚡ Electricity</option>
-                <option value="water_supply">💧 Water Tanker</option>
-                <option value="kitchen_maintenance">🔧 Maintenance</option>
-                <option value="packaging_disposables">📦 Packaging</option>
-                <option value="misc_overhead">📑 Misc</option>
+                <option value="staff_payroll">Staff Payroll</option>
+                <option value="inventory_purchase">Kitchen Inventory</option>
+                <option value="rent">Mess Rent</option>
+                <option value="lpg_gas">LPG Gas</option>
+                <option value="electricity">Electricity</option>
+                <option value="water_supply">Water Tanker</option>
+                <option value="kitchen_maintenance">Maintenance</option>
+                <option value="packaging_disposables">Packaging</option>
+                <option value="misc_overhead">Miscellaneous</option>
               </select>
 
-              <span className="text-[10px] font-black uppercase text-gray-400 ml-2">Source:</span>
+              <span className="text-xs text-stone-500 font-medium ml-2">Source:</span>
               <select
                 value={expenseSourceFilter}
                 onChange={(e) => setExpenseSourceFilter(e.target.value)}
-                className="p-1.5 px-2.5 text-xs bg-gray-50 border border-gray-300 rounded-xl font-bold text-gray-800"
+                className="p-1.5 px-2.5 text-xs bg-white border border-stone-300 rounded-lg text-stone-800"
               >
                 <option value="all">All Sources</option>
-                <option value="auto">⚡ Auto-Synced Only</option>
+                <option value="auto">Auto-Calculated Only</option>
                 <option value="manual">Manual Entries Only</option>
               </select>
             </div>
@@ -1827,15 +1851,15 @@ export default function OwnerFinance() {
                     onChange={(e) => setExpenseCategory(e.target.value)}
                     className="w-full p-2.5 text-xs bg-gray-50 border border-gray-300 rounded-xl font-bold"
                   >
-                    <option value="rent">🏬 Mess Hall Rent</option>
-                    <option value="lpg_gas">⛽ Commercial LPG Gas</option>
-                    <option value="electricity">⚡ Electricity & Power</option>
-                    <option value="water_supply">💧 Water Tanker & RO Service</option>
-                    <option value="kitchen_maintenance">🔧 Kitchen Repairs & Maintenance</option>
-                    <option value="packaging_disposables">📦 Takeaway Boxes & Foil</option>
-                    <option value="inventory_purchase">🥦 Direct Ration Cash Purchase</option>
-                    <option value="staff_payroll">👥 Direct Staff Cash Wage / Advance</option>
-                    <option value="misc_overhead">📑 Misc Overhead Expense</option>
+                    <option value="rent">Mess Hall Rent</option>
+                    <option value="lpg_gas">Commercial LPG Gas</option>
+                    <option value="electricity">Electricity & Power</option>
+                    <option value="water_supply">Water Tanker & RO Service</option>
+                    <option value="kitchen_maintenance">Kitchen Repairs & Maintenance</option>
+                    <option value="packaging_disposables">Takeaway Boxes & Disposables</option>
+                    <option value="inventory_purchase">Direct Ration Cash Purchase</option>
+                    <option value="staff_payroll">Direct Staff Cash Wage / Advance</option>
+                    <option value="misc_overhead">Miscellaneous Overhead Expense</option>
                   </select>
                 </div>
 

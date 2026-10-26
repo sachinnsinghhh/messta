@@ -639,34 +639,28 @@ export default function OwnerDashboard() {
   return (
     <div className="min-h-screen bg-gray-50/70 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
       
-      {/* ── TOP OUTLET COMMAND BAR (Persistent Multi-Outlet Sync) ── */}
-      <div className="bg-white rounded-3xl p-6 border border-gray-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+      {/* ── TOP OUTLET HEADER ── */}
+      <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[11px] font-black uppercase tracking-wider text-orange-600">
-              Live Partner CRM • {activeMess?.name || "Active Mess"}
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span className="text-xs font-medium text-stone-500">
+              Active Branch &bull; <strong className="text-stone-900 font-semibold">{activeMess?.name || "Active Mess"}</strong>
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
-            Outlet Operations & Counter Desk
+          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+            Live Counter & Operations
           </h1>
-          <p className="text-xs text-gray-500">
-            Switch branches seamlessly. All token sessions and settings persist via <code className="bg-gray-100 px-1 py-0.5 rounded text-[10px] text-gray-700">messta_activeMessId</code>.
+          <p className="text-xs text-stone-500">
+            Verify student meal QR tokens, manage daily bookings, and update outlet profile.
           </p>
         </div>
 
-        {/* Outlet Switcher & Exclusive SuperAdmin Provisioning Action */}
-        <div className="flex flex-wrap items-center gap-3">
-          {isSuperAdmin ? (
-            <span className="text-[10px] font-black uppercase tracking-wider text-purple-800 bg-purple-100 border border-purple-300 px-2.5 py-1 rounded-xl flex items-center gap-1">
-              <span>🛡️</span>
-              <span>SuperAdmin Studio ({allMesses.length} Outlets)</span>
-            </span>
-          ) : (
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-xl flex items-center gap-1">
-              <span>🏪</span>
-              <span>My Assigned Outlet</span>
+        {/* Outlet Switcher & Actions */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {isSuperAdmin && (
+            <span className="text-xs font-medium text-purple-800 bg-purple-50 border border-purple-200 px-2.5 py-1.5 rounded-lg">
+              All Outlets ({allMesses.length})
             </span>
           )}
 
@@ -676,58 +670,47 @@ export default function OwnerDashboard() {
               onChange={(e) => switchMess(e.target.value)}
               disabled={loadingMesses || allMesses.length === 0}
               aria-label="Active Mess Outlet"
-              className="appearance-none bg-gray-50 border border-gray-300 hover:border-orange-500 text-gray-900 text-xs font-bold py-2.5 pl-4 pr-10 rounded-xl focus:ring-2 focus:ring-orange-500 transition-all cursor-pointer shadow-2xs"
+              className="appearance-none bg-stone-50 border border-stone-300 hover:border-stone-400 text-stone-900 text-xs font-medium py-2 pl-3.5 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition cursor-pointer"
             >
               {allMesses.length === 0 ? (
                 <option value="">No Outlets Found</option>
               ) : (
                 allMesses.map((m) => (
                   <option key={m._id || m.id} value={m._id || m.id}>
-                    📍 {m.name} ({m.locality}) {m.isOpen ? "• Open" : "• Paused"}
+                    {m.name} ({m.locality}) {m.isOpen ? "— Open" : "— Paused"}
                   </option>
                 ))
               )}
             </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">
-              ▼
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400 text-xs">
+              ▾
             </span>
           </div>
 
-          {/* Add Mess / Provisioning Action (Available to both Normal Owner and SuperAdmin) */}
-          {isSuperAdmin ? (
-            <button
-              type="button"
-              onClick={() => setShowAddMess(!showAddMess)}
-              className="px-4 py-2.5 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-transform active:scale-95 flex items-center gap-1.5 border border-purple-500/30"
-              title="Add a new mess outlet to the platform"
-            >
-              <span>+</span>
-              <span>Add Mess</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowAddMess(!showAddMess)}
-              className="px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-transform active:scale-95 flex items-center gap-1.5"
-              title="Add a new mess branch under your account"
-            >
-              <span>+</span>
-              <span>Add Branch</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setShowAddMess(!showAddMess)}
+            className="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white text-xs font-medium rounded-lg shadow-sm transition flex items-center gap-1.5"
+            title="Register a new mess branch"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Add Mess</span>
+          </button>
 
-          {activeMess && (
+          {activeMess && isSuperAdmin && (
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
               disabled={loadingMesses || actionLoading || deletingMess}
-              className="px-3.5 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 border border-red-200 font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 shadow-2xs active:scale-95"
+              className="px-3 py-2 bg-white hover:bg-rose-50 text-stone-600 hover:text-rose-600 border border-stone-200 hover:border-rose-200 text-xs font-medium rounded-lg transition flex items-center gap-1"
               title={`Delete branch ${activeMess.name}`}
             >
-              <svg className="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
-              <span>Delete Branch</span>
+              <span>Delete</span>
             </button>
           )}
         </div>
@@ -755,33 +738,35 @@ export default function OwnerDashboard() {
 
       {/* ── ZERO STATE: NO OUTLET REGISTERED / ASSIGNED YET ── */}
       {!loadingMesses && allMesses.length === 0 && (
-        <div className="bg-white rounded-3xl p-8 sm:p-12 text-center border border-amber-200 shadow-sm max-w-xl mx-auto space-y-5 animate-in fade-in duration-200">
-          <div className="w-16 h-16 rounded-3xl bg-amber-100 text-amber-700 flex items-center justify-center text-3xl mx-auto shadow-2xs">
-            🏪
+        <div className="bg-white rounded-2xl p-8 sm:p-10 text-center border border-stone-200 shadow-xs max-w-lg mx-auto space-y-5 animate-in fade-in duration-200">
+          <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mx-auto border border-orange-100">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
           </div>
           <div className="space-y-1">
-            <h2 className="text-xl font-black text-gray-900 tracking-tight">
-              Welcome to Messta Partner Portal
+            <h2 className="text-lg font-bold text-stone-900 tracking-tight">
+              Welcome to Partner Portal
             </h2>
-            <p className="text-xs text-gray-600">
-              Operating account: <strong className="text-gray-900">{currentUser?.email}</strong>
+            <p className="text-xs text-stone-500">
+              Signed in as <strong className="text-stone-700">{currentUser?.email}</strong>
             </p>
           </div>
 
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-950 text-left space-y-2">
-            <div className="flex items-center gap-2 font-bold text-amber-900">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-xs text-stone-700 text-left space-y-2">
+            <div className="flex items-center gap-2 font-semibold text-stone-900">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
               <span>No Active Mess Outlets Found</span>
             </div>
-            <p className="leading-relaxed">
-              You can get started in two flexible ways:
+            <p className="text-stone-600 leading-relaxed">
+              You can get started in two ways:
             </p>
-            <div className="space-y-1.5 pl-2 text-[11px] text-amber-900 font-medium">
+            <div className="space-y-1 pl-1 text-[11px] text-stone-600">
               <p>
-                <strong>1. Self-Registration (Instant):</strong> Click &ldquo;Register My Mess Outlet&rdquo; below to set up your canteen branch and start publishing daily thalis right now.
+                <strong>1. Self-Registration:</strong> Click &ldquo;Register Mess Outlet&rdquo; below to set up your canteen and start publishing daily meals.
               </p>
               <p>
-                <strong>2. SuperAdmin Pre-Creation:</strong> If the platform SuperAdmin has pre-provisioned your mess, it will link to your account automatically upon creation.
+                <strong>2. SuperAdmin Linking:</strong> If an administrator has pre-created your mess with your email, it will connect automatically.
               </p>
             </div>
           </div>
@@ -790,17 +775,19 @@ export default function OwnerDashboard() {
             <button
               type="button"
               onClick={() => setShowAddMess(true)}
-              className="px-6 py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs flex items-center gap-2 active:scale-95"
+              className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium text-xs rounded-lg transition shadow-xs flex items-center gap-1.5"
             >
-              <span>+</span>
-              <span>Register My Mess Outlet 🚀</span>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Register Mess Outlet</span>
             </button>
             <button
               type="button"
               onClick={refreshMesses}
-              className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs uppercase tracking-wider rounded-xl transition active:scale-95"
+              className="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs rounded-lg transition"
             >
-              🔄 Refresh Outlets
+              Refresh Outlets
             </button>
           </div>
         </div>
@@ -810,22 +797,24 @@ export default function OwnerDashboard() {
       {activeMess && (
         <>
           {(activeMess.verificationStatus === "verified" || activeMess.isVerified) ? (
-            <div className="bg-emerald-50 border border-emerald-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-2xs">
+            <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
               <div className="flex items-center gap-3.5">
-                <span className="text-2xl p-2.5 bg-emerald-100 rounded-xl border border-emerald-300 shadow-2xs">
-                  🛡️
-                </span>
+                <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-black text-emerald-950 text-sm">
-                      FSSAI Verified Partner Establishment
+                    <span className="font-semibold text-emerald-950 text-sm">
+                      FSSAI Verified Establishment
                     </span>
-                    <span className="bg-emerald-200 text-emerald-900 font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    <span className="bg-emerald-200/80 text-emerald-900 font-medium text-[10px] px-2 py-0.5 rounded-md">
                       Live on Student App
                     </span>
                   </div>
                   <p className="text-emerald-800 text-[11px] mt-0.5">
-                    FSSAI Reg #{activeMess.complianceDocs?.fssaiNumber || "21424010000892"} • Publicly listed and verified for secure student QR pass bookings.
+                    FSSAI License #{activeMess.complianceDocs?.fssaiNumber || "21424010000892"} • Publicly listed and verified for student dining.
                   </p>
                 </div>
               </div>
@@ -833,29 +822,31 @@ export default function OwnerDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowVerifyModal(true)}
-                  className="px-3.5 py-2 bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-100 rounded-xl font-black text-xs uppercase transition shadow-2xs"
+                  className="px-3.5 py-1.5 bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-50 rounded-lg font-medium text-xs transition"
                 >
-                  View Credentials 📋
+                  View Credentials
                 </button>
               </div>
             </div>
           ) : activeMess.verificationStatus === "pending_review" ? (
-            <div className="bg-blue-50 border border-blue-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-2xs">
+            <div className="bg-sky-50/70 border border-sky-200 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
               <div className="flex items-center gap-3.5">
-                <span className="text-2xl p-2.5 bg-blue-100 rounded-xl border border-blue-300 shadow-2xs">
-                  ⏳
-                </span>
+                <div className="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-black text-blue-950 text-sm">
-                      Compliance Verification Under Review
+                    <span className="font-semibold text-sky-950 text-sm">
+                      Compliance Under Review
                     </span>
-                    <span className="bg-blue-200 text-blue-900 font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
-                      In Inspection Queue
+                    <span className="bg-sky-200/70 text-sky-900 font-medium text-[10px] px-2 py-0.5 rounded-md">
+                      In Queue
                     </span>
                   </div>
-                  <p className="text-blue-800 text-[11px] mt-0.5">
-                    Our compliance safety officers are verifying your FSSAI certificate, establishment proof, and bank credentials. Turnaround: 2–4 hours.
+                  <p className="text-sky-800 text-[11px] mt-0.5">
+                    Our compliance team is reviewing your FSSAI certificate, establishment proof, and bank credentials.
                   </p>
                 </div>
               </div>
@@ -863,29 +854,31 @@ export default function OwnerDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowVerifyModal(true)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs uppercase shadow-xs transition"
+                  className="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium text-xs transition"
                 >
-                  Review Submission 📄
+                  Review Submission
                 </button>
               </div>
             </div>
           ) : activeMess.verificationStatus === "rejected" ? (
-            <div className="bg-red-50 border border-red-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-2xs">
+            <div className="bg-rose-50/70 border border-rose-200 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
               <div className="flex items-center gap-3.5">
-                <span className="text-2xl p-2.5 bg-red-100 rounded-xl border border-red-300 shadow-2xs">
-                  ❌
-                </span>
+                <div className="w-10 h-10 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-black text-red-950 text-sm">
-                      Verification Needs Attention (Listing Hidden)
+                    <span className="font-semibold text-rose-950 text-sm">
+                      Verification Needs Attention
                     </span>
-                    <span className="bg-red-200 text-red-900 font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    <span className="bg-rose-200/80 text-rose-900 font-medium text-[10px] px-2 py-0.5 rounded-md">
                       Action Required
                     </span>
                   </div>
-                  <p className="text-red-800 text-[11px] mt-0.5">
-                    Admin Feedback: <span className="font-bold underline">{activeMess.rejectionReason || "Uploaded documents were blurry or unverified."}</span>
+                  <p className="text-rose-800 text-[11px] mt-0.5">
+                    Feedback: <span className="font-medium underline">{activeMess.rejectionReason || "Uploaded documents need review."}</span>
                   </p>
                 </div>
               </div>
@@ -893,29 +886,31 @@ export default function OwnerDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowVerifyModal(true)}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black text-xs uppercase shadow-xs transition"
+                  className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-medium text-xs transition"
                 >
-                  Fix & Resubmit 🚀
+                  Fix & Resubmit
                 </button>
               </div>
             </div>
           ) : (
-            <div className="bg-amber-50 border border-amber-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-2xs">
+            <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
               <div className="flex items-center gap-3.5">
-                <span className="text-2xl p-2.5 bg-amber-100 rounded-xl border border-amber-300 shadow-2xs">
-                  ⚠️
-                </span>
+                <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-black text-amber-950 text-sm">
-                      Mess Unverified (Hidden from Students)
+                    <span className="font-semibold text-amber-950 text-sm">
+                      Mess Not Yet Verified
                     </span>
-                    <span className="bg-amber-200 text-amber-900 font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    <span className="bg-amber-200/80 text-amber-900 font-medium text-[10px] px-2 py-0.5 rounded-md">
                       Sandbox Mode
                     </span>
                   </div>
                   <p className="text-amber-800 text-[11px] mt-0.5">
-                    To prevent fraudulent food listings, submit your 14-digit FSSAI food safety license, commercial power bill, and bank payout credentials to publish your mess.
+                    Submit your 14-digit FSSAI food safety license and bank payout credentials to publish your mess for students.
                   </p>
                 </div>
               </div>
@@ -923,10 +918,9 @@ export default function OwnerDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowVerifyModal(true)}
-                  className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-black text-xs uppercase shadow-xs transition flex items-center gap-1.5 active:scale-95"
+                  className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white rounded-lg font-medium text-xs transition"
                 >
-                  <span>🛡️</span>
-                  <span>Get Verified Now</span>
+                  Verify Outlet
                 </button>
               </div>
             </div>
@@ -936,89 +930,63 @@ export default function OwnerDashboard() {
 
       {/* ── COLLAPSIBLE: REGISTER NEW MESS (NORMAL OWNER OR SUPERADMIN) ── */}
       {showAddMess && (
-        <div
-          className={`rounded-3xl p-6 sm:p-8 border shadow-md space-y-5 animate-in fade-in slide-in-from-top-4 duration-300 ${
-            isSuperAdmin
-              ? "bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100/60 border-purple-200"
-              : "bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100/60 border-orange-200"
-          }`}
-        >
+        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-sm space-y-5 animate-in fade-in duration-200">
           <div className="flex justify-between items-start">
             <div className="space-y-1">
-              <span
-                className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
-                  isSuperAdmin
-                    ? "text-purple-700 bg-purple-200/80 border-purple-300"
-                    : "text-amber-800 bg-amber-200/80 border-amber-300"
-                }`}
-              >
-                {isSuperAdmin
-                  ? "🛡️ Add Mess Outlet (Universal Studio)"
-                  : "🏢 Mess Outlet Self-Registration"}
+              <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wide">
+                {isSuperAdmin ? "Administrator Action" : "New Branch"}
               </span>
-              <h2 className="text-lg font-black text-gray-900 tracking-tight">
-                {isSuperAdmin
-                  ? "Add New Mess Outlet"
-                  : "Register Your New Mess Outlet"}
+              <h2 className="text-lg font-bold text-stone-900 tracking-tight">
+                {isSuperAdmin ? "Add Mess Branch" : "Register Mess Branch"}
               </h2>
-              <p className="text-xs text-gray-600 max-w-2xl">
+              <p className="text-xs text-stone-500 max-w-2xl">
                 {isSuperAdmin
-                  ? "Register a new mess branch like normal (e.g. Annapurna, Mom's Kitchen). You can immediately manage its thalis, slots, subscriber plans and finance, or assign access to any Google or email ID below or anytime in Outlet Settings."
-                  : `Launch a new mess or campus canteen branch directly under your account (${currentUser?.email || "you"}). You can immediately publish thalis, slot bookings, and manage kitchen prep.`}
+                  ? "Create a new mess branch (e.g. Annapurna, Mom's Kitchen). You can manage its menu and finances immediately, or link it to any owner's email."
+                  : `Launch a new mess branch under your account (${currentUser?.email || "you"}). You can immediately publish menus and time slots.`}
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowAddMess(false)}
-              className="text-gray-400 hover:text-gray-600 text-sm font-bold p-1 bg-white rounded-full shadow-2xs hover:bg-gray-100"
+              className="text-stone-400 hover:text-stone-600 p-1.5 rounded-lg hover:bg-stone-100 transition"
             >
-              ✕
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
 
           <form onSubmit={handleCreateMess} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 pt-2">
             <div className="lg:col-span-2">
-              <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">Mess / Branch Name *</label>
+              <label className="block text-xs font-medium text-stone-700 mb-1.5">Mess / Branch Name *</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Annapurna Dining Hall"
                 value={newMessName}
                 onChange={(e) => setNewMessName(e.target.value)}
-                className={`w-full p-2.5 text-xs bg-white border rounded-xl font-semibold ${
-                  isSuperAdmin
-                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
-                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
-                }`}
+                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
               />
             </div>
 
             <div className="lg:col-span-2">
-              <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">Locality / Campus Area *</label>
+              <label className="block text-xs font-medium text-stone-700 mb-1.5">Locality / Campus Area *</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. FC Road / Kothrud, Pune"
                 value={newLocality}
                 onChange={(e) => setNewLocality(e.target.value)}
-                className={`w-full p-2.5 text-xs bg-white border rounded-xl font-semibold ${
-                  isSuperAdmin
-                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
-                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
-                }`}
+                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">Cuisine Type</label>
+              <label className="block text-xs font-medium text-stone-700 mb-1.5">Cuisine Type</label>
               <select
                 value={newCuisineType}
                 onChange={(e) => setNewCuisineType(e.target.value)}
-                className={`w-full p-2.5 text-xs bg-white border rounded-xl font-semibold ${
-                  isSuperAdmin
-                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
-                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
-                }`}
+                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
               >
                 <option value="North Indian">North Indian</option>
                 <option value="South Indian">South Indian</option>
@@ -1029,49 +997,37 @@ export default function OwnerDashboard() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">Phone Number</label>
+              <label className="block text-xs font-medium text-stone-700 mb-1.5">Phone Number</label>
               <input
                 type="text"
                 placeholder="+91 98765 43210"
                 value={newPhone}
                 onChange={(e) => setNewPhone(e.target.value)}
-                className={`w-full p-2.5 text-xs bg-white border rounded-xl ${
-                  isSuperAdmin
-                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
-                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
-                }`}
+                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">Seating Capacity</label>
+              <label className="block text-xs font-medium text-stone-700 mb-1.5">Seating Capacity</label>
               <input
                 type="number"
                 min="5"
                 max="500"
                 value={newCapacity}
                 onChange={(e) => setNewCapacity(e.target.value)}
-                className={`w-full p-2.5 text-xs bg-white border rounded-xl ${
-                  isSuperAdmin
-                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
-                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
-                }`}
+                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">Base Price / Meal (₹)</label>
+              <label className="block text-xs font-medium text-stone-700 mb-1.5">Base Price / Meal (₹)</label>
               <input
                 type="number"
                 min="30"
                 max="500"
                 value={newPricePerMeal}
                 onChange={(e) => setNewPricePerMeal(e.target.value)}
-                className={`w-full p-2.5 text-xs bg-white border rounded-xl ${
-                  isSuperAdmin
-                    ? "border-gray-300 focus:ring-2 focus:ring-purple-500"
-                    : "border-gray-300 focus:ring-2 focus:ring-orange-500"
-                }`}
+                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
               />
             </div>
 
@@ -1079,24 +1035,26 @@ export default function OwnerDashboard() {
             {isSuperAdmin ? (
               <>
                 <div className="lg:col-span-3">
-                  <label className="block text-[11px] font-bold uppercase text-purple-900 mb-1 flex items-center gap-1.5">
-                    <span>🔑</span>
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5 flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
                     <span>Assign Owner Google / Email ID (Optional)</span>
                   </label>
                   <input
                     type="email"
-                    placeholder="e.g. messowner@gmail.com (Leave blank to assign later)"
+                    placeholder="e.g. messowner@gmail.com"
                     value={newOwnerEmail}
                     onChange={(e) => setNewOwnerEmail(e.target.value)}
-                    className="w-full p-2.5 text-xs bg-white border border-purple-300 rounded-xl focus:ring-2 focus:ring-purple-600 font-semibold text-gray-900 placeholder-gray-400"
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
                   />
-                  <p className="text-[10px] text-purple-700 mt-1">
-                    Optional. You can also grant or update access to any Google or email ID at any time in Outlet Settings.
+                  <p className="text-[11px] text-stone-500 mt-1">
+                    Optional. You can also grant or update access at any time in Mess Profile Settings.
                   </p>
                 </div>
 
                 <div className="lg:col-span-3">
-                  <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
                     Additional Manager Emails (Optional)
                   </label>
                   <input
@@ -1104,18 +1062,20 @@ export default function OwnerDashboard() {
                     placeholder="manager1@gmail.com, staff@gmail.com"
                     value={newManagerEmails}
                     onChange={(e) => setNewManagerEmails(e.target.value)}
-                    className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
                   />
-                  <p className="text-[10px] text-gray-500 mt-1">
-                    Comma-separated secondary emails also permitted to manage this outlet.
+                  <p className="text-[11px] text-stone-500 mt-1">
+                    Comma-separated secondary emails allowed to manage this outlet.
                   </p>
                 </div>
               </>
             ) : (
-              <div className="lg:col-span-6 bg-orange-100/70 border border-orange-200 rounded-xl p-3 flex items-center gap-2 text-xs text-orange-950 font-medium">
-                <span>ℹ️</span>
+              <div className="lg:col-span-6 bg-stone-50 border border-stone-200 rounded-lg p-3 flex items-center gap-2 text-xs text-stone-600">
+                <svg className="w-4 h-4 text-stone-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 <span>
-                  This outlet will be registered under your verified email: <strong className="font-bold">{currentUser?.email}</strong>.
+                  This outlet will be registered under your verified account: <strong className="font-medium text-stone-800">{currentUser?.email}</strong>.
                 </span>
               </div>
             )}
@@ -1124,18 +1084,14 @@ export default function OwnerDashboard() {
               <button
                 type="submit"
                 disabled={actionLoading}
-                className={`px-6 py-2.5 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs disabled:opacity-50 flex items-center gap-2 ${
-                  isSuperAdmin
-                    ? "bg-purple-700 hover:bg-purple-800"
-                    : "bg-orange-600 hover:bg-orange-700"
-                }`}
+                className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium text-xs rounded-lg transition shadow-xs disabled:opacity-50 flex items-center gap-1.5"
               >
                 <span>
                   {actionLoading
                     ? "Registering..."
                     : isSuperAdmin
-                    ? "Add Mess Outlet 🚀"
-                    : "Register Mess Branch 🚀"}
+                    ? "Add Mess Branch"
+                    : "Register Mess Branch"}
                 </span>
               </button>
             </div>
@@ -1143,59 +1099,61 @@ export default function OwnerDashboard() {
         </div>
       )}
 
-      {/* ── ADVANCE KITCHEN HEADCOUNT & RATION SHEET BANNER ── */}
-      <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 border border-purple-800/50">
+      {/* ── ADVANCE KITCHEN HEADCOUNT BANNER ── */}
+      <div className="bg-stone-900 rounded-2xl p-5 sm:p-6 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 border border-stone-800">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl shrink-0">
-            📋
+          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
           </div>
           <div className="space-y-0.5">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] font-black uppercase tracking-wider text-purple-300 bg-purple-800/80 px-2.5 py-0.5 rounded-full border border-purple-600/50">
-                Tomorrow-Only Advance Engine
+              <span className="text-xs font-medium text-stone-300">
+                Advance Orders &bull; Tomorrow
               </span>
-              <span className="text-[10px] font-extrabold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-700/50">
-                Lunch Closes Tonight 10:00 PM
+              <span className="text-[11px] font-medium text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800/60">
+                Orders lock at 10:00 PM
               </span>
             </div>
-            <h3 className="text-base sm:text-lg font-black text-white">
-              Tomorrow's Kitchen Headcount & Ration Prep Sheet
+            <h3 className="text-base font-semibold text-white">
+              Tomorrow's Kitchen Headcount & Prep
             </h3>
-            <p className="text-xs text-purple-200/80 max-w-xl">
-              Inspect confirmed headcount locked in advance by passholders and prepaid walk-ins. Automated grocery quantities calculated to eliminate food waste and stock shortage.
+            <p className="text-xs text-stone-400 max-w-xl">
+              Confirmed meal count booked in advance by students. Use this to prepare rations and avoid food wastage.
             </p>
           </div>
         </div>
         <Link
           to="/owner/meals"
-          className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-gray-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition active:scale-95 shrink-0 flex items-center gap-2 self-start md:self-auto cursor-pointer"
+          className="px-4 py-2 bg-white hover:bg-stone-100 text-stone-900 font-medium text-xs rounded-lg transition shrink-0 self-start md:self-auto flex items-center gap-1.5 shadow-sm"
         >
-          <span>Open Ration Sheet</span>
-          <span>→</span>
+          <span>View Prep Sheet</span>
+          <span>&rarr;</span>
         </Link>
       </div>
 
       {/* ── CORE GRID: COUNTER SCANNER & PROFILE COMMAND ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* LEFT COLUMN: COUNTER TOKEN & DYNAMIC QR SCANNER (High Priority for Counter Staff) */}
+        {/* LEFT COLUMN: COUNTER TOKEN & QR SCANNER */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white rounded-3xl p-6 border border-gray-200/80 shadow-xs space-y-5">
+          <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm space-y-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-md">
+                <span className="text-xs font-medium text-orange-700 bg-orange-50 px-2.5 py-0.5 rounded-md">
                   Counter Terminal
                 </span>
-                <h2 className="text-lg font-black text-gray-900 mt-1">
-                  Unified QR & Pass Scanner
+                <h2 className="text-lg font-bold text-stone-900 mt-1">
+                  Meal Token & QR Scanner
                 </h2>
-                <p className="text-xs text-gray-500">
-                  Scan student dynamic QR passes (memberships & daily meals) or enter token manually.
+                <p className="text-xs text-stone-500">
+                  Scan student QR code or enter meal token manually.
                 </p>
               </div>
 
-              {/* Peak Rush Auto-Serve Mode Toggle */}
-              <label className="flex items-center gap-2 cursor-pointer bg-amber-50 hover:bg-amber-100/80 px-2.5 py-1.5 rounded-xl border border-amber-200 transition-colors select-none flex-shrink-0">
+              {/* Rush Mode Switch */}
+              <label className="flex items-center gap-2 cursor-pointer bg-stone-50 hover:bg-stone-100 px-2.5 py-1.5 rounded-lg border border-stone-200 transition select-none shrink-0">
                 <input
                   type="checkbox"
                   checked={autoRedeemRush}
@@ -1203,51 +1161,53 @@ export default function OwnerDashboard() {
                   className="w-4 h-4 text-orange-600 rounded focus:ring-orange-500 cursor-pointer"
                 />
                 <div className="text-right">
-                  <span className="text-[10px] font-black text-amber-950 uppercase tracking-wider block leading-tight">
-                    ⚡ Rush Mode
+                  <span className="text-xs font-semibold text-stone-900 block leading-tight">
+                    Rush Mode
                   </span>
-                  <span className="text-[8px] text-amber-700 font-bold block">
-                    {autoRedeemRush ? "Auto-Serve On" : "Manual Click"}
+                  <span className="text-[10px] text-stone-500 block">
+                    {autoRedeemRush ? "Auto-serve on" : "Manual click"}
                   </span>
                 </div>
               </label>
             </div>
 
             {/* Active Counter Status Bar */}
-            <div className="p-3 bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 rounded-2xl border border-orange-200/90 flex items-center justify-between gap-3 text-xs">
+            <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 flex items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="w-8 h-8 rounded-xl bg-orange-600 text-white font-bold flex items-center justify-center shrink-0 text-sm shadow-2xs">
-                  👤
-                </span>
+                <div className="w-7 h-7 rounded-lg bg-orange-600 text-white font-medium flex items-center justify-center shrink-0 text-xs">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
                 <div className="min-w-0">
-                  <span className="text-[9px] uppercase font-bold text-gray-500 block">
-                    Counter Station:
+                  <span className="text-[10px] font-medium text-stone-400 block">
+                    Station:
                   </span>
-                  <span className="font-black text-gray-900 text-xs">
-                    Counter Desk (Active Scanner)
+                  <span className="font-semibold text-stone-900 text-xs">
+                    Counter Desk &bull; Scanner Active
                   </span>
                 </div>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                ● Live Ready
+              <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                Live Ready
               </span>
             </div>
 
             {/* Camera Viewport or Open Camera CTA */}
             {isCameraActive ? (
               <div className="space-y-2 animate-in fade-in duration-200">
-                <div className="relative rounded-2xl overflow-hidden border-2 border-orange-500 bg-black shadow-md">
+                <div className="relative rounded-xl overflow-hidden border-2 border-orange-500 bg-black shadow-sm">
                   <div id="messta-qr-reader" className="w-full overflow-hidden" />
                   <button
                     type="button"
                     onClick={() => setIsCameraActive(false)}
-                    className="absolute top-2.5 right-2.5 z-20 px-3 py-1 bg-black/75 hover:bg-black text-white text-[10px] font-black uppercase tracking-wider rounded-lg backdrop-blur-xs transition"
+                    className="absolute top-2.5 right-2.5 z-20 px-3 py-1 bg-black/75 hover:bg-black text-white text-xs font-medium rounded-lg backdrop-blur-xs transition"
                   >
-                    ✕ Close Camera
+                    &times; Close Camera
                   </button>
                 </div>
-                <p className="text-[10px] text-gray-500 text-center font-medium">
-                  Point device camera at student's dynamic QR code. It will scan and beep automatically.
+                <p className="text-[11px] text-stone-500 text-center font-normal">
+                  Point camera at student&rsquo;s QR code. Scans automatically.
                 </p>
               </div>
             ) : (
@@ -1257,10 +1217,13 @@ export default function OwnerDashboard() {
                   setCameraError("");
                   setIsCameraActive(true);
                 }}
-                className="w-full py-3 bg-gradient-to-r from-orange-600 via-orange-700 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-98"
+                className="w-full py-2.5 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2"
               >
-                <span>📷</span>
-                <span>Open Counter Camera Scanner</span>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Open Camera Scanner</span>
               </button>
             )}
 
@@ -1271,26 +1234,26 @@ export default function OwnerDashboard() {
               </div>
             )}
 
-            {/* Verification Form (Barcode Scanner Gun / Manual Input Fallback) */}
+            {/* Verification Form (Barcode Gun / Manual Token Code Fallback) */}
             <form onSubmit={handleVerifyToken} className="space-y-1.5">
-              <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider block">
-                Or Enter / Scan Token Code
+              <span className="text-xs font-medium text-stone-500 block">
+                Or enter token manually:
               </span>
               <div className="flex gap-2">
                 <input
                   type="text"
                   required
-                  placeholder="MESSTA-7A8B or PASS-XXXX"
+                  placeholder="MESSTA-7A8B"
                   value={tokenInput}
                   onChange={(e) => setTokenInput(e.target.value.toUpperCase())}
-                  className="flex-1 p-3 text-sm font-mono font-bold tracking-wider uppercase bg-gray-50 border border-gray-300 rounded-2xl focus:bg-white focus:ring-2 focus:ring-orange-500 transition-all placeholder:normal-case placeholder:font-normal placeholder:tracking-normal"
+                  className="flex-1 px-3 py-2 text-xs font-mono font-medium tracking-wide uppercase bg-stone-50 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white transition"
                 />
                 <button
                   type="submit"
                   disabled={scanLoading}
-                  className="px-5 py-3 bg-gray-900 hover:bg-black text-white font-bold text-xs uppercase tracking-wider rounded-2xl transition shadow-xs disabled:opacity-50"
+                  className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white font-medium text-xs rounded-lg transition disabled:opacity-50"
                 >
-                  {scanLoading ? "..." : "Verify"}
+                  {scanLoading ? "Verifying..." : "Verify"}
                 </button>
               </div>
             </form>
@@ -1316,23 +1279,23 @@ export default function OwnerDashboard() {
                 {/* Header Badge: Membership vs Per-Plate */}
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-lg font-black text-orange-600">
+                    <span className="font-mono text-base font-bold text-stone-900">
                       {scannedResult.data.token}
                     </span>
-                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-white border border-orange-200 text-orange-700">
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-stone-100 border border-stone-200 text-stone-700">
                       {scannedResult.tokenType === "membership" || scannedResult.type === "subscription"
-                        ? "💳 Membership Pass"
-                        : "🎫 Meal Ticket"}
+                        ? "Membership Pass"
+                        : "Meal Ticket"}
                     </span>
                   </div>
 
                   <span
-                    className={`text-[10px] uppercase font-black px-2.5 py-0.5 rounded-full border ${
+                    className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full border ${
                       scannedResult.data.tokenStatus === "active" ||
                       scannedResult.data.tokenStatus === "pending" ||
                       scannedResult.data.tokenStatus === "paid"
-                        ? "bg-emerald-100 text-emerald-800 border-emerald-300"
-                        : "bg-gray-100 text-gray-700 border-gray-300"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-stone-100 text-stone-600 border-stone-200"
                     }`}
                   >
                     {scannedResult.data.tokenStatus}
@@ -1342,27 +1305,27 @@ export default function OwnerDashboard() {
                 {/* Customer & Booking Details */}
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <span className="text-[10px] text-gray-500 uppercase font-bold block">Customer</span>
-                    <span className="font-extrabold text-gray-900">{scannedResult.data.customerName}</span>
-                    <span className="text-[10px] text-gray-500 block truncate">{scannedResult.data.customerEmail}</span>
+                    <span className="text-[10px] text-stone-400 uppercase font-medium block">Customer</span>
+                    <span className="font-semibold text-stone-900">{scannedResult.data.customerName}</span>
+                    <span className="text-[10px] text-stone-500 block truncate">{scannedResult.data.customerEmail}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-gray-500 uppercase font-bold block">Meal Slot / Date</span>
-                    <span className="font-bold text-orange-600 uppercase">{scannedResult.data.mealType}</span>
-                    <span className="text-[10px] text-gray-600 block">{scannedResult.data.bookingDate}</span>
+                    <span className="text-[10px] text-stone-400 uppercase font-medium block">Meal Slot / Date</span>
+                    <span className="font-semibold text-stone-900 uppercase">{scannedResult.data.mealType}</span>
+                    <span className="text-[10px] text-stone-500 block">{scannedResult.data.bookingDate}</span>
                   </div>
                 </div>
 
                 {/* Specifics for Membership Pass */}
                 {(scannedResult.tokenType === "membership" || scannedResult.type === "subscription") && (
-                  <div className="p-3 bg-white rounded-xl border border-orange-100 text-xs flex justify-between items-center">
+                  <div className="p-3 bg-white rounded-lg border border-stone-200 text-xs flex justify-between items-center">
                     <div>
-                      <span className="font-bold text-gray-800 block">{scannedResult.data.planName}</span>
-                      <span className="text-[10px] text-gray-500 uppercase font-bold">
+                      <span className="font-medium text-stone-800 block">{scannedResult.data.planName}</span>
+                      <span className="text-[10px] text-stone-500 uppercase">
                         {scannedResult.data.category} • {scannedResult.data.frequency}
                       </span>
                     </div>
-                    <span className="px-2.5 py-1 bg-orange-100 text-orange-700 font-black rounded-lg text-xs">
+                    <span className="px-2.5 py-1 bg-stone-100 text-stone-800 font-medium rounded-md text-xs">
                       {scannedResult.data.remainingTokens} Tokens Left
                     </span>
                   </div>
@@ -1370,15 +1333,15 @@ export default function OwnerDashboard() {
 
                 {/* Specifics for Per-Plate Meal Booking */}
                 {(scannedResult.tokenType === "per_plate" || scannedResult.type === "order") && (
-                  <div className="p-3 bg-white rounded-xl border border-orange-100 text-xs flex justify-between items-center">
+                  <div className="p-3 bg-white rounded-lg border border-stone-200 text-xs flex justify-between items-center">
                     <div>
-                      <span className="font-bold text-gray-800 block">Single-Meal Counter Booking</span>
-                      <span className="text-[10px] text-emerald-600 font-bold uppercase">
+                      <span className="font-medium text-stone-800 block">Single-Meal Booking</span>
+                      <span className="text-[10px] text-emerald-700 font-medium">
                         Payment: {scannedResult.data.paymentStatus || "Paid"}
                       </span>
                     </div>
-                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-800 font-black rounded-lg text-xs border border-emerald-200">
-                      ₹{scannedResult.data.amount || 0} Paid
+                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-medium rounded-md text-xs border border-emerald-200">
+                      ₹{scannedResult.data.amount || 0}
                     </span>
                   </div>
                 )}
@@ -1392,59 +1355,68 @@ export default function OwnerDashboard() {
                     scannedResult.data.tokenStatus === "redeemed"
                   }
                   onClick={() => handleRedeemToken(scannedResult.data.token)}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-colors"
+                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-stone-200 disabled:text-stone-400 text-white font-medium text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5"
                 >
-                  {scannedResult.data.tokenStatus === "served" || scannedResult.data.tokenStatus === "redeemed"
-                    ? "Meal Already Served ✕"
-                    : scannedResult.tokenType === "membership" || scannedResult.type === "subscription"
-                    ? "Deduct 1 Token & Mark Served 🍽️"
-                    : "Mark Ticket as Redeemed 🍽️"}
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>
+                    {scannedResult.data.tokenStatus === "served" || scannedResult.data.tokenStatus === "redeemed"
+                      ? "Meal Already Served"
+                      : scannedResult.tokenType === "membership" || scannedResult.type === "subscription"
+                      ? "Deduct 1 Token & Mark Served"
+                      : "Mark Ticket as Redeemed"}
+                  </span>
                 </button>
               </div>
             )}
           </div>
 
           {/* Live Orders & Meal Queue */}
-          <div className="bg-white rounded-3xl p-6 border border-gray-200/80 shadow-xs space-y-4">
+          <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs space-y-4">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-sm font-extrabold text-gray-900 uppercase tracking-wide">
-                  Live Counter Queue
+                <h3 className="text-sm font-bold text-stone-900 tracking-tight">
+                  Live Queue
                 </h3>
-                <p className="text-xs text-gray-500">Recent reservations for {activeMess?.name || "this outlet"}.</p>
+                <p className="text-xs text-stone-500">Active reservations for {activeMess?.name || "this mess"}.</p>
               </div>
-              <span className="text-[11px] font-bold bg-orange-50 text-orange-600 px-2.5 py-0.5 rounded-full">
-                {orders.length} in queue
+              <span className="text-xs font-medium bg-stone-100 text-stone-700 px-2.5 py-0.5 rounded-full">
+                {orders.length} waiting
               </span>
             </div>
 
-            <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
               {loadingOrders ? (
-                <p className="text-xs text-gray-400 text-center py-8">Loading queue...</p>
+                <p className="text-xs text-stone-400 text-center py-8">Loading queue...</p>
               ) : orders.length === 0 ? (
                 <div className="text-center py-8 space-y-2">
-                  <p className="text-2xl">🥣</p>
-                  <p className="text-xs text-gray-400">No active counter bookings yet today.</p>
+                  <div className="w-10 h-10 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <p className="text-xs text-stone-400">No active bookings in queue today.</p>
                 </div>
               ) : (
                 orders.map((ord) => (
                   <div
                     key={ord._id}
-                    className="p-3 bg-gray-50 hover:bg-gray-100/80 rounded-2xl border border-gray-100 flex items-center justify-between text-xs transition-colors"
+                    className="p-3 bg-stone-50 hover:bg-stone-100/80 rounded-xl border border-stone-200/70 flex items-center justify-between text-xs transition"
                   >
                     <div>
-                      <span className="font-mono font-bold text-gray-900 block">{ord.token}</span>
-                      <span className="text-[11px] text-gray-500 font-medium">
-                        {ord.userName} • <span className="uppercase font-bold text-orange-600">{ord.mealType}</span>
+                      <span className="font-mono font-semibold text-stone-900 block">{ord.token}</span>
+                      <span className="text-[11px] text-stone-500">
+                        {ord.userName} • <span className="font-medium text-stone-700">{ord.mealType}</span>
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                        className={`text-[10px] font-medium px-2 py-0.5 rounded-md ${
                           ord.tokenStatus === "redeemed"
-                            ? "bg-gray-200 text-gray-700"
-                            : "bg-emerald-100 text-emerald-800"
+                            ? "bg-stone-200 text-stone-700"
+                            : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                         }`}
                       >
                         {ord.tokenStatus}
@@ -1453,7 +1425,7 @@ export default function OwnerDashboard() {
                         <button
                           type="button"
                           onClick={() => handleRedeemToken(ord.token)}
-                          className="px-2 py-1 bg-gray-900 hover:bg-black text-white text-[10px] font-bold rounded-lg transition"
+                          className="px-3 py-1 bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium rounded-lg transition"
                         >
                           Serve
                         </button>
@@ -1468,35 +1440,35 @@ export default function OwnerDashboard() {
 
         {/* RIGHT COLUMN: BUSINESS PROFILE & OUTLET CONTROLS */}
         <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200/80 shadow-xs space-y-6">
-            <div className="flex justify-between items-start border-b border-gray-100 pb-4">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-xs space-y-6">
+            <div className="flex justify-between items-start border-b border-stone-100 pb-4">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
+                <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wide">
                   Outlet Settings
                 </span>
-                <h2 className="text-xl font-black text-gray-900 mt-1">
+                <h2 className="text-xl font-bold text-stone-900 mt-0.5 tracking-tight">
                   Mess Business Profile
                 </h2>
-                <p className="text-xs text-gray-500">
-                  Manage listing information, student seating, and operational visibility.
+                <p className="text-xs text-stone-500">
+                  Update listing details, seating capacity, and student visibility.
                 </p>
               </div>
 
               <span
-                className={`text-[10px] uppercase font-black px-3 py-1 rounded-full border ${
+                className={`text-[10px] uppercase font-medium px-2.5 py-1 rounded-full border ${
                   isOpen
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : "bg-red-50 text-red-700 border-red-200"
+                    : "bg-stone-100 text-stone-600 border-stone-200"
                 }`}
               >
-                {isOpen ? "Accepting Students" : "Paused / Closed"}
+                {isOpen ? "Open for Dining" : "Paused / Closed"}
               </span>
             </div>
 
             <form onSubmit={handleUpdateMess} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
                     Mess / Canteen Name
                   </label>
                   <input
@@ -1504,12 +1476,12 @@ export default function OwnerDashboard() {
                     required
                     value={messName}
                     onChange={(e) => setMessName(e.target.value)}
-                    className="w-full p-3 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
                     Locality / Campus Area
                   </label>
                   <input
@@ -1517,20 +1489,20 @@ export default function OwnerDashboard() {
                     required
                     value={locality}
                     onChange={(e) => setLocality(e.target.value)}
-                    className="w-full p-3 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
                     Primary Cuisine Type
                   </label>
                   <select
                     value={cuisineType}
                     onChange={(e) => setCuisineType(e.target.value)}
-                    className="w-full p-3 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
                   >
                     <option value="North Indian">North Indian</option>
                     <option value="South Indian">South Indian</option>
@@ -1541,21 +1513,21 @@ export default function OwnerDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
                     Contact Phone Number
                   </label>
                   <input
                     type="text"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full p-3 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
                     Seating Capacity
                   </label>
                   <input
@@ -1563,12 +1535,12 @@ export default function OwnerDashboard() {
                     min="1"
                     value={seatingCapacity}
                     onChange={(e) => setSeatingCapacity(e.target.value)}
-                    className="w-full p-3 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
                     Photo URL (Cover Image)
                   </label>
                   <input
@@ -1576,18 +1548,18 @@ export default function OwnerDashboard() {
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="https://..."
-                    className="w-full p-3 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
                   />
                 </div>
               </div>
 
-              {/* Status Radio Toggle */}
+              {/* Status Toggle */}
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-stone-700 mb-2">
                   Operating Status
                 </label>
                 <div className="flex gap-4">
-                  <label className="flex items-center gap-2 text-xs font-bold cursor-pointer">
+                  <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
                     <input
                       type="radio"
                       name="isOpenStatus"
@@ -1595,9 +1567,9 @@ export default function OwnerDashboard() {
                       onChange={() => setIsOpen(true)}
                       className="text-orange-600 focus:ring-orange-500"
                     />
-                    <span className="text-emerald-700">Open for Bookings</span>
+                    <span className="text-stone-800">Open for Bookings</span>
                   </label>
-                  <label className="flex items-center gap-2 text-xs font-bold cursor-pointer">
+                  <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
                     <input
                       type="radio"
                       name="isOpenStatus"
@@ -1605,7 +1577,7 @@ export default function OwnerDashboard() {
                       onChange={() => setIsOpen(false)}
                       className="text-orange-600 focus:ring-orange-500"
                     />
-                    <span className="text-red-700">Paused (Temporarily Closed)</span>
+                    <span className="text-stone-500">Paused (Temporarily Closed)</span>
                   </label>
                 </div>
               </div>
@@ -1613,46 +1585,46 @@ export default function OwnerDashboard() {
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="w-full py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                className="w-full py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-medium text-xs rounded-lg transition shadow-xs disabled:opacity-50"
               >
-                {actionLoading ? "Saving Changes..." : "Save Outlet Changes 💾"}
+                {actionLoading ? "Saving Changes..." : "Save Changes"}
               </button>
 
               {/* ── ACCESS & PERMISSIONS SECTION ── */}
               {activeMess && (
-                <div className="pt-5 border-t border-gray-100 space-y-4">
+                <div className="pt-5 border-t border-stone-100 space-y-4">
                   {isSuperAdmin ? (
-                    <div className="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 sm:p-5 space-y-4">
+                    <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 sm:p-5 space-y-4">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div className="space-y-0.5">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 bg-purple-200/80 px-2 py-0.5 rounded-md">
-                            🛡️ SuperAdmin Access Control
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                            SuperAdmin Access Control
                           </span>
-                          <h4 className="text-sm font-black text-gray-900">
-                            Give Access to Google or Email Account
+                          <h4 className="text-sm font-bold text-stone-900">
+                            Assign Outlet to Google or Email Account
                           </h4>
                         </div>
                         <span
-                          className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full border self-start sm:self-auto ${
+                          className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full border self-start sm:self-auto ${
                             activeMess.isClaimed
-                              ? "bg-emerald-100 text-emerald-800 border-emerald-300"
-                              : "bg-amber-100 text-amber-800 border-amber-300"
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              : "bg-amber-50 text-amber-700 border-amber-200"
                           }`}
                         >
                           {activeMess.isClaimed
-                            ? `✅ Linked (${activeMess.ownerId ? "UID Linked" : "Claimed"})`
-                            : "⏳ Pre-Created (Waiting for Owner Signup)"}
+                            ? `Linked (${activeMess.ownerId ? "Account Active" : "Claimed"})`
+                            : "Pre-Created (Waiting for Owner Signup)"}
                         </span>
                       </div>
 
-                      <p className="text-xs text-purple-900 leading-relaxed">
-                        Enter any mess owner&rsquo;s Google account or email address. When that mess owner logs in or signs up with that Google or email ID, <strong>&ldquo;{activeMess.name}&rdquo;</strong> will automatically be linked to their portal with full operational access!
+                      <p className="text-xs text-stone-600 leading-relaxed">
+                        Specify any mess owner&rsquo;s Google account or email. When they sign in or register with that email, <strong>&ldquo;{activeMess.name}&rdquo;</strong> will connect automatically to their portal with full operational access.
                       </p>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div>
-                          <label className="block text-[11px] font-bold uppercase text-purple-900 mb-1">
-                            Mess Owner Google / Email Address *
+                          <label className="block text-xs font-medium text-stone-700 mb-1">
+                            Mess Owner Email / Google ID *
                           </label>
                           <input
                             type="email"
@@ -1660,12 +1632,12 @@ export default function OwnerDashboard() {
                             value={permOwnerEmail}
                             onChange={(e) => setPermOwnerEmail(e.target.value)}
                             placeholder="e.g. momskitchen@gmail.com"
-                            className="w-full p-2.5 text-xs bg-white border-2 border-purple-300 rounded-xl focus:ring-2 focus:ring-purple-500 font-bold text-gray-900 placeholder-gray-400"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">
+                          <label className="block text-xs font-medium text-stone-700 mb-1">
                             Additional Manager Emails (Optional)
                           </label>
                           <input
@@ -1673,7 +1645,7 @@ export default function OwnerDashboard() {
                             value={permManagerEmails}
                             onChange={(e) => setPermManagerEmails(e.target.value)}
                             placeholder="manager1@gmail.com, staff@gmail.com"
-                            className="w-full p-2.5 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
                           />
                         </div>
                       </div>
@@ -1683,20 +1655,25 @@ export default function OwnerDashboard() {
                           type="button"
                           onClick={handleUpdatePermissions}
                           disabled={permSaving}
-                          className="px-5 py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs disabled:opacity-50 flex items-center gap-1.5"
+                          className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white font-medium text-xs rounded-lg transition shadow-xs disabled:opacity-50 flex items-center gap-1.5"
                         >
-                          <span>{permSaving ? "Granting Access..." : "Give Access 🔑"}</span>
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                          </svg>
+                          <span>{permSaving ? "Updating Access..." : "Grant Access"}</span>
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 text-xs space-y-1">
-                      <div className="flex items-center gap-1.5 text-amber-900 font-black">
-                        <span>🔐</span>
-                        <span>Assigned Mess Outlet</span>
+                    <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-xs space-y-1">
+                      <div className="flex items-center gap-1.5 text-stone-800 font-semibold">
+                        <svg className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <span>Assigned Outlet</span>
                       </div>
-                      <p className="text-gray-600">
-                        This mess is assigned to <strong className="text-gray-900">{activeMess.ownerEmail}</strong>. Multi-outlet provisioning and ownership assignment are managed by the platform SuperAdmin.
+                      <p className="text-stone-600">
+                        This mess is assigned to <strong className="text-stone-800">{activeMess.ownerEmail}</strong>. Multi-outlet provisioning is managed by the administrator.
                       </p>
                     </div>
                   )}
@@ -1705,12 +1682,12 @@ export default function OwnerDashboard() {
 
               {/* Danger Zone: Branch Deletion (SuperAdmin Exclusive) */}
               {isSuperAdmin && activeMess && (
-                <div className="pt-5 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="pt-5 border-t border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <span className="text-xs font-black uppercase tracking-wider text-red-700 block">
-                      Danger Zone • Outlet Deletion
+                    <span className="text-xs font-semibold text-rose-700 block">
+                      Danger Zone • Delete Outlet
                     </span>
-                    <span className="text-[11px] text-gray-500 block">
+                    <span className="text-[11px] text-stone-500 block">
                       Permanently remove &ldquo;{activeMess.name}&rdquo; and all associated configuration.
                     </span>
                   </div>
@@ -1718,9 +1695,11 @@ export default function OwnerDashboard() {
                     type="button"
                     onClick={() => setShowDeleteModal(true)}
                     disabled={actionLoading || deletingMess}
-                    className="px-3.5 py-2 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 font-bold text-xs rounded-xl border border-red-200 transition-colors shadow-2xs self-start sm:self-auto flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+                    className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-medium text-xs rounded-lg border border-rose-200 transition flex items-center gap-1.5 disabled:opacity-50"
                   >
-                    <span>🗑️</span>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                     <span>Delete Outlet</span>
                   </button>
                 </div>
@@ -1733,41 +1712,45 @@ export default function OwnerDashboard() {
 
       {/* ── CONFIRMATION MODAL: DELETE OUTLET BRANCH ── */}
       {showDeleteModal && activeMess && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 border border-gray-200 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-2xl flex-shrink-0">
-                🗑️
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 border border-stone-200 shadow-xl space-y-5 animate-in zoom-in-95 duration-150">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center flex-shrink-0 border border-rose-100">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
               </div>
               <div className="space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-wider text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
+                <span className="text-[10px] font-medium uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">
                   Confirm Deletion
                 </span>
-                <h3 className="text-lg font-black text-gray-900 tracking-tight">
+                <h3 className="text-base font-bold text-stone-900 tracking-tight">
                   Delete &ldquo;{activeMess.name}&rdquo;?
                 </h3>
-                <p className="text-xs text-gray-500 leading-relaxed">
-                  Are you sure you want to permanently delete this mess branch in <strong className="text-gray-700">{activeMess.locality}</strong>?
+                <p className="text-xs text-stone-500 leading-relaxed">
+                  Are you sure you want to permanently delete this mess branch in <strong className="text-stone-700">{activeMess.locality}</strong>?
                 </p>
               </div>
             </div>
 
-            <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200 text-amber-900 text-xs space-y-1 leading-relaxed">
-              <div className="font-bold flex items-center gap-1.5">
-                <span>⚠️</span>
-                <span>Irreversible Branch Removal</span>
+            <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-stone-700 text-xs space-y-1 leading-relaxed">
+              <div className="font-medium text-stone-900 flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>Irreversible action</span>
               </div>
-              <p className="text-[11px] text-amber-800">
-                Deleting this outlet will permanently remove its business profile, daily thali menus, subscription packages, and counter records. This action cannot be undone.
+              <p className="text-[11px] text-stone-500">
+                Deleting this outlet removes its menus, subscription packages, and counter records permanently.
               </p>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="flex items-center justify-end gap-2.5 pt-1">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
                 disabled={deletingMess}
-                className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs uppercase tracking-wider rounded-xl transition"
+                className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs rounded-lg transition"
               >
                 Cancel
               </button>
@@ -1775,18 +1758,9 @@ export default function OwnerDashboard() {
                 type="button"
                 onClick={handleDeleteMess}
                 disabled={deletingMess}
-                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-xs transition disabled:opacity-50 flex items-center gap-2 active:scale-95"
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs rounded-lg shadow-xs transition disabled:opacity-50 flex items-center gap-1.5"
               >
-                {deletingMess ? (
-                  <>
-                    <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
-                    <span>Deleting Branch...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Delete Outlet Permanently</span>
-                  </>
-                )}
+                {deletingMess ? "Deleting..." : "Delete Permanently"}
               </button>
             </div>
           </div>
@@ -1795,51 +1769,52 @@ export default function OwnerDashboard() {
 
       {/* ── MESS VERIFICATION & COMPLIANCE MODAL ── */}
       {showVerifyModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-gray-200 shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 border border-stone-200 shadow-xl space-y-6 my-8 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-150">
             {/* Header */}
-            <div className="flex items-start justify-between gap-4 border-b border-gray-100 pb-5">
+            <div className="flex items-start justify-between gap-4 border-b border-stone-100 pb-5">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl flex-shrink-0 shadow-2xs">
-                  🛡️
+                <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center flex-shrink-0 border border-orange-100">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200">
+                    <span className="text-[10px] font-medium uppercase tracking-wider text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md">
                       Compliance & Onboarding
                     </span>
-                    <span className="text-[10px] font-bold text-gray-500">
+                    <span className="text-[10px] text-stone-400">
                       Messta Trust & Safety
                     </span>
                   </div>
-                  <h3 className="text-xl font-black text-gray-900 tracking-tight mt-1">
+                  <h3 className="text-lg font-bold text-stone-900 tracking-tight mt-0.5">
                     Mess Verification & FSSAI Registration
                   </h3>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Submit authentic regulatory credentials to earn the verified badge and publish your mess to students.
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Submit regulatory credentials to earn the verified badge and publish your mess to students.
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowVerifyModal(false)}
-                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold transition flex-shrink-0"
+                className="w-8 h-8 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 flex items-center justify-center transition flex-shrink-0"
               >
-                ✕
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
             {/* Quick Demo Fill Pill (Available in local dev only) */}
             {import.meta.env.DEV && (
-              <div className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2 text-amber-900">
-                  <span className="text-base">⚡</span>
-                  <span className="font-semibold">Need to test quickly? Auto-populate mock legal and FSSAI details.</span>
-                </div>
+              <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 flex items-center justify-between gap-3 text-xs">
+                <span className="text-stone-600 font-medium">Auto-populate mock legal and FSSAI details for testing.</span>
                 <button
                   type="button"
                   onClick={handleFillDemoVerification}
-                  className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-black text-[11px] uppercase tracking-wider rounded-xl transition shadow-2xs whitespace-nowrap active:scale-95 cursor-pointer"
+                  className="px-3 py-1 bg-stone-900 hover:bg-stone-800 text-white font-medium text-xs rounded-lg transition"
                 >
                   Auto-Fill Demo
                 </button>
@@ -2080,25 +2055,16 @@ export default function OwnerDashboard() {
                   type="button"
                   onClick={() => setShowVerifyModal(false)}
                   disabled={submittingVerification}
-                  className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
+                  className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs rounded-lg transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingVerification}
-                  className="px-6 py-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition disabled:opacity-50 flex items-center gap-2 active:scale-95 cursor-pointer"
+                  className="px-5 py-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium text-xs rounded-lg shadow-xs transition disabled:opacity-50 flex items-center gap-1.5"
                 >
-                  {submittingVerification ? (
-                    <>
-                      <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
-                      <span>Submitting For Review...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Submit for Verification 🛡️</span>
-                    </>
-                  )}
+                  {submittingVerification ? "Submitting..." : "Submit for Verification"}
                 </button>
               </div>
             </form>

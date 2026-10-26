@@ -719,37 +719,37 @@ export default function OwnerMeals() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/70 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-stone-50/60 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
       
-      {/* ── TOP OUTLET COMMAND BAR ── */}
-      <div className="bg-white rounded-3xl p-6 border border-gray-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+      {/* ── TOP OUTLET HEADER ── */}
+      <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[11px] font-black uppercase tracking-wider text-orange-600">
-              Supply & Menu Operating System • {activeMess?.name || "Active Mess"}
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wide">
+              {activeMess?.name || "Active Mess"} • Kitchen Operations
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
-            Menu Command & Slot Allocation
+          <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+            Daily Menu & Meal Slots
           </h1>
-          <p className="text-xs text-gray-500">
-            Configure operational windows, prevent counter over-crowding with capacity intervals, and map thalis to membership tiers.
+          <p className="text-xs text-stone-500">
+            Configure dining hours, control counter rush with slot capacities, and publish today's menu.
           </p>
         </div>
 
-        {/* Outlet Switcher & Status Badges */}
+        {/* Outlet Switcher */}
         <div className="flex flex-wrap items-center gap-3">
           <select
             value={activeMessId}
             onChange={(e) => switchMess(e.target.value)}
             disabled={loadingMesses || allMesses.length === 0}
             aria-label="Active Outlet Branch"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-xs font-bold py-2.5 px-4 rounded-xl focus:ring-2 focus:ring-orange-500 transition-all cursor-pointer shadow-2xs"
+            className="bg-stone-50 border border-stone-300 text-stone-900 text-xs font-medium py-2 px-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition cursor-pointer"
           >
             {allMesses.map((m) => (
               <option key={m._id || m.id} value={m._id || m.id}>
-                📍 {m.name} ({m.locality})
+                {m.name} ({m.locality})
               </option>
             ))}
           </select>
@@ -757,19 +757,21 @@ export default function OwnerMeals() {
       </div>
 
       {/* Navigation Tabs Bar */}
-      <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-2">
+      <div className="flex flex-wrap gap-2 border-b border-stone-200 pb-2">
         <button
           type="button"
           onClick={() => setActiveTab("headcount")}
-          className={`px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-lg font-medium text-xs transition flex items-center gap-2 ${
             activeTab === "headcount"
-              ? "bg-purple-700 text-white shadow-xs"
-              : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200/80"
+              ? "bg-stone-900 text-white shadow-xs"
+              : "bg-white text-stone-600 hover:bg-stone-100 border border-stone-200"
           }`}
         >
-          <span>📋</span>
-          <span>Tomorrow's Headcount & Ration Sheet</span>
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400 text-gray-950 font-black">
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+          <span>Kitchen Prep & Headcount</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium">
             {headcountData?.headcount?.total ?? 0} seats
           </span>
         </button>
@@ -777,15 +779,17 @@ export default function OwnerMeals() {
         <button
           type="button"
           onClick={() => setActiveTab("slots")}
-          className={`px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-lg font-medium text-xs transition flex items-center gap-2 ${
             activeTab === "slots"
-              ? "bg-gray-900 text-white shadow-xs"
-              : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200/80"
+              ? "bg-stone-900 text-white shadow-xs"
+              : "bg-white text-stone-600 hover:bg-stone-100 border border-stone-200"
           }`}
         >
-          <span>⏱️</span>
-          <span>Step A: Meal Windows & Time-Slots</span>
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500 text-white font-mono">
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Meal Windows & Slots</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 font-mono">
             {totalSlotsCount}
           </span>
         </button>
@@ -793,15 +797,17 @@ export default function OwnerMeals() {
         <button
           type="button"
           onClick={() => setActiveTab("thalis")}
-          className={`px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-lg font-medium text-xs transition flex items-center gap-2 ${
             activeTab === "thalis"
-              ? "bg-gray-900 text-white shadow-xs"
-              : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200/80"
+              ? "bg-stone-900 text-white shadow-xs"
+              : "bg-white text-stone-600 hover:bg-stone-100 border border-stone-200"
           }`}
         >
-          <span>🍲</span>
-          <span>Step B & C: Thali Publishing & Tier Mapping</span>
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white font-mono">
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span>Daily Menu & Pricing</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono">
             {activePublishedMeals.length} live
           </span>
         </button>
@@ -810,19 +816,21 @@ export default function OwnerMeals() {
       {/* Feedback Banner */}
       {feedback.text && (
         <div
-          className={`p-4 rounded-2xl border text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200 ${
+          className={`p-3.5 rounded-xl border text-xs font-medium flex items-center justify-between animate-in fade-in duration-150 ${
             feedback.type === "success"
               ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-              : "bg-red-50 border-red-200 text-red-800"
+              : "bg-rose-50 border-rose-200 text-rose-800"
           }`}
         >
           <span>{feedback.text}</span>
           <button
             type="button"
             onClick={() => setFeedback({ text: "", type: "" })}
-            className="text-gray-400 hover:text-gray-600 font-bold"
+            className="text-stone-400 hover:text-stone-600 p-1 rounded-md"
           >
-            ✕
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
       )}

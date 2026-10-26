@@ -128,28 +128,28 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50/50">
-      <div className="max-w-md w-full bg-white rounded-3xl border border-gray-200/80 shadow-lg p-8 sm:p-10 space-y-6">
+    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-stone-50/50">
+      <div className="max-w-md w-full bg-white rounded-2xl border border-stone-200 shadow-sm p-8 sm:p-9 space-y-6">
         
         {/* Brand & Gateway Intro */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-1.5">
           <img
             src={messtaIcon}
             alt="Messta Logo"
-            className="w-16 h-16 mx-auto object-contain drop-shadow-md mb-2 hover:scale-105 transition-transform"
+            className="w-14 h-14 mx-auto object-contain mb-1"
           />
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
-            Welcome to Messta
+          <h1 className="text-2xl font-bold text-stone-900 tracking-tight">
+            {isSignup ? "Create your account" : "Welcome back"}
           </h1>
-          <p className="text-xs text-gray-500">
-            Select your portal to enter your dedicated operating workspace.
+          <p className="text-xs text-stone-500">
+            Select your account type to proceed to your portal.
           </p>
         </div>
 
         {/* ── STEP 1: PORTAL SELECTION (Student vs. Mess Owner vs. SuperAdmin) ── */}
-        <div className="space-y-3">
-          <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400 text-center">
-            Select Your Account Type
+        <div className="space-y-2.5">
+          <label className="block text-xs font-medium text-stone-500 text-center">
+            Select Account Type
           </label>
           <div className="grid grid-cols-3 gap-2">
             <button
@@ -158,22 +158,27 @@ export default function Login() {
                 setSelectedPortal("user");
                 setMessMode("owner");
               }}
-              className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+              className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
                 selectedPortal === "user"
-                  ? "border-orange-500 bg-orange-50/70 ring-2 ring-orange-500/20 shadow-xs"
-                  : "border-gray-200 bg-gray-50/70 hover:border-gray-300 text-gray-600"
+                  ? "border-orange-600 bg-orange-50/50 ring-1 ring-orange-500/30 text-stone-900"
+                  : "border-stone-200 bg-stone-50/50 hover:border-stone-300 text-stone-600"
               }`}
             >
-              <div className="flex items-center justify-between w-full mb-1">
-                <span className="text-xl">🎓</span>
+              <div className="flex items-center justify-between w-full mb-2">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${selectedPortal === "user" ? "bg-orange-100 text-orange-700" : "bg-stone-200/60 text-stone-600"}`}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 14l9-5-9-5-9 5 9 5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                  </svg>
+                </div>
                 {selectedPortal === "user" && (
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-600"></span>
                 )}
               </div>
               <div>
-                <span className="font-black text-xs text-gray-900 block">Student</span>
-                <span className="text-[9px] text-gray-500 leading-tight block">
-                  Passes & Dining
+                <span className="font-semibold text-xs block">Student</span>
+                <span className="text-[10px] text-stone-500 block">
+                  Meal Passes
                 </span>
               </div>
             </button>
@@ -181,22 +186,26 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setSelectedPortal("owner")}
-              className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+              className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
                 selectedPortal === "owner"
-                  ? "border-amber-600 bg-amber-50/80 ring-2 ring-amber-500/20 shadow-xs"
-                  : "border-gray-200 bg-gray-50/70 hover:border-gray-300 text-gray-600"
+                  ? "border-orange-600 bg-orange-50/50 ring-1 ring-orange-500/30 text-stone-900"
+                  : "border-stone-200 bg-stone-50/50 hover:border-stone-300 text-stone-600"
               }`}
             >
-              <div className="flex items-center justify-between w-full mb-1">
-                <span className="text-xl">🏢</span>
+              <div className="flex items-center justify-between w-full mb-2">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${selectedPortal === "owner" ? "bg-orange-100 text-orange-700" : "bg-stone-200/60 text-stone-600"}`}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
                 {selectedPortal === "owner" && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-600"></span>
                 )}
               </div>
               <div>
-                <span className="font-black text-xs text-gray-900 block">Mess Owner</span>
-                <span className="text-[9px] text-gray-500 leading-tight block">
-                  Kitchen & Studio
+                <span className="font-semibold text-xs block">Mess Owner</span>
+                <span className="text-[10px] text-stone-500 block">
+                  Kitchen Portal
                 </span>
               </div>
             </button>
@@ -204,37 +213,40 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setSelectedPortal("admin")}
-              className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+              className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
                 selectedPortal === "admin"
-                  ? "border-purple-600 bg-purple-50/90 ring-2 ring-purple-500/20 shadow-xs"
-                  : "border-gray-200 bg-gray-50/70 hover:border-gray-300 text-gray-600"
+                  ? "border-stone-900 bg-stone-100 ring-1 ring-stone-900/30 text-stone-900"
+                  : "border-stone-200 bg-stone-50/50 hover:border-stone-300 text-stone-600"
               }`}
             >
-              <div className="flex items-center justify-between w-full mb-1">
-                <span className="text-xl">🛡️</span>
+              <div className="flex items-center justify-between w-full mb-2">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${selectedPortal === "admin" ? "bg-stone-900 text-white" : "bg-stone-200/60 text-stone-600"}`}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
                 {selectedPortal === "admin" && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-stone-900"></span>
                 )}
               </div>
               <div>
-                <span className="font-black text-xs text-gray-900 block">SuperAdmin</span>
-                <span className="text-[9px] text-gray-500 leading-tight block">
-                  Finance & Safety
+                <span className="font-semibold text-xs block">Admin</span>
+                <span className="text-[10px] text-stone-500 block">
+                  Console
                 </span>
               </div>
             </button>
           </div>
 
-          {/* ── FOR MESS OWNER PORTAL: TWO LOGIN OPTIONS (Normal Owner vs. SuperAdmin in Mess Studio) ── */}
+          {/* ── FOR MESS OWNER PORTAL: TWO LOGIN OPTIONS ── */}
           {selectedPortal === "owner" && (
-            <div className="bg-amber-50/70 border border-amber-200/90 rounded-2xl p-3.5 space-y-3 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-wider text-amber-950 flex items-center gap-1">
-                  <span>⚙️</span>
-                  <span>Mess Portal Login Option</span>
+            <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 space-y-2.5 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-medium text-stone-700">
+                  Mess Portal Sign-In Mode
                 </span>
-                <span className="text-[10px] font-bold text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full">
-                  {messMode === "owner" ? "Normal Owner Mode" : "SuperAdmin in Mess Studio"}
+                <span className="text-[10px] text-stone-500">
+                  {messMode === "owner" ? "Standard Mess Owner" : "SuperAdmin Mode"}
                 </span>
               </div>
 
@@ -242,62 +254,54 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setMessMode("owner")}
-                  className={`p-2.5 rounded-xl border text-left transition-all ${
+                  className={`p-2.5 rounded-lg border text-left transition ${
                     messMode === "owner"
-                      ? "bg-white border-amber-600 ring-2 ring-amber-500/20 text-gray-900 shadow-xs font-bold"
-                      : "bg-white/60 border-amber-200 text-gray-600 hover:bg-white"
+                      ? "bg-white border-stone-400 text-stone-900 shadow-xs font-medium"
+                      : "bg-white/60 border-stone-200 text-stone-500 hover:bg-white"
                   }`}
                 >
-                  <div className="flex items-center gap-1.5 text-xs text-gray-900 font-extrabold">
-                    <span>🏢</span>
-                    <span>Normal Mess Owner</span>
-                  </div>
-                  <p className="text-[10px] text-gray-500 mt-0.5 font-normal leading-snug">
-                    Standard login to manage your mess.
+                  <span className="text-xs font-semibold block text-stone-900">Standard Owner</span>
+                  <p className="text-[10px] text-stone-500 mt-0.5 leading-snug">
+                    Manage your assigned mess.
                   </p>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setMessMode("admin_in_owner")}
-                  className={`p-2.5 rounded-xl border text-left transition-all ${
+                  className={`p-2.5 rounded-lg border text-left transition ${
                     messMode === "admin_in_owner"
-                      ? "bg-white border-purple-600 ring-2 ring-purple-500/20 text-purple-950 shadow-xs font-bold"
-                      : "bg-white/60 border-purple-200 text-gray-600 hover:bg-white"
+                      ? "bg-white border-stone-900 text-stone-900 shadow-xs font-medium"
+                      : "bg-white/60 border-stone-200 text-stone-500 hover:bg-white"
                   }`}
                 >
-                  <div className="flex items-center gap-1.5 text-xs text-purple-950 font-extrabold">
-                    <span>🛡️</span>
-                    <span>SuperAdmin Login</span>
-                  </div>
-                  <p className="text-[10px] text-gray-500 mt-0.5 font-normal leading-snug">
-                    Login with passkey into Mess Portal.
+                  <span className="text-xs font-semibold block text-stone-900">SuperAdmin</span>
+                  <p className="text-[10px] text-stone-500 mt-0.5 leading-snug">
+                    Manage all messes & grant access.
                   </p>
                 </button>
               </div>
 
               {/* Passkey Input for SuperAdmin in Mess Owner Portal */}
               {messMode === "admin_in_owner" && (
-                <div className="bg-purple-50 border border-purple-200/90 rounded-xl p-3 space-y-2 text-xs animate-in fade-in duration-200">
-                  <div className="flex items-center justify-between">
-                    <span className="font-black text-purple-950 flex items-center gap-1 text-[11px]">
-                      <span>🔐</span> Enter SuperAdmin Master Passkey
-                    </span>
-                  </div>
+                <div className="bg-white border border-stone-300 rounded-lg p-3 space-y-1.5 text-xs animate-in fade-in duration-150">
+                  <label className="block text-xs font-medium text-stone-700">
+                    SuperAdmin Master Security Key
+                  </label>
                   <div className="relative">
                     <input
                       type={showAdminPasskey ? "text" : "password"}
                       value={adminPasskey}
                       onChange={(e) => setAdminPasskey(e.target.value)}
-                      placeholder="Enter Master Security Passkey..."
-                      className="w-full p-2.5 pr-10 text-xs bg-white border border-purple-300 rounded-xl focus:ring-2 focus:ring-purple-500 font-mono text-purple-900"
+                      placeholder="Enter Master Security Key..."
+                      className="w-full px-3 py-2 pr-10 text-xs bg-stone-50 border border-stone-300 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-500/20 focus:border-stone-700 font-mono text-stone-900 transition"
                     />
                     <button
                       type="button"
                       onClick={() => setShowAdminPasskey(!showAdminPasskey)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-purple-600 hover:text-purple-900 p-1 cursor-pointer transition"
-                      title={showAdminPasskey ? "Hide security key" : "Show security key"}
-                      aria-label={showAdminPasskey ? "Hide security key" : "Show security key"}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 p-1 transition cursor-pointer"
+                      title={showAdminPasskey ? "Hide key" : "Show key"}
+                      aria-label={showAdminPasskey ? "Hide key" : "Show key"}
                     >
                       {showAdminPasskey ? (
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,8 +315,8 @@ export default function Login() {
                       )}
                     </button>
                   </div>
-                  <p className="text-[10px] text-purple-700 leading-snug">
-                    Unlocks the Mess Owner Studio with universal management and the tool to add messes & grant access to any Google or email ID.
+                  <p className="text-[11px] text-stone-500">
+                    Provides universal mess management and permission controls.
                   </p>
                 </div>
               )}
@@ -321,26 +325,24 @@ export default function Login() {
 
           {/* ── FOR SUPERADMIN PORTAL: DIRECT PASSKEY GATE TO FINANCE COMMAND CENTER ── */}
           {selectedPortal === "admin" && (
-            <div className="bg-purple-50/80 border border-purple-200/90 rounded-2xl p-3.5 space-y-2 text-xs animate-in fade-in duration-200">
-              <div className="flex items-center justify-between">
-                <span className="font-black text-purple-950 flex items-center gap-1.5 text-[11px]">
-                  <span>🔐</span> Master Security Passkey (Platform Command Center)
-                </span>
-              </div>
+            <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 space-y-1.5 text-xs animate-in fade-in duration-150">
+              <label className="block text-xs font-medium text-stone-700">
+                Admin Master Security Key
+              </label>
               <div className="relative">
                 <input
                   type={showAdminPasskey ? "text" : "password"}
                   value={adminPasskey}
                   onChange={(e) => setAdminPasskey(e.target.value)}
-                  placeholder="Enter Platform Master Security Passkey..."
-                  className="w-full p-2.5 pr-10 text-xs bg-white border border-purple-300 rounded-xl focus:ring-2 focus:ring-purple-500 font-mono text-purple-900"
+                  placeholder="Enter Master Security Key..."
+                  className="w-full px-3 py-2 pr-10 text-xs bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500/20 focus:border-stone-700 font-mono text-stone-900 transition"
                 />
                 <button
                   type="button"
                   onClick={() => setShowAdminPasskey(!showAdminPasskey)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-purple-600 hover:text-purple-900 p-1 cursor-pointer transition"
-                  title={showAdminPasskey ? "Hide security key" : "Show security key"}
-                  aria-label={showAdminPasskey ? "Hide security key" : "Show security key"}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 p-1 transition cursor-pointer"
+                  title={showAdminPasskey ? "Hide key" : "Show key"}
+                  aria-label={showAdminPasskey ? "Hide key" : "Show key"}
                 >
                   {showAdminPasskey ? (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,8 +356,8 @@ export default function Login() {
                   )}
                 </button>
               </div>
-              <p className="text-[10px] text-purple-700 leading-snug">
-                Unlocks the Universal Financial Command Center & Platform Trust & Safety.
+              <p className="text-[11px] text-stone-500">
+                Grants access to the platform-wide administrative console.
               </p>
             </div>
           )}
@@ -363,17 +365,17 @@ export default function Login() {
 
         {/* Error Alert */}
         {error && (
-          <div className="p-3 bg-red-50 text-red-700 text-xs font-semibold rounded-2xl border border-red-200">
+          <div className="p-3 bg-rose-50 text-rose-700 text-xs font-medium rounded-lg border border-rose-200">
             {error}
           </div>
         )}
 
-        {/* Google OAuth Button */}
+        {/* Google Sign-In Button */}
         <button
           type="button"
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full py-3 px-4 border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-xs uppercase tracking-wider rounded-xl shadow-2xs transition flex items-center justify-center gap-3 disabled:opacity-50"
+          className="w-full py-2.5 px-4 border border-stone-300 hover:bg-stone-50 text-stone-700 font-medium text-xs rounded-lg shadow-2xs transition flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
@@ -384,18 +386,18 @@ export default function Login() {
           Continue with Google
         </button>
 
-        <div className="relative flex py-1 items-center">
-          <div className="flex-grow border-t border-gray-200"></div>
-          <span className="flex-shrink mx-4 text-gray-400 text-[10px] uppercase font-bold tracking-wider">
-            Or with email
+        <div className="relative flex py-0.5 items-center">
+          <div className="flex-grow border-t border-stone-200"></div>
+          <span className="flex-shrink mx-3 text-stone-400 text-[11px] font-medium">
+            or with email
           </span>
-          <div className="flex-grow border-t border-gray-200"></div>
+          <div className="flex-grow border-t border-stone-200"></div>
         </div>
 
         {/* Email & Password Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-stone-700 mb-1">
               Email Address
             </label>
             <input
@@ -404,12 +406,12 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={role === "owner" ? "owner@canteen.com" : "student@college.edu"}
-              className="w-full p-3 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-stone-700 mb-1">
               Password
             </label>
             <div className="relative">
@@ -419,12 +421,12 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full p-3 pr-10 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 pr-10 text-xs bg-stone-50 border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1 cursor-pointer transition"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 p-1 transition cursor-pointer"
                 title={showPassword ? "Hide password" : "Show password"}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
@@ -445,43 +447,25 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3.5 font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer ${
-              role === "admin"
-                ? "bg-purple-700 hover:bg-purple-800 text-white shadow-purple-500/20"
-                : role === "owner"
-                ? "bg-gray-900 hover:bg-black text-white"
-                : "bg-orange-600 hover:bg-orange-700 text-white"
-            }`}
+            className="w-full py-2.5 font-medium text-xs rounded-lg shadow-xs transition disabled:opacity-50 cursor-pointer bg-stone-900 hover:bg-black text-white"
           >
             {loading
-              ? "Entering Workspace..."
+              ? "Signing in..."
               : isSignup
-              ? `Sign Up & Enter ${
-                  role === "admin"
-                    ? "Trust & Safety Portal"
-                    : role === "owner"
-                    ? "Partner CRM"
-                    : "Student Portal"
-                }`
-              : `Sign In to ${
-                  role === "admin"
-                    ? "SuperAdmin Control Panel"
-                    : role === "owner"
-                    ? "Partner CRM"
-                    : "Student Portal"
-                }`}
+              ? "Create Account"
+              : "Sign In"}
           </button>
         </form>
 
-        <div className="text-center pt-2 border-t border-gray-100">
+        <div className="text-center pt-2 border-t border-stone-100">
           <button
             type="button"
             onClick={() => setIsSignup(!isSignup)}
-            className="text-xs font-bold text-gray-600 hover:text-orange-600 transition"
+            className="text-xs font-medium text-stone-600 hover:text-orange-600 transition cursor-pointer"
           >
             {isSignup
-              ? "Already registered? Sign In"
-              : "Need a new account? Sign Up"}
+              ? "Already have an account? Sign in"
+              : "Don't have an account? Sign up"}
           </button>
         </div>
 
