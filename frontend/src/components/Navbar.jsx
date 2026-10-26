@@ -83,14 +83,6 @@ export default function Navbar() {
                     Thali Matrix & Pricing
                   </Link>
                   <Link
-                    to="/owner/memberships"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                      isActive("/owner/memberships") ? "bg-orange-600 text-white shadow-xs" : "text-orange-600 hover:bg-orange-50"
-                    }`}
-                  >
-                    Plans & Subscriber CRM
-                  </Link>
-                  <Link
                     to="/owner/finance"
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                       isActive("/owner/finance") ? "bg-amber-50 text-amber-700 font-bold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -270,13 +262,6 @@ export default function Navbar() {
                 className="text-sm font-semibold text-gray-700 py-1.5"
               >
                 Thali Matrix & Pricing Algorithm
-              </Link>
-              <Link
-                to="/owner/memberships"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-bold text-orange-600 py-1.5"
-              >
-                Plans & Subscriber CRM
               </Link>
               <Link
                 to="/owner/finance"

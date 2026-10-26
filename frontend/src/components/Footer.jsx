@@ -57,8 +57,8 @@ export default function Footer() {
               <Link to="/owner/meals" className="hover:text-orange-600 transition">
                 Thali Matrix & Pricing
               </Link>
-              <Link to="/owner/memberships" className="hover:text-orange-600 transition">
-                Membership Plans & CRM
+              <Link to="/owner/finance" className="hover:text-orange-600 transition">
+                Finance & P&L Intelligence
               </Link>
             </div>
           </div>

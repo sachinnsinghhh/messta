@@ -8,7 +8,6 @@ import UserProfile from "./pages/userprofile";
 import StudentMembership from "./pages/StudentMembership";
 import OwnerDashboard from "./pages/ownerdashboard";
 import OwnerMeals from "./pages/OwnerMeals";
-import OwnerMemberships from "./pages/OwnerMemberships";
 import OwnerFinance from "./pages/OwnerFinance";
 import AdminVerification from "./pages/AdminVerification";
 import SuperAdminFinance from "./pages/SuperAdminFinance";
@@ -112,14 +111,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/owner/memberships"
-              element={
-                <ProtectedRoute requireOwner={true}>
-                  <OwnerMemberships />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/owner/memberships" element={<Navigate to="/owner" replace />} />
             <Route path="/owner/inventory" element={<Navigate to="/owner" replace />} />
             <Route path="/owner/staff" element={<Navigate to="/owner" replace />} />
             <Route

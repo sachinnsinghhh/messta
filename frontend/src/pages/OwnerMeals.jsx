@@ -1,6 +1,5 @@
 import { API_BASE_URL } from "../config/api";
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { useActiveMess } from "../context/useActiveMess";
 
@@ -1821,12 +1820,6 @@ export default function OwnerMeals() {
                     <span className="text-[11px] font-black uppercase tracking-wider text-gray-800 flex items-center gap-1.5">
                       <span>🎟️</span> Published Mess Membership Plans ({publishedPlans.length})
                     </span>
-                    <Link
-                      to="/owner/memberships"
-                      className="text-[11px] font-bold text-orange-600 hover:text-orange-700 hover:underline flex items-center gap-1"
-                    >
-                      Manage Plans ↗
-                    </Link>
                   </div>
 
                   {loadingPlans ? (
@@ -1835,22 +1828,16 @@ export default function OwnerMeals() {
                       Loading published outlet plans...
                     </div>
                   ) : publishedPlans.length === 0 ? (
-                    <div className="p-5 bg-white/90 rounded-2xl border-2 border-dashed border-orange-200 text-center space-y-3">
+                    <div className="p-5 bg-white/90 rounded-2xl border-2 border-dashed border-orange-200 text-center space-y-2">
                       <span className="text-2xl block">🎟️</span>
                       <div>
                         <h4 className="text-xs font-black text-gray-900 uppercase">
-                          No Membership Plans Published Yet
+                          No Membership Plans Linked
                         </h4>
                         <p className="text-[11px] text-gray-500 mt-0.5 max-w-md mx-auto">
-                          This mess branch doesn't have any published membership packages yet. Create plans to link them directly to your thalis.
+                          This mess currently operates with direct per-plate thali pricing and bookings.
                         </p>
                       </div>
-                      <Link
-                        to="/owner/memberships"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider shadow-xs transition"
-                      >
-                        + Create Membership Plans in Membership Portal 🎟️
-                      </Link>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
