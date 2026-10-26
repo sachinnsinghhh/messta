@@ -749,6 +749,9 @@ export default function OwnerFinance() {
                     <span className="text-xs font-black text-purple-950 font-mono block">
                       ₹{(summary?.staffPayrollExpense || 0).toLocaleString()}
                     </span>
+                    <span className="text-[10px] font-bold text-gray-400 block">
+                      Wages & Payroll
+                    </span>
                   </div>
                 </div>
 
@@ -771,6 +774,9 @@ export default function OwnerFinance() {
                   <div className="text-right">
                     <span className="text-xs font-black text-emerald-950 font-mono block">
                       ₹{(summary?.inventoryProcurementExpense || 0).toLocaleString()}
+                    </span>
+                    <span className="text-[10px] font-bold text-gray-400 block">
+                      Rations & Groceries
                     </span>
                   </div>
                 </div>
@@ -1042,7 +1048,7 @@ export default function OwnerFinance() {
                                 Manage ➔
                               </Link>
                             ) : (
-                              <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-bold rounded">
+                              <span className="text-[10px] font-bold text-gray-400">
                                 Auto
                               </span>
                             )

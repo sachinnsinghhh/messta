@@ -963,7 +963,7 @@ export default function OwnerDashboard() {
               </h2>
               <p className="text-xs text-gray-600 max-w-2xl">
                 {isSuperAdmin
-                  ? "Register a new mess branch like normal (e.g. Annapurna, Mom's Kitchen). You can immediately manage its thalis, slots, inventory, staff and finance, or assign access to any Google or email ID below or anytime in Outlet Settings."
+                  ? "Register a new mess branch like normal (e.g. Annapurna, Mom's Kitchen). You can immediately manage its thalis, slots, subscriber plans and finance, or assign access to any Google or email ID below or anytime in Outlet Settings."
                   : `Launch a new mess or campus canteen branch directly under your account (${currentUser?.email || "you"}). You can immediately publish thalis, slot bookings, and manage kitchen prep.`}
               </p>
             </div>
@@ -1213,7 +1213,7 @@ export default function OwnerDashboard() {
               </label>
             </div>
 
-            {/* Active Counter Operator Bar for Shift Accountability */}
+            {/* Active Counter Status Bar */}
             <div className="p-3 bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 rounded-2xl border border-orange-200/90 flex items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2.5 min-w-0">
                 <span className="w-8 h-8 rounded-xl bg-orange-600 text-white font-bold flex items-center justify-center shrink-0 text-sm shadow-2xs">
@@ -1221,22 +1221,16 @@ export default function OwnerDashboard() {
                 </span>
                 <div className="min-w-0">
                   <span className="text-[9px] uppercase font-bold text-gray-500 block">
-                    Operating Cashier / Staff:
+                    Counter Station:
                   </span>
-                  <select
-                    value={selectedStaffId}
-                    onChange={(e) => setSelectedStaffId(e.target.value)}
-                    className="bg-transparent font-black text-gray-900 border-none p-0 text-xs focus:ring-0 cursor-pointer"
-                  >
-                    <option value="">Counter Desk (General)</option>
-                    {messStaff.map((s) => (
-                      <option key={s._id || s.id} value={s._id || s.id}>
-                        {s.name} ({s.roleTitle || s.role}) • {s.shift}
-                      </option>
-                    ))}
-                  </select>
+                  <span className="font-black text-gray-900 text-xs">
+                    Counter Desk (Active Scanner)
+                  </span>
                 </div>
               </div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                ● Live Ready
+              </span>
             </div>
 
             {/* Camera Viewport or Open Camera CTA */}

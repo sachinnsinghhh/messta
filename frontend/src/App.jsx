@@ -120,14 +120,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/owner/inventory"
-              element={<Navigate to="/owner" replace />}
-            />
-            <Route
-              path="/owner/staff"
-              element={<Navigate to="/owner" replace />}
-            />
+            <Route path="/owner/inventory" element={<Navigate to="/owner" replace />} />
+            <Route path="/owner/staff" element={<Navigate to="/owner" replace />} />
             <Route
               path="/owner/finance"
               element={
