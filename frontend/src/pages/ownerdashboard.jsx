@@ -1141,9 +1141,22 @@ export default function OwnerDashboard() {
           <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm space-y-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <span className="text-xs font-medium text-orange-700 bg-orange-50 px-2.5 py-0.5 rounded-md">
-                  Counter Terminal
-                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-medium text-orange-700 bg-orange-50 px-2.5 py-0.5 rounded-md">
+                    Counter Terminal
+                  </span>
+                  {/* Dynamic Kitchen Velocity Indicator */}
+                  <span className="text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                    <span>
+                      {(() => {
+                        const h = new Date().getHours();
+                        if ((h >= 12 && h < 15) || (h >= 19 && h < 22)) return "Lunch/Dinner Rush";
+                        return "Counter Active";
+                      })()}
+                    </span>
+                  </span>
+                </div>
                 <h2 className="text-lg font-bold text-stone-900 mt-1">
                   Meal Token & QR Scanner
                 </h2>
@@ -1153,7 +1166,7 @@ export default function OwnerDashboard() {
               </div>
 
               {/* Rush Mode Switch */}
-              <label className="flex items-center gap-2 cursor-pointer bg-stone-50 hover:bg-stone-100 px-2.5 py-1.5 rounded-lg border border-stone-200 transition select-none shrink-0">
+              <label className="flex items-center gap-2 cursor-pointer bg-stone-50 hover:bg-stone-100 active:scale-95 px-2.5 py-1.5 rounded-lg border border-stone-200 transition select-none shrink-0">
                 <input
                   type="checkbox"
                   checked={autoRedeemRush}
@@ -1303,16 +1316,19 @@ export default function OwnerDashboard() {
                 </div>
 
                 {/* Customer & Booking Details */}
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="text-[10px] text-stone-400 uppercase font-medium block">Customer</span>
-                    <span className="font-semibold text-stone-900">{scannedResult.data.customerName}</span>
-                    <span className="text-[10px] text-stone-500 block truncate">{scannedResult.data.customerEmail}</span>
+                <div className="flex items-center gap-3 p-3 bg-white/90 rounded-xl border border-stone-200 shadow-2xs">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 text-white font-bold flex items-center justify-center text-sm shadow-xs shrink-0">
+                    {scannedResult.data.customerName ? scannedResult.data.customerName.charAt(0).toUpperCase() : "S"}
                   </div>
-                  <div>
-                    <span className="text-[10px] text-stone-400 uppercase font-medium block">Meal Slot / Date</span>
-                    <span className="font-semibold text-stone-900 uppercase">{scannedResult.data.mealType}</span>
-                    <span className="text-[10px] text-stone-500 block">{scannedResult.data.bookingDate}</span>
+                  <div className="min-w-0 flex-1 text-xs">
+                    <span className="font-bold text-stone-900 block truncate">{scannedResult.data.customerName || "Student Diner"}</span>
+                    <span className="text-[11px] text-stone-500 block truncate">{scannedResult.data.customerEmail}</span>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] font-bold text-orange-700 bg-orange-100/80 px-2 py-0.5 rounded uppercase">
+                      {scannedResult.data.mealType || "Thali"}
+                    </span>
+                    <span className="text-[10px] text-stone-400 block mt-0.5">{scannedResult.data.bookingDate}</span>
                   </div>
                 </div>
 
