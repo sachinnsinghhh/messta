@@ -55,6 +55,27 @@
   }
 }
 
+@keyframes slowPanZoom {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.06) translate(-1%, -1%);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+@keyframes cardFloat3D {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.003);
+  }
+}
+
 .animate-float {
   animation: floatSlow 5s ease-in-out infinite;
 }
@@ -71,6 +92,14 @@
   animation: radarSweep 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
+.animate-bg-zoom {
+  animation: slowPanZoom 20s ease-in-out infinite alternate;
+}
+
+.animate-card-3d {
+  animation: cardFloat3D 6s ease-in-out infinite;
+}
+
 .shimmer-text {
   background: linear-gradient(90deg, #ea580c 0%, #f59e0b 50%, #ea580c 100%);
   background-size: 200% auto;
@@ -82,9 +111,9 @@
 
 /* Glassmorphism surfaces */
 .glass-surface {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .glass-dark {
@@ -93,8 +122,14 @@
   -webkit-backdrop-filter: blur(14px);
 }
 
+.glass-card-glow {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4),
+              0 0 0 1px rgba(255, 255, 255, 0.3),
+              0 0 40px -10px rgba(234, 88, 12, 0.25);
+}
+
 /* Subtle dot grid pattern for culinary canvas */
 .culinary-pattern {
-  background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-  background-size: 20px 20px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
