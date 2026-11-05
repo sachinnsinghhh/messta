@@ -338,14 +338,6 @@ export default function Home() {
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-amber-600/20 rounded-full blur-3xl pointer-events-none animate-float-delayed" />
         
         <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10">
-          
-          {/* Dynamic Real-Time Status Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-md shadow-inner text-xs font-semibold text-amber-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>{culinaryGreeting.badge}</span>
-            <span className="text-stone-400">&bull;</span>
-            <span className="text-white/90">Pune Campus Network</span>
-          </div>
 
           {/* Logo Showcase with Ambient Glow */}
           <div className="flex justify-center items-center">
