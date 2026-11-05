@@ -157,29 +157,6 @@ export default function Login() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/10 rounded-full blur-[140px] pointer-events-none" />
       </div>
 
-      {/* ── AMBIENT FLOATING STATS BADGES (DESKTOP & TABLET ACCENTS) ── */}
-      <div className="hidden lg:block absolute left-8 xl:left-16 top-1/3 -translate-y-1/2 z-10 pointer-events-none animate-float">
-        <div className="glass-dark border border-white/10 rounded-2xl p-4 shadow-2xl space-y-1 max-w-[200px] backdrop-blur-xl">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300">Live Campus Kitchens</span>
-          </div>
-          <p className="text-sm font-bold text-white">2,400+ Fresh Thalis</p>
-          <p className="text-[11px] text-stone-400">Prepped & served daily in Pune</p>
-        </div>
-      </div>
-
-      <div className="hidden lg:block absolute right-8 xl:right-16 top-1/3 -translate-y-1/2 z-10 pointer-events-none animate-float-delayed">
-        <div className="glass-dark border border-white/10 rounded-2xl p-4 shadow-2xl space-y-1 max-w-[200px] backdrop-blur-xl">
-          <div className="flex items-center gap-2">
-            <span className="text-orange-400 text-sm">⚡</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-orange-300">Fast Token Pass</span>
-          </div>
-          <p className="text-sm font-bold text-white">Zero Wait Entry</p>
-          <p className="text-[11px] text-stone-400">Scan dynamic QR and eat in 5s</p>
-        </div>
-      </div>
-
       {/* ── 3D GLASS LOGIN CARD ── */}
       <div className="relative z-20 max-w-md w-full bg-white/95 rounded-3xl border border-white/40 glass-card-glow p-7 sm:p-9 space-y-6 backdrop-blur-2xl transition-all duration-300 animate-card-3d">
         
