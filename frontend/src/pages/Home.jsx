@@ -713,32 +713,6 @@ export default function Home() {
         )}
       </section>
 
-      {/* ── MESS OWNER PARTNER CALLOUT BANNER ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 rounded-3xl p-8 sm:p-10 text-white border border-stone-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 max-w-xl">
-            <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
-              Mess Partners &bull; Canteen Owners
-            </span>
-            <h3 className="text-2xl font-black text-white tracking-tight">
-              Run a Mess or Tiffin Service Near a Pune College?
-            </h3>
-            <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-normal">
-              Eliminate daily food wastage, stop maintaining paper coupon books, and get guaranteed student headcount prep numbers every night on Messta.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            <Link
-              to="/login"
-              className="px-6 py-3.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition"
-            >
-              Partner Portal Login
-            </Link>
-          </div>
-        </div>
-      </section>
-
     </div>
   );
 }
