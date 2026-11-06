@@ -83,6 +83,14 @@ export default function Navbar() {
                     Daily Menu & Pricing
                   </Link>
                   <Link
+                    to="/owner/memberships"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      isActive("/owner/memberships") ? "bg-orange-600 text-white shadow-xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    }`}
+                  >
+                    Membership Plans & CRM
+                  </Link>
+                  <Link
                     to="/owner/finance"
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       isActive("/owner/finance") ? "bg-orange-600 text-white shadow-xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -263,6 +271,13 @@ export default function Navbar() {
                 className="text-sm font-medium text-gray-700 hover:text-orange-600 py-1.5"
               >
                 Daily Menu & Pricing
+              </Link>
+              <Link
+                to="/owner/memberships"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-medium text-gray-700 hover:text-orange-600 py-1.5"
+              >
+                Membership Plans & CRM
               </Link>
               <Link
                 to="/owner/finance"
