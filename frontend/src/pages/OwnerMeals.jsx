@@ -15,8 +15,8 @@ export default function OwnerMeals() {
     refreshMesses,
   } = useActiveMess(currentUser);
 
-  // Active Management Tab: "thalis" (Step B & C) | "slots" (Step A) | "overview"
-  const [activeTab, setActiveTab] = useState("slots");
+  // Active Management Tab: "thalis" (Daily Menu & Pricing) | "slots" (Timings & Capacity) | "headcount" (Tomorrow's Bookings)
+  const [activeTab, setActiveTab] = useState("thalis");
 
   const DEFAULT_SPREADS = useMemo(
     () => [
@@ -84,6 +84,8 @@ export default function OwnerMeals() {
     return () => clearTimeout(timer);
   }, [activeMess]);
 
+  const [showIntervals, setShowIntervals] = useState(false);
+
   // ── STEP B & C: THALI PUBLISHING & MEMBERSHIP TIER MAPPING STATES ──
   const [thaliName, setThaliName] = useState("Paneer Deluxe Thali");
   const [mealCategory, setMealCategory] = useState("Veg"); // "Veg", "Non-Veg", "Lite", "Special", "Combo"
@@ -97,9 +99,9 @@ export default function OwnerMeals() {
   const [allowMembershipRedemption, setAllowMembershipRedemption] = useState(true);
 
   // Dynamic Price Formulation: (cost of monthly membership / total tokens) * 1.3
-  const [benchmarkPlanId, setBenchmarkPlanId] = useState("auto");
-  const [customMonthlyCost, setCustomMonthlyCost] = useState(3000);
-  const [customTotalTokens, setCustomTotalTokens] = useState(60);
+  const [benchmarkPlanId] = useState("auto");
+  const [customMonthlyCost] = useState(3000);
+  const [customTotalTokens] = useState(60);
 
   // ── ADVANCE KITCHEN HEADCOUNT & RATION PREP SHEET STATES ──
   const [headcountData, setHeadcountData] = useState(null);
@@ -738,19 +740,19 @@ export default function OwnerMeals() {
       <div className="flex flex-wrap gap-2 border-b border-stone-200 pb-2">
         <button
           type="button"
-          onClick={() => setActiveTab("headcount")}
+          onClick={() => setActiveTab("thalis")}
           className={`px-4 py-2 rounded-lg font-medium text-xs transition flex items-center gap-2 ${
-            activeTab === "headcount"
+            activeTab === "thalis"
               ? "bg-stone-900 text-white shadow-xs"
               : "bg-white text-stone-600 hover:bg-stone-100 border border-stone-200"
           }`}
         >
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
-          <span>Kitchen Prep & Headcount</span>
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium">
-            {headcountData?.headcount?.total ?? 0} seats
+          <span>Daily Menu & Pricing</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono">
+            {activePublishedMeals.length} live
           </span>
         </button>
 
@@ -766,27 +768,27 @@ export default function OwnerMeals() {
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>Meal Windows & Slots</span>
+          <span>Meal Timings & Windows</span>
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 font-mono">
-            {totalSlotsCount}
+            {mealSpreads.length} windows
           </span>
         </button>
 
         <button
           type="button"
-          onClick={() => setActiveTab("thalis")}
+          onClick={() => setActiveTab("headcount")}
           className={`px-4 py-2 rounded-lg font-medium text-xs transition flex items-center gap-2 ${
-            activeTab === "thalis"
+            activeTab === "headcount"
               ? "bg-stone-900 text-white shadow-xs"
               : "bg-white text-stone-600 hover:bg-stone-100 border border-stone-200"
           }`}
         >
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
           </svg>
-          <span>Daily Menu & Pricing</span>
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono">
-            {activePublishedMeals.length} live
+          <span>Tomorrow's Bookings</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium">
+            {headcountData?.headcount?.total ?? 0} booked
           </span>
         </button>
       </div>
@@ -819,103 +821,101 @@ export default function OwnerMeals() {
       {activeTab === "slots" && (
         <div className="space-y-8 animate-in fade-in duration-200">
           
-          {/* Capacity Section Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Header Card */}
+          <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
+                  Operating Schedule
+                </span>
+                <span className="text-[11px] font-bold bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 rounded-md">
+                  {mealSpreads.length} Active {mealSpreads.length === 1 ? "Window" : "Windows"}
+                </span>
+              </div>
+              <h2 className="text-xl font-bold text-stone-900 tracking-tight mt-1">
+                Meal Timings & Dining Windows
+              </h2>
+              <p className="text-xs text-stone-500">
+                Configure operational meal periods, seating capacities, and counter shifts.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowAddSpreadModal(true)}
+              className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium text-xs rounded-lg transition shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>+ Add Meal Window</span>
+            </button>
+          </div>
+
+          {/* Meal Windows Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {mealSpreads.map((spread, idx) => {
               const stats = getSpreadStats(spread.id);
-              const isDark = idx % 2 === 1;
               return (
                 <div
                   key={spread.id}
-                  className={`p-6 rounded-3xl border transition-all duration-200 relative group flex flex-col justify-between space-y-4 ${
-                    isDark
-                      ? "bg-gradient-to-br from-slate-900 to-gray-800 text-white border-gray-700"
-                      : "bg-gradient-to-br from-amber-50 to-orange-50/50 border-amber-200/80 text-gray-900"
-                  }`}
+                  className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-stone-300 transition"
                 >
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start gap-3">
                     <div className="flex items-center gap-3">
-                      <div
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-black ${
-                          isDark ? "bg-white/10 text-white" : "bg-amber-500/20 text-amber-900"
-                        }`}
-                      >
+                      <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 border border-orange-100 flex items-center justify-center text-xl">
                         {spread.icon || "🍽️"}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span
-                            className={`text-[10px] font-black uppercase tracking-wider ${
-                              isDark ? "text-orange-400" : "text-amber-800"
-                            }`}
-                          >
-                            Operational Window #{idx + 1}
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                            Window #{idx + 1}
                           </span>
                           {mealSpreads.length > 1 && (
                             <button
                               type="button"
                               onClick={() => handleDeleteSpread(spread.id, spread.name)}
-                              className="text-[10px] text-gray-400 hover:text-red-500 transition opacity-0 group-hover:opacity-100 font-bold"
+                              className="text-[11px] text-stone-400 hover:text-rose-600 transition"
                               title="Delete this meal spread"
                             >
                               ✕
                             </button>
                           )}
                         </div>
-                        <h3 className={`text-xl font-black ${isDark ? "text-white" : "text-gray-900"}`}>
+                        <h3 className="text-base font-bold text-stone-900 mt-0.5">
                           {spread.name}
                         </h3>
-                        <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                          {spread.timing}
+                        <p className="text-xs text-stone-500">
+                          ⏰ {spread.timing}
                         </p>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <span
-                        className={`text-2xl font-black block ${
-                          isDark ? "text-emerald-400" : "text-orange-600"
-                        }`}
-                      >
+                      <span className="text-xl font-bold text-stone-900 block">
                         {stats.remaining}
                       </span>
-                      <span
-                        className={`text-[10px] uppercase font-bold ${
-                          isDark ? "text-gray-400" : "text-gray-500"
-                        }`}
-                      >
-                        Seats Available
+                      <span className="text-[10px] uppercase font-semibold text-stone-500">
+                        Seats Left
                       </span>
                     </div>
                   </div>
 
                   {spread.description && (
-                    <p className={`text-[11px] line-clamp-1 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                    <p className="text-xs text-stone-500 line-clamp-1">
                       {spread.description}
                     </p>
                   )}
 
                   {/* Progress Bar */}
-                  <div className="space-y-1">
-                    <div
-                      className={`flex justify-between text-[11px] font-bold ${
-                        isDark ? "text-gray-300" : "text-gray-600"
-                      }`}
-                    >
+                  <div className="space-y-1.5 pt-1 border-t border-stone-100">
+                    <div className="flex justify-between text-[11px] font-medium text-stone-600">
                       <span>Occupancy: {stats.booked} booked</span>
-                      <span>{stats.max} Total Max Capacity</span>
+                      <span>{stats.max} Max Capacity</span>
                     </div>
-                    <div
-                      className={`w-full h-2.5 rounded-full overflow-hidden ${
-                        isDark ? "bg-gray-700" : "bg-amber-200/60"
-                      }`}
-                    >
+                    <div className="w-full h-2 rounded-full overflow-hidden bg-stone-100">
                       <div
-                        className={`h-full rounded-full transition-all duration-300 ${
-                          isDark
-                            ? "bg-gradient-to-r from-emerald-400 to-teal-400"
-                            : "bg-gradient-to-r from-orange-500 to-amber-500"
-                        }`}
+                        className="h-full rounded-full bg-orange-500 transition-all duration-300"
                         style={{
                           width: `${stats.max > 0 ? (stats.booked / stats.max) * 100 : 0}%`,
                         }}
@@ -925,70 +925,68 @@ export default function OwnerMeals() {
                 </div>
               );
             })}
-
-            {/* Add Meal Spread Action Card */}
-            <button
-              type="button"
-              onClick={() => setShowAddSpreadModal(true)}
-              className="p-6 rounded-3xl border-2 border-dashed border-orange-300/80 hover:border-orange-500 bg-orange-50/40 hover:bg-orange-50/80 transition-all duration-200 flex flex-col items-center justify-center text-center space-y-3 group min-h-[180px]"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 group-hover:bg-orange-600 text-orange-600 group-hover:text-white flex items-center justify-center text-2xl font-black transition-all duration-200 shadow-xs">
-                +
-              </div>
-              <div>
-                <h4 className="text-sm font-black text-gray-900 group-hover:text-orange-600 transition">
-                  + Add Meal Spread
-                </h4>
-                <p className="text-xs text-gray-500 max-w-[220px] mt-1">
-                  Introduce Breakfast, Evening Snacks, Midnight Canteen, etc.
-                </p>
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-white px-3 py-1 rounded-full border border-orange-200 shadow-2xs">
-                Configure New Window
-              </span>
-            </button>
           </div>
 
-          {/* Time-Slot Interval Manager Grid */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200/80 shadow-xs space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+          {/* Time-Slot Interval Manager (Collapsible) */}
+          <div className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
+            <div
+              className="p-5 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50/50 transition"
+              onClick={() => setShowIntervals(!showIntervals)}
+            >
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
-                  Section-Level Anti-Crowd Engine
-                </span>
-                <h2 className="text-xl font-black text-gray-900 mt-1">
-                  Time-Slot Intervals & Seat Quotas
-                </h2>
-                <p className="text-xs text-gray-500">
-                  Prevent student overcrowding by distributing footfall into distinct half-hour dining intervals.
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
+                    Counter Flow Control
+                  </span>
+                  <span className="text-[10px] font-semibold bg-stone-100 text-stone-700 px-2 py-0.5 rounded">
+                    {totalSlotsCount} Intervals
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-stone-900 mt-0.5">
+                  30-Minute Counter Quotas & Intervals
+                </h3>
+                <p className="text-xs text-stone-500">
+                  {showIntervals ? "Click to collapse interval management." : "Click to view and customize 30-min arrival intervals to prevent rushes."}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddSpreadModal(true)}
-                  className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-xs uppercase tracking-wider rounded-xl transition"
-                >
-                  + Add Spread
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowAddSlotForm(!showAddSlotForm)}
-                  className="px-4 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 font-extrabold text-xs uppercase tracking-wider rounded-xl transition"
-                >
-                  {showAddSlotForm ? "✕ Close Form" : "+ Add Time Interval"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveTimeSlots}
-                  disabled={loading}
-                  className="px-5 py-2.5 bg-gray-900 hover:bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition active:scale-95 disabled:opacity-50"
-                >
-                  {loading ? "Saving Schedule..." : "Save Schedule 💾"}
-                </button>
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-orange-600">
+                  {showIntervals ? "Hide Intervals ▲" : "Manage Intervals ▼"}
+                </span>
               </div>
             </div>
+
+            {showIntervals && (
+              <div className="p-6 border-t border-stone-100 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 pb-4">
+                  <div>
+                    <h4 className="text-sm font-bold text-stone-900">
+                      Interval Distribution
+                    </h4>
+                    <p className="text-xs text-stone-500">
+                      Adjust half-hour seating quotas per meal window.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddSlotForm(!showAddSlotForm)}
+                      className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs rounded-lg transition"
+                    >
+                      {showAddSlotForm ? "✕ Cancel" : "+ Add Interval"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveTimeSlots}
+                      disabled={loading}
+                      className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white font-medium text-xs rounded-lg shadow-xs transition disabled:opacity-50"
+                    >
+                      {loading ? "Saving..." : "Save Schedule"}
+                    </button>
+                  </div>
+                </div>
 
             {/* Collapsible Add New Slot Interval Form */}
             {showAddSlotForm && (
@@ -1139,11 +1137,11 @@ export default function OwnerMeals() {
                 );
               })}
             </div>
-
           </div>
-
-        </div>
-      )}
+        )}
+      </div>
+    </div>
+  )}
 
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* ── TAB 1.5: TOMORROW'S KITCHEN HEADCOUNT & RATION PREP SHEET ── */}
@@ -1151,153 +1149,135 @@ export default function OwnerMeals() {
       {activeTab === "headcount" && (
         <div className="space-y-8 animate-in fade-in duration-200">
           
-          {/* Header Card with Cut-Off Engine Status */}
-          <div className="bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 rounded-3xl p-6 sm:p-8 text-white border border-gray-800 shadow-xl space-y-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
+          {/* Header Card with Cut-Off Status */}
+          <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-purple-300 bg-purple-900/60 px-3 py-0.5 rounded-full border border-purple-700/60 flex items-center gap-1.5">
-                    <span>📋</span>
-                    <span>Tomorrow-Only Advance Engine</span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
+                    Advance Diners
                   </span>
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-300 bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-700/50">
-                    Zero Waste • Guaranteed Headcount
+                  <span className="text-[11px] font-bold bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 rounded-md">
+                    {headcountData?.targetDateLabel || "Tomorrow"} ({headcountData?.targetDate || ""})
                   </span>
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-                  Tomorrow's Kitchen Headcount & Advance Bookings
+                <h2 className="text-xl font-bold text-stone-900 tracking-tight mt-1">
+                  Tomorrow&apos;s Confirmed Bookings
                 </h2>
-                <p className="text-xs sm:text-sm text-purple-200/80 max-w-2xl leading-relaxed">
-                  Target Date: <strong className="text-white font-extrabold">{headcountData?.targetDateLabel || "Tomorrow"} ({headcountData?.targetDate || ""})</strong>. Exact verified seats reserved in advance by both Membership Passholders and Per-Plate diners.
+                <p className="text-xs text-stone-500">
+                  Real-time advance seat reservations from monthly passholders and walk-in students.
                 </p>
               </div>
 
               {/* Actions: Refresh & Config */}
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setShowCutOffModal(true)}
-                  className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/20 transition cursor-pointer flex items-center gap-1.5 backdrop-blur-xs"
+                  className="px-3 py-2 bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 hover:border-stone-300 font-medium text-xs rounded-lg transition flex items-center gap-1.5"
                 >
-                  <span>⚙️</span>
-                  <span>Cut-Off Settings</span>
+                  <svg className="w-3.5 h-3.5 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span>Cut-Off Timings</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => fetchHeadcountSheet()}
                   disabled={loadingHeadcount}
-                  className="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl transition cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+                  className="px-3.5 py-2 bg-stone-900 hover:bg-stone-800 text-white font-medium text-xs rounded-lg transition disabled:opacity-50 flex items-center gap-1.5"
                 >
-                  <span>🔄</span>
-                  <span>{loadingHeadcount ? "Refreshing..." : "Refresh Sheet"}</span>
+                  <svg className={`w-3.5 h-3.5 ${loadingHeadcount ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>{loadingHeadcount ? "Refreshing..." : "Refresh"}</span>
                 </button>
               </div>
             </div>
 
-            {/* Live Cut-Off Status Banners */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
-              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+            {/* Cut-Off Status Bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex items-center justify-between">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-amber-400 font-black text-xs uppercase">☀️ Tomorrow's Lunch</span>
-                    <span className={`text-[9px] font-black uppercase px-2 py-0.2 rounded-full ${
-                      headcountData?.cutOffStatus?.lunch?.isLocked
-                        ? "bg-red-500/20 text-red-300 border border-red-500/30"
-                        : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                    }`}>
-                      {headcountData?.cutOffStatus?.lunch?.isLocked ? "🔒 Locked for Stove" : "🟢 Open for Booking"}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-purple-200/70 mt-0.5">
-                    Deadline: <strong>Tonight 10:00 PM</strong> • {headcountData?.cutOffStatus?.lunch?.isLocked
-                      ? "Booking finalized. Kitchen grocery prep in progress."
-                      : `${headcountData?.cutOffStatus?.lunch?.hoursRemaining || 0}h ${headcountData?.cutOffStatus?.lunch?.minsRemainder || 0}m remaining until lock`}
+                  <span className="font-semibold text-stone-800 text-xs">☀️ Lunch Cutoff</span>
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    Deadline: <strong>Tonight 10:00 PM</strong> {headcountData?.cutOffStatus?.lunch?.isLocked ? "• Finalized" : `• ${headcountData?.cutOffStatus?.lunch?.hoursRemaining || 0}h remaining`}
                   </p>
                 </div>
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${
+                  headcountData?.cutOffStatus?.lunch?.isLocked
+                    ? "bg-rose-50 text-rose-700 border-rose-200"
+                    : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                }`}>
+                  {headcountData?.cutOffStatus?.lunch?.isLocked ? "Locked" : "Open"}
+                </span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex items-center justify-between">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-teal-300 font-black text-xs uppercase">🌙 Tomorrow's Dinner</span>
-                    <span className={`text-[9px] font-black uppercase px-2 py-0.2 rounded-full ${
-                      headcountData?.cutOffStatus?.dinner?.isLocked
-                        ? "bg-red-500/20 text-red-300 border border-red-500/30"
-                        : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                    }`}>
-                      {headcountData?.cutOffStatus?.dinner?.isLocked ? "🔒 Locked for Stove" : "🟢 Open for Booking"}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-purple-200/70 mt-0.5">
-                    Deadline: <strong>Tomorrow 02:00 PM</strong> • {headcountData?.cutOffStatus?.dinner?.isLocked
-                      ? "Evening courses locked."
-                      : `${headcountData?.cutOffStatus?.dinner?.hoursRemaining || 0}h ${headcountData?.cutOffStatus?.dinner?.minsRemainder || 0}m remaining until lock`}
+                  <span className="font-semibold text-stone-800 text-xs">🌙 Dinner Cutoff</span>
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    Deadline: <strong>Tomorrow 02:00 PM</strong> {headcountData?.cutOffStatus?.dinner?.isLocked ? "• Finalized" : `• ${headcountData?.cutOffStatus?.dinner?.hoursRemaining || 0}h remaining`}
                   </p>
                 </div>
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${
+                  headcountData?.cutOffStatus?.dinner?.isLocked
+                    ? "bg-rose-50 text-rose-700 border-rose-200"
+                    : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                }`}>
+                  {headcountData?.cutOffStatus?.dinner?.isLocked ? "Locked" : "Open"}
+                </span>
               </div>
             </div>
           </div>
 
           {/* 4 Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Card 1: Total Confirmed */}
-            <div className="bg-white rounded-3xl p-6 border border-gray-200/80 shadow-xs space-y-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">
-                Total Confirmed Diners
+            <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider block">
+                Total Confirmed
               </span>
-              <div className="text-3xl font-black text-gray-900">
-                {headcountData?.headcount?.total || 0} <span className="text-sm font-bold text-gray-400">seats</span>
+              <div className="text-2xl font-bold text-stone-900">
+                {headcountData?.headcount?.total || 0} <span className="text-xs font-normal text-stone-500">diners</span>
               </div>
-              <p className="text-xs text-gray-500 font-medium">
-                Locked diners who will eat at your mess tomorrow
-              </p>
+              <p className="text-[11px] text-stone-400">Total reserved for tomorrow</p>
             </div>
 
-            {/* Card 2: Lunch vs Dinner */}
-            <div className="bg-white rounded-3xl p-6 border border-gray-200/80 shadow-xs space-y-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
-                Session Headcount
+            <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider block">
+                Session Breakdown
               </span>
-              <div className="text-2xl font-black text-gray-900 flex items-center gap-3">
+              <div className="text-xl font-bold text-stone-900 flex items-center gap-2">
                 <span>☀️ {headcountData?.headcount?.lunchCount || 0}</span>
-                <span className="text-gray-300">•</span>
+                <span className="text-stone-300">•</span>
                 <span>🌙 {headcountData?.headcount?.dinnerCount || 0}</span>
               </div>
-              <p className="text-xs text-gray-500 font-medium">
-                Lunch courses vs Dinner courses
-              </p>
+              <p className="text-[11px] text-stone-400">Lunch vs. Dinner</p>
             </div>
 
-            {/* Card 3: Membership vs Walk-in */}
-            <div className="bg-white rounded-3xl p-6 border border-gray-200/80 shadow-xs space-y-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                Diner Channel
+            <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider block">
+                Pass vs Walk-in
               </span>
-              <div className="text-2xl font-black text-gray-900 flex items-center gap-3">
-                <span className="text-emerald-700 font-mono">{headcountData?.headcount?.membershipCount || 0} Pass</span>
-                <span className="text-gray-300">•</span>
-                <span className="text-orange-600 font-mono">{headcountData?.headcount?.perPlateCount || 0} Walk-in</span>
+              <div className="text-xl font-bold text-stone-900 flex items-center gap-2">
+                <span className="text-emerald-700 font-semibold">{headcountData?.headcount?.membershipCount || 0} Pass</span>
+                <span className="text-stone-300">•</span>
+                <span className="text-orange-600 font-semibold">{headcountData?.headcount?.perPlateCount || 0} Walk-in</span>
               </div>
-              <p className="text-xs text-gray-500 font-medium">
-                Passholders reserved + prepaid walk-ins
-              </p>
+              <p className="text-[11px] text-stone-400">Passholders vs Prepaid</p>
             </div>
 
-            {/* Card 4: Veg vs Non-Veg */}
-            <div className="bg-white rounded-3xl p-6 border border-gray-200/80 shadow-xs space-y-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
-                Dietary Preferences
+            <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider block">
+                Dietary Preference
               </span>
-              <div className="text-2xl font-black text-gray-900 flex items-center gap-3">
-                <span className="text-emerald-700">🌱 {headcountData?.headcount?.vegCount || 0}</span>
-                <span className="text-gray-300">•</span>
-                <span className="text-red-600">🍗 {headcountData?.headcount?.nonVegCount || 0}</span>
+              <div className="text-xl font-bold text-stone-900 flex items-center gap-2">
+                <span className="text-emerald-700 font-semibold">🌱 {headcountData?.headcount?.vegCount || 0}</span>
+                <span className="text-stone-300">•</span>
+                <span className="text-rose-600 font-semibold">🍗 {headcountData?.headcount?.nonVegCount || 0}</span>
               </div>
-              <p className="text-xs text-gray-500 font-medium">
-                Vegetarian thalis vs Non-Veg thalis
-              </p>
+              <p className="text-[11px] text-stone-400">Veg vs Non-Veg</p>
             </div>
           </div>
 
@@ -1504,14 +1484,14 @@ export default function OwnerMeals() {
             {/* Header with Quick Presets */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-4">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
-                  Step B & C: Unified Builder
+                <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
+                  Menu Builder
                 </span>
-                <h2 className="text-xl font-black text-gray-900 mt-1">
-                  Thali Publishing & Channel Allocation
+                <h2 className="text-xl font-bold text-stone-900 tracking-tight mt-0.5">
+                  Publish Daily Meal / Thali
                 </h2>
-                <p className="text-xs text-gray-500">
-                  Compose daily thalis, benchmark prices to membership tokens (1.3×), and configure pass redemption.
+                <p className="text-xs text-stone-500">
+                  Compose today&apos;s meals, set walk-in pricing, and manage membership pass eligibility.
                 </p>
               </div>
 
@@ -1825,120 +1805,38 @@ export default function OwnerMeals() {
               </div>
             )}
 
-            {/* 5. Dynamic Pricing Engine: (cost of monthly membership / total number of tokens) * 1.3 */}
-            <div className="p-5 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-amber-500/5 rounded-3xl border-2 border-orange-300/80 shadow-xs space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-orange-200/80 pb-3">
+            {/* Price & Pricing Assistant */}
+            <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm">⚡</span>
-                    <h3 className="text-xs font-black uppercase text-gray-900 tracking-wider">
-                      Dynamic Pricing Engine (1.3× Walk-in Markup)
-                    </h3>
-                  </div>
-                  <p className="text-[11px] text-gray-600 mt-0.5">
-                    Formula: <code className="bg-white px-1.5 py-0.5 rounded font-mono font-bold text-orange-700">(Monthly Plan Cost ÷ Total Tokens) × 1.3</code>
+                  <label className="block text-xs font-bold uppercase text-stone-900 tracking-wider">
+                    Walk-in Selling Price (₹)
+                  </label>
+                  <p className="text-[11px] text-stone-500">
+                    The per-plate price charged to direct walk-in students.
                   </p>
                 </div>
 
-                {/* Benchmark Source Selector */}
                 <div className="flex items-center gap-2">
-                  <label className="text-[10px] font-black uppercase text-gray-500">Benchmark:</label>
-                  <select
-                    value={benchmarkPlanId}
-                    onChange={(e) => setBenchmarkPlanId(e.target.value)}
-                    className="bg-white border border-orange-200 text-gray-900 text-xs font-bold py-1.5 px-3 rounded-xl focus:ring-2 focus:ring-orange-500 shadow-2xs cursor-pointer"
-                  >
-                    <option value="auto">Auto ({benchmarkDetails.planTitle})</option>
-                    {publishedPlans.map((p) => (
-                      <option key={p._id} value={p._id}>
-                        {p.planName} (₹{p.price} / {p.totalTokens} tokens)
-                      </option>
-                    ))}
-                    <option value="custom">Custom Values...</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Custom Benchmark Inputs if Selected */}
-              {benchmarkPlanId === "custom" && (
-                <div className="grid grid-cols-2 gap-3 p-3 bg-white/80 rounded-2xl border border-orange-200 animate-in fade-in duration-150">
-                  <div>
-                    <label className="block text-[10px] font-black uppercase text-gray-600 mb-1">
-                      Monthly Plan Price (₹)
-                    </label>
+                  <div className="relative w-36">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 font-bold text-sm">₹</span>
                     <input
                       type="number"
-                      min="100"
-                      value={customMonthlyCost}
-                      onChange={(e) => setCustomMonthlyCost(Number(e.target.value))}
-                      className="w-full p-2 text-xs bg-gray-50 border border-gray-300 rounded-xl font-bold"
+                      min="10"
+                      required
+                      value={sellingPrice}
+                      onChange={(e) => setSellingPrice(Number(e.target.value))}
+                      className="w-full pl-7 pr-3 py-2 text-sm bg-white border border-stone-300 rounded-xl font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 shadow-2xs"
                     />
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-black uppercase text-gray-600 mb-1">
-                      Total Plan Tokens
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={customTotalTokens}
-                      onChange={(e) => setCustomTotalTokens(Number(e.target.value))}
-                      className="w-full p-2 text-xs bg-gray-50 border border-gray-300 rounded-xl font-bold"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Price Calculation Demonstration Pill */}
-              <div className="p-3 bg-white rounded-2xl border border-orange-200 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-orange-100 text-orange-800">
-                      Base Rate: ₹{benchmarkDetails.baseCostPerToken}/meal
-                    </span>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                      +30% Walk-in Markup (1.3×)
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-gray-600 mt-1">
-                    (₹{benchmarkDetails.monthlyCost} ÷ {benchmarkDetails.totalTokens} tokens) × 1.3 = <strong className="text-gray-900 font-black text-sm">₹{benchmarkDetails.formulaSellingPrice}</strong>
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2.5">
                   <button
                     type="button"
                     onClick={handleCalculatePrice}
-                    className="px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-95 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-                    title="Calculate formula price from membership tokens"
+                    className="px-3 py-2 bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 font-semibold text-xs rounded-xl transition flex items-center gap-1 shadow-2xs"
+                    title="Auto-calculate price from membership token base rate (1.3×)"
                   >
-                    <span>⚡</span>
-                    <span>Generate Price</span>
+                    <span>⚡ Suggest (1.3×)</span>
                   </button>
-                </div>
-              </div>
-
-              {/* Editable Selling Price Field */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                <div>
-                  <label className="block text-xs font-black uppercase text-gray-800">
-                    Active Selling Price (₹)
-                  </label>
-                  <p className="text-[10px] text-gray-500">
-                    The direct walk-in purchase price charged to students.
-                  </p>
-                </div>
-
-                <div className="relative w-full sm:w-48">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-black text-base">₹</span>
-                  <input
-                    type="number"
-                    min="10"
-                    required
-                    value={sellingPrice}
-                    onChange={(e) => setSellingPrice(Number(e.target.value))}
-                    className="w-full pl-8 pr-3 py-2.5 text-base bg-white border-2 border-orange-400 rounded-xl font-black text-gray-900 focus:ring-2 focus:ring-orange-500 shadow-2xs"
-                  />
                 </div>
               </div>
             </div>
