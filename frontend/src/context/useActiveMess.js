@@ -133,6 +133,14 @@ export function useActiveMess(passedUser) {
       if (isSuperAdmin) {
         headers["x-admin-key"] = getStoredAdminKey();
       }
+      if (currentUser?.getIdToken) {
+        try {
+          const token = await currentUser.getIdToken();
+          if (token) headers["Authorization"] = `Bearer ${token}`;
+        } catch {
+          // Fall through without token if not authenticated
+        }
+      }
 
       const res = await fetch(`${API_BASE_URL}/api/mess/${targetId}`, {
         method: "DELETE",

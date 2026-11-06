@@ -42,6 +42,35 @@ export default function AdminVerification() {
     fetchVerificationQueue();
   }, [activeTab]);
 
+  const handleDeleteMess = async (messId, messName) => {
+    if (!confirm(`Are you sure you want to permanently delete outlet "${messName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      const res = await fetch(`${API_BASE_URL}/api/mess/${messId}`, {
+        method: "DELETE",
+        headers: {
+          "x-admin-key": getStoredAdminKey(),
+        },
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setStatusMessage({ text: `🗑️ Outlet "${messName}" has been permanently deleted.`, type: "success" });
+        fetchVerificationQueue();
+      } else {
+        setStatusMessage({ text: data.message || "Failed to delete outlet.", type: "error" });
+      }
+    } catch (err) {
+      console.error("Error deleting mess outlet:", err);
+      setStatusMessage({ text: err.message, type: "error" });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleApprove = async (messId, messName) => {
     if (!confirm(`Are you sure you want to approve and verify "${messName}"? This will make the mess publicly visible to students.`)) {
       return;
@@ -321,6 +350,18 @@ export default function AdminVerification() {
                         Force Verify
                       </button>
                     )}
+
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteMess(mess._id || mess.id, mess.name)}
+                      disabled={actionLoading}
+                      className="p-2 bg-white hover:bg-rose-50 text-stone-400 hover:text-rose-600 rounded-xl transition border border-stone-200 hover:border-rose-200"
+                      title={`Permanently delete outlet "${mess.name}"`}
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
 

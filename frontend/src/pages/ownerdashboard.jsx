@@ -691,18 +691,18 @@ export default function OwnerDashboard() {
             <span>Add Mess</span>
           </button>
 
-          {activeMess && isSuperAdmin && (
+          {activeMess && (
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
               disabled={loadingMesses || actionLoading || deletingMess}
-              className="px-3 py-2 bg-white hover:bg-rose-50 text-stone-600 hover:text-rose-600 border border-stone-200 hover:border-rose-200 text-xs font-medium rounded-lg transition flex items-center gap-1"
+              className="px-3 py-2 bg-white hover:bg-rose-50 text-stone-600 hover:text-rose-600 border border-stone-200 hover:border-rose-200 text-xs font-medium rounded-lg transition flex items-center gap-1.5"
               title={`Delete branch ${activeMess.name}`}
             >
-              <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
-              <span>Delete</span>
+              <span>Delete Outlet</span>
             </button>
           )}
         </div>
@@ -754,13 +754,25 @@ export default function OwnerDashboard() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 self-end sm:self-auto">
+              <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
                 <button
                   type="button"
                   onClick={() => setShowVerifyModal(true)}
                   className="px-3.5 py-1.5 bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-50 rounded-lg font-medium text-xs transition"
                 >
                   View Credentials
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(true)}
+                  disabled={deletingMess}
+                  className="px-3 py-1.5 bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 rounded-lg font-medium text-xs transition flex items-center gap-1"
+                  title={`Delete outlet ${activeMess.name}`}
+                >
+                  <svg className="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  <span>Delete Outlet</span>
                 </button>
               </div>
             </div>
@@ -786,13 +798,25 @@ export default function OwnerDashboard() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 self-end sm:self-auto">
+              <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
                 <button
                   type="button"
                   onClick={() => setShowVerifyModal(true)}
                   className="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium text-xs transition"
                 >
                   Review Submission
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(true)}
+                  disabled={deletingMess}
+                  className="px-3 py-1.5 bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 rounded-lg font-medium text-xs transition flex items-center gap-1"
+                  title={`Delete outlet ${activeMess.name}`}
+                >
+                  <svg className="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  <span>Delete Outlet</span>
                 </button>
               </div>
             </div>
@@ -818,13 +842,25 @@ export default function OwnerDashboard() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 self-end sm:self-auto">
+              <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
                 <button
                   type="button"
                   onClick={() => setShowVerifyModal(true)}
                   className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-medium text-xs transition"
                 >
                   Fix & Resubmit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(true)}
+                  disabled={deletingMess}
+                  className="px-3 py-1.5 bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 rounded-lg font-medium text-xs transition flex items-center gap-1"
+                  title={`Delete outlet ${activeMess.name}`}
+                >
+                  <svg className="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  <span>Delete Outlet</span>
                 </button>
               </div>
             </div>
@@ -850,13 +886,25 @@ export default function OwnerDashboard() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 self-end sm:self-auto">
+              <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
                 <button
                   type="button"
                   onClick={() => setShowVerifyModal(true)}
                   className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white rounded-lg font-medium text-xs transition"
                 >
                   Verify Outlet
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(true)}
+                  disabled={deletingMess}
+                  className="px-3 py-2 bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 rounded-lg font-medium text-xs transition flex items-center gap-1"
+                  title={`Delete outlet ${activeMess.name}`}
+                >
+                  <svg className="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  <span>Delete Outlet</span>
                 </button>
               </div>
             </div>
@@ -1566,8 +1614,8 @@ export default function OwnerDashboard() {
                 </div>
               )}
 
-              {/* Danger Zone: Branch Deletion (SuperAdmin Exclusive) */}
-              {isSuperAdmin && activeMess && (
+              {/* Danger Zone: Outlet Deletion (Available for all owners & admins) */}
+              {activeMess && (
                 <div className="pt-5 border-t border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <span className="text-xs font-semibold text-rose-700 block">
@@ -1936,22 +1984,39 @@ export default function OwnerDashboard() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-100 flex-wrap">
                 <button
                   type="button"
-                  onClick={() => setShowVerifyModal(false)}
+                  onClick={() => {
+                    setShowVerifyModal(false);
+                    setShowDeleteModal(true);
+                  }}
                   disabled={submittingVerification}
-                  className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs rounded-lg transition"
+                  className="px-3.5 py-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 text-xs font-medium rounded-lg transition flex items-center gap-1.5 border border-transparent hover:border-rose-200"
+                  title="Permanently delete this outlet"
                 >
-                  Cancel
+                  <svg className="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  <span>Delete Outlet</span>
                 </button>
-                <button
-                  type="submit"
-                  disabled={submittingVerification}
-                  className="px-5 py-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium text-xs rounded-lg shadow-xs transition disabled:opacity-50 flex items-center gap-1.5"
-                >
-                  {submittingVerification ? "Submitting..." : "Submit for Verification"}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowVerifyModal(false)}
+                    disabled={submittingVerification}
+                    className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs rounded-lg transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingVerification}
+                    className="px-5 py-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium text-xs rounded-lg shadow-xs transition disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {submittingVerification ? "Submitting..." : "Submit for Verification"}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
