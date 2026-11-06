@@ -60,12 +60,6 @@ export default function OwnerDashboard() {
   const [scanSuccess, setScanSuccess] = useState("");
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState("");
-  const [autoRedeemRush, setAutoRedeemRush] = useState(false);
-
-  const autoRedeemRushRef = useRef(autoRedeemRush);
-  useEffect(() => {
-    autoRedeemRushRef.current = autoRedeemRush;
-  }, [autoRedeemRush]);
 
   const html5QrScannerRef = useRef(null);
   const lastProcessedScanRef = useRef({ text: "", time: 0 });
@@ -409,7 +403,7 @@ export default function OwnerDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           qrPayload: rawPayload,
-          autoRedeem: autoRedeemRushRef.current,
+          autoRedeem: false,
           staffId: activeOp?._id || activeOp?.id || null,
           staffName: activeOp?.name || "Counter Desk",
           shift: activeOp?.shiftTiming || activeOp?.shift || "General Shift",
@@ -1071,24 +1065,6 @@ export default function OwnerDashboard() {
                   Scan student QR code or enter meal token manually.
                 </p>
               </div>
-
-              {/* Rush Mode Switch */}
-              <label className="flex items-center gap-2 cursor-pointer bg-stone-50 hover:bg-stone-100 active:scale-95 px-2.5 py-1.5 rounded-lg border border-stone-200 transition select-none shrink-0">
-                <input
-                  type="checkbox"
-                  checked={autoRedeemRush}
-                  onChange={(e) => setAutoRedeemRush(e.target.checked)}
-                  className="w-4 h-4 text-orange-600 rounded focus:ring-orange-500 cursor-pointer"
-                />
-                <div className="text-right">
-                  <span className="text-xs font-semibold text-stone-900 block leading-tight">
-                    Rush Mode
-                  </span>
-                  <span className="text-[10px] text-stone-500 block">
-                    {autoRedeemRush ? "Auto-serve on" : "Manual click"}
-                  </span>
-                </div>
-              </label>
             </div>
 
             {/* Active Counter Status Bar */}
