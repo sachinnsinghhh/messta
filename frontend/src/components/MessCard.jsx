@@ -182,17 +182,6 @@ export default function MessCard({ mess }) {
 
           <div className="flex items-center gap-2">
             <Link
-              to={`/membership?messId=${messId}`}
-              className="px-3 py-2 bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-800 text-xs font-semibold rounded-xl transition flex items-center gap-1"
-              title="View Monthly & Weekly Mess Passes"
-            >
-              <svg className="w-3.5 h-3.5 text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-              </svg>
-              <span>Passes</span>
-            </Link>
-
-            <Link
               to={`/mess/${messId}`}
               className="px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow-md hover:shadow-orange-600/20 transition-all flex items-center gap-1.5"
             >

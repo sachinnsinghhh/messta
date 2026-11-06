@@ -39,8 +39,6 @@ export default function MessDetail() {
   const [selectedThali, setSelectedThali] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Student's active pass status for smart indicator preview
-  const [studentPass, setStudentPass] = useState(null);
 
   // Fetch Mess details
   useEffect(() => {
@@ -69,28 +67,7 @@ export default function MessDetail() {
     };
   }, [id]);
 
-  // Fetch Student's active pass for this mess outlet (if logged in)
-  useEffect(() => {
-    let ignore = false;
-    async function fetchPass() {
-      if (!currentUser?.uid || !id) return;
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}/api/subscriptions?messId=${id}&userId=${currentUser.uid}&status=active`
-        );
-        const data = await res.json();
-        if (!ignore && data.success && data.data?.length > 0) {
-          setStudentPass(data.data[0]);
-        }
-      } catch {
-        // ignore
-      }
-    }
-    fetchPass();
-    return () => {
-      ignore = true;
-    };
-  }, [currentUser?.uid, id]);
+
 
   // Available meal spreads for this mess (falling back to DEFAULT_SPREADS)
   const mealSpreads = useMemo(() => {
@@ -256,38 +233,7 @@ export default function MessDetail() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Link
-                to={`/membership?messId=${mess._id || mess.id}`}
-                className="px-4 py-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-xs transition active:scale-95 flex items-center gap-1.5"
-              >
-                <span>🎟️</span>
-                <span>Membership Pass Vault</span>
-              </Link>
-            </div>
           </div>
-
-          {/* Student's Active Plan Indicator Banner (if enrolled) */}
-          {studentPass && (
-            <div className="p-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-2xl border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2.5">
-                <span className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold">
-                  💳
-                </span>
-                <div>
-                  <span className="font-extrabold text-emerald-950 block">
-                    Active Pass: {studentPass.planName} ({studentPass.category.toUpperCase()})
-                  </span>
-                  <span className="text-[11px] text-emerald-700">
-                    Remaining: <strong className="text-emerald-950">{studentPass.remainingTokens} / {studentPass.totalTokens} Tokens</strong>
-                  </span>
-                </div>
-              </div>
-              <span className="text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full border border-emerald-300">
-                Token Pass Enrolled
-              </span>
-            </div>
-          )}
 
           {/* ═══════════════════════════════════════════════════════════ */}
           {/* ── ADVANCE BOOKING & CUT-OFF TIMING ENGINE BANNER ── */}
@@ -312,7 +258,7 @@ export default function MessDetail() {
               </div>
             </div>
             <p className="text-xs text-purple-200/80 leading-relaxed">
-              To eliminate kitchen guesswork and ensure fresh hot food without food waste, all students (both Membership Passholders & Per-Plate Walk-ins) must reserve their seats one day in advance before the daily cut-off deadlines.
+              To eliminate kitchen guesswork and ensure fresh hot food without food waste, all students must reserve their seats one day in advance before the daily cut-off deadlines.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs">
               <div className="p-3 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-between">
@@ -498,131 +444,48 @@ export default function MessDetail() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {availableThalis.map((thali) => {
-                    // Check if student's pass covers this thali
-                    let coversThali = false;
-                    let passReason = "";
-
-                    const allowRedeem = thali.allowMembershipRedemption !== false;
-                    const allowDirect = thali.allowDirectPurchase !== false;
-
-                    if (!allowRedeem) {
-                      coversThali = false;
-                      passReason = "Direct plate only (Tokens not applicable)";
-                    } else if (studentPass && studentPass.remainingTokens > 0) {
-                      const subCat = (studentPass.category || "veg").toLowerCase();
-                      const thaliCat = (thali.category || "veg").toLowerCase();
-                      const eligibleTiers = (thali.eligibleTiers || []).map((t) => t.toLowerCase());
-                      const subPlanId = studentPass.planId ? String(studentPass.planId).toLowerCase() : "";
-                      const subPlanName = (studentPass.planName || "").toLowerCase();
-
-                      const matchesSpecificPlan =
-                        (subPlanId && eligibleTiers.includes(subPlanId)) ||
-                        (subPlanName && eligibleTiers.includes(subPlanName)) ||
-                        eligibleTiers.some(
-                          (t) =>
-                            t === subPlanName ||
-                            t === subPlanId ||
-                            (subPlanName && t.length > 3 && (subPlanName.includes(t) || t.includes(subPlanName)))
-                        );
-
-                      if (matchesSpecificPlan) {
-                        coversThali = true;
-                        passReason = `Covered by your ${studentPass.planName}`;
-                      } else if (subCat.includes("combo") || eligibleTiers.includes("combo")) {
-                        coversThali = true;
-                        passReason = "Combo Pass covers all thalis";
-                      } else if ((thaliCat === "veg" || thaliCat === "lite") && (subCat.includes("veg") || subCat.includes("lite"))) {
-                        coversThali = true;
-                        passReason = "100% Covered by Veg Pass";
-                      } else if (thaliCat === "non-veg" && subCat.includes("non_veg")) {
-                        coversThali = true;
-                        passReason = "100% Covered by Non-Veg Pass";
-                      } else if (eligibleTiers.includes(subCat) || eligibleTiers.includes("all")) {
-                        coversThali = true;
-                        passReason = "Covered by Pass Tier Mapping";
-                      } else {
-                        coversThali = false;
-                        passReason = allowDirect ? "Out-of-Plan (Requires direct payment)" : "Plan mismatch (Pass required)";
-                      }
-                    }
-
-                    return (
-                      <div
-                        key={thali.id || thali._id}
-                        className="bg-white p-5 rounded-3xl border border-gray-200 hover:border-orange-400 hover:shadow-sm transition-all flex flex-col justify-between space-y-4"
-                      >
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span
-                                  className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${
-                                    thali.category === "Non-Veg"
-                                      ? "bg-red-100 text-red-700"
-                                      : "bg-emerald-100 text-emerald-800"
-                                  }`}
-                                >
-                                  {thali.category}
-                                </span>
-                                {allowDirect && (
-                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-50 text-orange-700 border border-orange-200">
-                                    🛍️ Walk-In
-                                  </span>
-                                )}
-                                {allowRedeem && (
-                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                    🎟️ 1 Token Pass
-                                  </span>
-                                )}
-                              </div>
-                              <h4 className="font-black text-base text-gray-900 mt-1">{thali.name}</h4>
-                            </div>
-                            <span className="text-xl font-black text-orange-600">₹{thali.sellingPrice}</span>
-                          </div>
-
-                          <p className="text-xs text-gray-500 leading-relaxed font-medium">
-                            {thali.description || thali.items?.map((i) => i.name).join(", ")}
-                          </p>
-
-                          {/* Live Smart Membership Match Indicator */}
-                          {studentPass ? (
-                            coversThali ? (
-                              <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-200 text-[10px] text-emerald-900 font-bold flex items-center gap-1.5">
-                                <span>🟢</span>
-                                <span>{passReason || "1 Token covers this meal (₹0 Extra)"}</span>
-                              </div>
-                            ) : (
-                              <div className="p-2 bg-amber-50 rounded-xl border border-amber-200 text-[10px] text-amber-900 font-bold flex items-center gap-1.5">
-                                <span>🟠</span>
-                                <span>{passReason || `Out-of-Plan: Requires ₹${thali.sellingPrice} payment`}</span>
-                              </div>
-                            )
-                          ) : (
-                            <div className="p-2 bg-gray-50 rounded-xl border border-gray-200 text-[10px] text-gray-600 font-bold flex items-center gap-1.5">
-                              <span>💳</span>
-                              <span>
-                                {allowDirect && allowRedeem
-                                  ? "Walk-in Plate or 1 Token Pass Eligible"
-                                  : allowDirect
-                                  ? "Direct Walk-in Purchase Available"
-                                  : "Exclusive to Active Subscribers"}
+                  {availableThalis.map((thali) => (
+                    <div
+                      key={thali.id || thali._id}
+                      className="bg-white p-5 rounded-3xl border border-gray-200 hover:border-orange-400 hover:shadow-sm transition-all flex flex-col justify-between space-y-4"
+                    >
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span
+                                className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${
+                                  thali.category === "Non-Veg"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-emerald-100 text-emerald-800"
+                                }`}
+                              >
+                                {thali.category}
+                              </span>
+                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-50 text-orange-700 border border-orange-200">
+                                Fresh Daily
                               </span>
                             </div>
-                          )}
+                            <h4 className="font-black text-base text-gray-900 mt-1">{thali.name}</h4>
+                          </div>
+                          <span className="text-xl font-black text-orange-600">₹{thali.sellingPrice}</span>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleInitiateBooking(thali)}
-                          className="w-full py-2.5 bg-gray-900 hover:bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
-                        >
-                          <span>{coversThali ? "Redeem 1 Token" : `Select & Book (₹${thali.sellingPrice})`}</span>
-                          <span>→</span>
-                        </button>
+                        <p className="text-xs text-gray-500 leading-relaxed font-medium">
+                          {thali.description || thali.items?.map((i) => i.name).join(", ")}
+                        </p>
                       </div>
-                    );
-                  })}
+
+                      <button
+                        type="button"
+                        onClick={() => handleInitiateBooking(thali)}
+                        className="w-full py-2.5 bg-gray-900 hover:bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                      >
+                        <span>Select & Book (₹{thali.sellingPrice})</span>
+                        <span>→</span>
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

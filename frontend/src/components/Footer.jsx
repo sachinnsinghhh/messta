@@ -36,9 +36,6 @@ export default function Footer() {
               <Link to="/mess" className="hover:text-orange-600 transition">
                 Find Mess & Menus
               </Link>
-              <Link to="/membership" className="hover:text-orange-600 transition">
-                Digital Pass & Tokens
-              </Link>
               <Link to="/profile" className="hover:text-orange-600 transition">
                 Pickup Token Codes
               </Link>

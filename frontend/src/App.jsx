@@ -5,7 +5,6 @@ import Login from "./pages/Login";
 import FindMess from "./pages/FindMess";
 import MessDetail from "./pages/MessDetail";
 import UserProfile from "./pages/userprofile";
-import StudentMembership from "./pages/StudentMembership";
 import OwnerDashboard from "./pages/ownerdashboard";
 import OwnerMeals from "./pages/OwnerMeals";
 import OwnerFinance from "./pages/OwnerFinance";
@@ -77,14 +76,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/membership"
-              element={
-                <ProtectedRoute requireStudent={true}>
-                  <StudentMembership />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/membership" element={<Navigate to="/mess" replace />} />
             <Route
               path="/profile"
               element={

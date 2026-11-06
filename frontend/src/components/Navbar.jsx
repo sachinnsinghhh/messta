@@ -167,16 +167,6 @@ export default function Navbar() {
                     Find Mess
                   </Link>
                   <Link
-                    to="/membership"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      isActive("/membership")
-                        ? "bg-orange-600 text-white shadow-xs"
-                        : "text-orange-600 hover:bg-orange-50"
-                    }`}
-                  >
-                    Student Pass
-                  </Link>
-                  <Link
                     to="/profile"
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       isActive("/profile") ? "bg-orange-50 text-orange-700 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -327,13 +317,6 @@ export default function Navbar() {
                 className="text-sm font-semibold text-gray-700 py-1.5"
               >
                 Find Mess
-              </Link>
-              <Link
-                to="/membership"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-bold text-orange-600 py-1.5 flex items-center gap-2"
-              >
-                <span>🎟️</span> Student Membership Pass
               </Link>
               <Link
                 to="/profile"
