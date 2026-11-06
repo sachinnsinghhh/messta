@@ -172,10 +172,6 @@ export default function Login() {
           </div>
 
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-200/80 text-[10px] font-bold text-orange-800 uppercase tracking-wider mb-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-              <span>Campus Food Gateway</span>
-            </div>
             <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
               {isSignup ? "Create Your Account" : "Welcome Back"}
             </h1>
