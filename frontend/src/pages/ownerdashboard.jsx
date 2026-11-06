@@ -736,62 +736,6 @@ export default function OwnerDashboard() {
         </div>
       )}
 
-      {/* ── ZERO STATE: NO OUTLET REGISTERED / ASSIGNED YET ── */}
-      {!loadingMesses && allMesses.length === 0 && (
-        <div className="bg-white rounded-2xl p-8 sm:p-10 text-center border border-stone-200 shadow-xs max-w-lg mx-auto space-y-5 animate-in fade-in duration-200">
-          <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mx-auto border border-orange-100">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-          </div>
-          <div className="space-y-1">
-            <h2 className="text-lg font-bold text-stone-900 tracking-tight">
-              Welcome to Partner Portal
-            </h2>
-            <p className="text-xs text-stone-500">
-              Signed in as <strong className="text-stone-700">{currentUser?.email}</strong>
-            </p>
-          </div>
-
-          <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-xs text-stone-700 text-left space-y-2">
-            <div className="flex items-center gap-2 font-semibold text-stone-900">
-              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span>No Active Mess Outlets Found</span>
-            </div>
-            <p className="text-stone-600 leading-relaxed">
-              You can get started in two ways:
-            </p>
-            <div className="space-y-1 pl-1 text-[11px] text-stone-600">
-              <p>
-                <strong>1. Self-Registration:</strong> Click &ldquo;Register Mess Outlet&rdquo; below to set up your canteen and start publishing daily meals.
-              </p>
-              <p>
-                <strong>2. SuperAdmin Linking:</strong> If an administrator has pre-created your mess with your email, it will connect automatically.
-              </p>
-            </div>
-          </div>
-
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-            <button
-              type="button"
-              onClick={() => setShowAddMess(true)}
-              className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium text-xs rounded-lg transition shadow-xs flex items-center gap-1.5"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              <span>Register Mess Outlet</span>
-            </button>
-            <button
-              type="button"
-              onClick={refreshMesses}
-              className="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs rounded-lg transition"
-            >
-              Refresh Outlets
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* ── DYNAMIC VERIFICATION & COMPLIANCE BANNER ── */}
       {activeMess && (
