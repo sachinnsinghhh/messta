@@ -985,40 +985,19 @@ export default function OwnerDashboard() {
               All your registered mess outlets. Click on any outlet to switch the counter or edit its details.
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setShowAddMess(true)}
-            className="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold rounded-lg shadow-xs transition flex items-center gap-1.5 self-start sm:self-auto"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span>+ Add Mess</span>
-          </button>
         </div>
 
         {allMesses.length === 0 ? (
-          <div className="p-8 text-center border-2 border-dashed border-stone-200 rounded-xl bg-stone-50/50 space-y-3">
+          <div className="p-8 text-center border-2 border-dashed border-stone-200 rounded-xl bg-stone-50/50 space-y-2">
             <div className="w-12 h-12 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center mx-auto text-xl">
               🏪
             </div>
             <div>
               <h3 className="text-sm font-bold text-stone-900">No Mess Outlets in Collection</h3>
               <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
-                You haven&apos;t registered any mess outlets yet. Click below to add your first mess.
+                You haven&apos;t registered any mess outlets yet. Use the <span className="font-semibold text-stone-800">+ Add Mess</span> button in the top bar to add your first outlet.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowAddMess(true)}
-              className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold rounded-lg transition inline-flex items-center gap-1.5"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              <span>Add Mess Outlet</span>
-            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
