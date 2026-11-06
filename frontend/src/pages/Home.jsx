@@ -263,22 +263,27 @@ export default function Home() {
   const { displayedMesses, countWithin5km, isFallbackClosest } = useMemo(() => {
     let list = [...allMesses];
 
-    // Filter by category tag if selected
+    // Filter by category tag if selected (All Messes vs Veg Only Mess)
     if (selectedCategory === "veg") {
-      list = list.filter((m) =>
-        m.cuisineType?.toLowerCase().includes("veg") ||
-        m.name?.toLowerCase().includes("veg")
-      );
-    } else if (selectedCategory === "budget") {
-      list = list.filter((m) => (m.pricePerMeal || 80) <= 75);
-    } else if (selectedCategory === "north") {
-      list = list.filter((m) =>
-        m.cuisineType?.toLowerCase().includes("north")
-      );
-    } else if (selectedCategory === "maharashtrian") {
-      list = list.filter((m) =>
-        m.cuisineType?.toLowerCase().includes("maharashtrian")
-      );
+      list = list.filter((m) => {
+        if (m.isPureVeg || m.isVegOnly) return true;
+        const nameLower = (m.name || "").toLowerCase();
+        const cuisineLower = (m.cuisineType || "").toLowerCase();
+        if (nameLower.includes("pure veg") || nameLower.includes("shuddh shakahari")) return true;
+        if (cuisineLower.includes("pure veg") || cuisineLower.includes("gujarati")) return true;
+
+        if (Array.isArray(m.activeThalis) && m.activeThalis.length > 0) {
+          const hasNonVeg = m.activeThalis.some((t) => {
+            const cat = (t.category || "").toLowerCase();
+            const tName = (t.name || "").toLowerCase();
+            return cat.includes("non") || tName.includes("chicken") || tName.includes("mutton") || tName.includes("fish") || tName.includes("egg");
+          });
+          if (!hasNonVeg) return true;
+          return false;
+        }
+
+        return (cuisineLower.includes("veg") || nameLower.includes("veg")) && !nameLower.includes("non");
+      });
     }
 
     if (!userLocation) {
@@ -614,11 +619,8 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           {[
-            { id: "all", label: "All Pune Messes" },
-            { id: "veg", label: "Pure Veg Homely" },
-            { id: "north", label: "North Indian Thali" },
-            { id: "maharashtrian", label: "Maharashtrian Poli Bhaji" },
-            { id: "budget", label: "Under ₹75 Budget" },
+            { id: "all", label: "All Messes" },
+            { id: "veg", label: "Veg Only Mess" },
           ].map((cat) => (
             <button
               key={cat.id}
@@ -653,7 +655,7 @@ export default function Home() {
             <p className="text-xs text-stone-500 mt-0.5">
               {userLocation
                 ? "Sorted by nearest walking and commute distance from your location."
-                : "Verified kitchens offering wholesome daily thalis, meal passes, and guaranteed slots."}
+                : "Verified kitchens offering wholesome daily thalis and guaranteed meal slots."}
             </p>
           </div>
 
