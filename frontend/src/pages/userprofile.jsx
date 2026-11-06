@@ -66,6 +66,12 @@ export default function UserProfile() {
 
         <div className="flex flex-wrap items-center gap-2">
           <Link
+            to="/membership"
+            className="px-4 py-2.5 bg-orange-50 hover:bg-orange-100 text-orange-700 font-extrabold text-xs uppercase tracking-wider rounded-xl transition"
+          >
+            Digital Pass Vault 🎟️
+          </Link>
+          <Link
             to="/mess"
             className="px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition"
           >
@@ -111,7 +117,7 @@ export default function UserProfile() {
                 <span className="text-3xl">🍽️</span>
                 <p className="text-sm font-bold text-gray-800">No active meal tokens right now</p>
                 <p className="text-xs text-gray-400 max-w-sm mx-auto">
-                  Book tomorrow's lunch or dinner slot to enjoy your fresh meal!
+                  Book today's lunch or dinner, or generate a slot from your Student Membership Pass!
                 </p>
                 <div className="pt-2">
                   <Link
