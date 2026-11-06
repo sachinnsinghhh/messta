@@ -55,13 +55,6 @@ export default function OwnerMeals() {
     ],
   });
 
-  // Add Time Slot Modal States
-  const [newSlotPeriod, setNewSlotPeriod] = useState("lunch");
-  const [newSlotStart, setNewSlotStart] = useState("12:00 PM");
-  const [newSlotEnd, setNewSlotEnd] = useState("12:30 PM");
-  const [newSlotCapacity, setNewSlotCapacity] = useState(30);
-  const [showAddSlotForm, setShowAddSlotForm] = useState(false);
-
   // Add Custom Meal Spread Modal States (e.g., Breakfast, Snacks)
   const [showAddSpreadModal, setShowAddSpreadModal] = useState(false);
   const [newSpreadName, setNewSpreadName] = useState("Morning Breakfast");
@@ -83,8 +76,6 @@ export default function OwnerMeals() {
     }, 0);
     return () => clearTimeout(timer);
   }, [activeMess]);
-
-  const [showIntervals, setShowIntervals] = useState(false);
 
   // ── STEP B & C: THALI PUBLISHING & MEMBERSHIP TIER MAPPING STATES ──
   const [thaliName, setThaliName] = useState("Paneer Deluxe Thali");
@@ -274,49 +265,9 @@ export default function OwnerMeals() {
   // ── DYNAMIC CAPACITY AGGREGATE CALCULATIONS (For Any Spread: Lunch, Dinner, Breakfast, etc.) ──
   const getSpreadStats = (spreadId) => {
     const list = timeSlots[spreadId] || [];
-    const max = list.reduce((sum, s) => sum + Number(s.maxCapacity || 0), 0);
+    const max = list.reduce((sum, s) => sum + Number(s.maxCapacity || 0), 0) || Number(activeMess?.seatingCapacity || 50);
     const booked = list.reduce((sum, s) => sum + Number(s.bookedCount || 0), 0);
     return { max, booked, remaining: Math.max(0, max - booked) };
-  };
-
-  const totalSlotsCount = useMemo(() => {
-    return Object.values(timeSlots).reduce(
-      (acc, list) => acc + (Array.isArray(list) ? list.length : 0),
-      0
-    );
-  }, [timeSlots]);
-
-  // ── STEP A OPERATIONS: SAVE TIME-SLOT INTERVALS & SPREADS ──
-  const handleSaveTimeSlots = async () => {
-    if (!activeMessId) return;
-    setLoading(true);
-    setFeedback({ text: "", type: "" });
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/mess/${activeMessId}/time-slots`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          timeSlots,
-          mealSpreads,
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setFeedback({
-          text: "Time-slot intervals, capacity quotas, and meal spreads saved successfully! ⏱️",
-          type: "success",
-        });
-        refreshMesses();
-      } else {
-        setFeedback({ text: data.message || "Failed to update slots.", type: "error" });
-      }
-    } catch {
-      setFeedback({ text: "Network error saving time slots.", type: "error" });
-    } finally {
-      setLoading(false);
-    }
   };
 
   // ── CREATE NEW MEAL SPREAD (e.g. Breakfast, Snacks, Midnight) ──
@@ -427,43 +378,6 @@ export default function OwnerMeals() {
       setLoading(false);
     }
   };
-
-  const handleAddSlotInterval = () => {
-    const windowString = `${newSlotStart} – ${newSlotEnd}`;
-    const newSlot = {
-      id: `slot_${newSlotPeriod[0]}_${Date.now()}`,
-      timeWindow: windowString,
-      maxCapacity: Number(newSlotCapacity) || 30,
-      bookedCount: 0,
-    };
-
-    setTimeSlots((prev) => ({
-      ...prev,
-      [newSlotPeriod]: [...(prev[newSlotPeriod] || []), newSlot],
-    }));
-
-    setShowAddSlotForm(false);
-    setFeedback({
-      text: `Added new ${newSlotPeriod.toUpperCase()} interval: ${windowString} (Max ${newSlotCapacity} seats). Click "Save Slots Schedule" to persist!`,
-      type: "success",
-    });
-  };
-
-  const handleRemoveSlotInterval = (period, slotId) => {
-    setTimeSlots((prev) => ({
-      ...prev,
-      [period]: prev[period].filter((s) => s.id !== slotId),
-    }));
-  };
-
-  const handleCapacityChange = (period, slotId, newCapacity) => {
-    const capNum = Math.max(1, Number(newCapacity) || 1);
-    setTimeSlots((prev) => ({
-      ...prev,
-      [period]: prev[period].map((s) => (s.id === slotId ? { ...s, maxCapacity: capNum } : s)),
-    }));
-  };
-
   // ── STEP B & C OPERATIONS: DYNAMIC PRICING ALGORITHM & CHANNELS ──
   // Formula: (cost of monthly membership / total number of tokens) * 1.3
   const handleCalculatePrice = () => {
@@ -926,222 +840,8 @@ export default function OwnerMeals() {
               );
             })}
           </div>
-
-          {/* Time-Slot Interval Manager (Collapsible) */}
-          <div className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
-            <div
-              className="p-5 flex items-center justify-between cursor-pointer select-none hover:bg-stone-50/50 transition"
-              onClick={() => setShowIntervals(!showIntervals)}
-            >
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
-                    Counter Flow Control
-                  </span>
-                  <span className="text-[10px] font-semibold bg-stone-100 text-stone-700 px-2 py-0.5 rounded">
-                    {totalSlotsCount} Intervals
-                  </span>
-                </div>
-                <h3 className="text-base font-bold text-stone-900 mt-0.5">
-                  30-Minute Counter Quotas & Intervals
-                </h3>
-                <p className="text-xs text-stone-500">
-                  {showIntervals ? "Click to collapse interval management." : "Click to view and customize 30-min arrival intervals to prevent rushes."}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-medium text-orange-600">
-                  {showIntervals ? "Hide Intervals ▲" : "Manage Intervals ▼"}
-                </span>
-              </div>
-            </div>
-
-            {showIntervals && (
-              <div className="p-6 border-t border-stone-100 space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 pb-4">
-                  <div>
-                    <h4 className="text-sm font-bold text-stone-900">
-                      Interval Distribution
-                    </h4>
-                    <p className="text-xs text-stone-500">
-                      Adjust half-hour seating quotas per meal window.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowAddSlotForm(!showAddSlotForm)}
-                      className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs rounded-lg transition"
-                    >
-                      {showAddSlotForm ? "✕ Cancel" : "+ Add Interval"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleSaveTimeSlots}
-                      disabled={loading}
-                      className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white font-medium text-xs rounded-lg shadow-xs transition disabled:opacity-50"
-                    >
-                      {loading ? "Saving..." : "Save Schedule"}
-                    </button>
-                  </div>
-                </div>
-
-            {/* Collapsible Add New Slot Interval Form */}
-            {showAddSlotForm && (
-              <div className="p-5 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-orange-200 space-y-4 animate-in fade-in duration-200">
-                <h4 className="text-xs font-black uppercase text-gray-900 tracking-wider">
-                  Create Time-Slot Interval
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1">Meal Period / Spread</label>
-                    <select
-                      value={newSlotPeriod}
-                      onChange={(e) => setNewSlotPeriod(e.target.value)}
-                      className="w-full p-2 text-xs bg-white border border-gray-300 rounded-xl font-bold"
-                    >
-                      {mealSpreads.map((spread) => (
-                        <option key={spread.id} value={spread.id}>
-                          {spread.icon || "🍽️"} {spread.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1">Start Time</label>
-                    <input
-                      type="text"
-                      value={newSlotStart}
-                      onChange={(e) => setNewSlotStart(e.target.value)}
-                      placeholder="e.g. 12:00 PM"
-                      className="w-full p-2 text-xs bg-white border border-gray-300 rounded-xl font-bold"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1">End Time</label>
-                    <input
-                      type="text"
-                      value={newSlotEnd}
-                      onChange={(e) => setNewSlotEnd(e.target.value)}
-                      placeholder="e.g. 12:30 PM"
-                      className="w-full p-2 text-xs bg-white border border-gray-300 rounded-xl font-bold"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1">Max Capacity (Seats)</label>
-                    <input
-                      type="number"
-                      min="5"
-                      max="200"
-                      value={newSlotCapacity}
-                      onChange={(e) => setNewSlotCapacity(Number(e.target.value))}
-                      className="w-full p-2 text-xs bg-white border border-gray-300 rounded-xl font-bold"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end pt-1">
-                  <button
-                    type="button"
-                    onClick={handleAddSlotInterval}
-                    className="px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs"
-                  >
-                    Add Interval to Schedule
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Dynamic Grid: All Configured Spreads */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mealSpreads.map((spread) => {
-                const stats = getSpreadStats(spread.id);
-                const slots = timeSlots[spread.id] || [];
-                return (
-                  <div
-                    key={spread.id}
-                    className="space-y-3 bg-gray-50/70 p-4 rounded-2xl border border-gray-200/80"
-                  >
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-black uppercase text-gray-800 tracking-wider flex items-center gap-1.5 truncate">
-                        <span>{spread.icon || "🍽️"}</span>
-                        <span className="truncate">{spread.name} ({slots.length})</span>
-                      </h3>
-                      <span className="text-[10px] font-bold text-gray-500 whitespace-nowrap">
-                        Max: {stats.max} seats
-                      </span>
-                    </div>
-
-                    <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
-                      {slots.length === 0 ? (
-                        <div className="p-4 rounded-xl border border-dashed border-gray-300 text-center space-y-2">
-                          <p className="text-[11px] text-gray-500">No time slots configured yet.</p>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setNewSlotPeriod(spread.id);
-                              setShowAddSlotForm(true);
-                            }}
-                            className="text-[10px] font-black text-orange-600 hover:underline uppercase"
-                          >
-                            + Add First Interval
-                          </button>
-                        </div>
-                      ) : (
-                        slots.map((slot) => {
-                          const remaining = Math.max(0, slot.maxCapacity - slot.bookedCount);
-                          return (
-                            <div
-                              key={slot.id}
-                              className="p-3 bg-white rounded-xl border border-gray-200/90 shadow-2xs transition-colors flex items-center justify-between gap-3 text-xs"
-                            >
-                              <div className="min-w-0 flex-1">
-                                <span className="font-extrabold text-gray-900 block truncate">
-                                  {slot.timeWindow}
-                                </span>
-                                <span className="text-[10px] text-gray-500 font-medium">
-                                  {slot.bookedCount} Booked •{" "}
-                                  <strong className="text-orange-600">{remaining} Available</strong>
-                                </span>
-                              </div>
-
-                              <div className="flex items-center gap-2 shrink-0">
-                                <div className="flex items-center gap-1">
-                                  <span className="text-[10px] text-gray-400 font-bold uppercase">Cap:</span>
-                                  <input
-                                    type="number"
-                                    min="5"
-                                    value={slot.maxCapacity}
-                                    onChange={(e) =>
-                                      handleCapacityChange(spread.id, slot.id, e.target.value)
-                                    }
-                                    className="w-14 p-1 text-center bg-gray-50 border border-gray-300 rounded-lg text-xs font-bold"
-                                  />
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveSlotInterval(spread.id, slot.id)}
-                                  className="p-1.5 text-gray-400 hover:text-red-600 font-bold transition"
-                                  title="Remove Slot Interval"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )}
+        </div>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* ── TAB 1.5: TOMORROW'S KITCHEN HEADCOUNT & RATION PREP SHEET ── */}
@@ -1281,107 +981,68 @@ export default function OwnerMeals() {
             </div>
           </div>
 
-          {/* ── TIME-SLOT DISTRIBUTION & DINERS MANIFEST ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Left: Slot-by-Slot Occupancy */}
-            <div className="lg:col-span-5 bg-white rounded-3xl border border-gray-200/90 shadow-xs p-6 space-y-4">
+          {/* ── TOMORROW'S CONFIRMED DINERS MANIFEST ── */}
+          <div className="bg-white rounded-2xl border border-stone-200 shadow-xs p-6 space-y-4">
+            <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-black text-gray-900 text-sm">Tomorrow's Slot Distribution</h4>
-                <p className="text-[11px] text-gray-500">Seat reservations grouped by 30-min operational interval</p>
+                <h4 className="font-bold text-stone-900 text-sm">Tomorrow&apos;s Confirmed Diners Roster</h4>
+                <p className="text-[11px] text-stone-500">Real-time attendance roster of passholders and prepaid walk-ins</p>
               </div>
-
-              <div className="space-y-2.5">
-                {Object.keys(headcountData?.headcount?.slotDistribution || {}).length === 0 ? (
-                  <div className="p-6 text-center text-gray-400 text-xs bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                    No slot intervals booked yet for tomorrow.
-                  </div>
-                ) : (
-                  Object.entries(headcountData?.headcount?.slotDistribution || {}).map(([slotName, count], idx) => (
-                    <div key={idx} className="p-3 bg-gray-50 rounded-2xl border border-gray-200 space-y-1.5">
-                      <div className="flex justify-between items-center text-xs">
-                        <strong className="font-bold text-gray-800">{slotName}</strong>
-                        <span className="font-mono font-black text-purple-900 bg-purple-100 px-2 py-0.5 rounded-full text-[11px]">
-                          {count} diners
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
-                        <div
-                          className="bg-purple-600 h-full rounded-full transition-all"
-                          style={{ width: `${Math.min(100, (count / (activeMess?.seatingCapacity || 30)) * 100)}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+              <span className="text-xs font-mono font-bold text-stone-600 bg-stone-100 px-2.5 py-1 rounded-lg">
+                {headcountData?.diners?.length || 0} registered
+              </span>
             </div>
 
-            {/* Right: Confirmed Diners Attendance Manifest */}
-            <div className="lg:col-span-7 bg-white rounded-3xl border border-gray-200/90 shadow-xs p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-black text-gray-900 text-sm">Tomorrow's Confirmed Diners Roster</h4>
-                  <p className="text-[11px] text-gray-500">Real-time attendance roster of passholders and prepaid walk-ins</p>
-                </div>
-                <span className="text-xs font-mono font-bold text-gray-500">
-                  {headcountData?.diners?.length || 0} registered
-                </span>
-              </div>
-
-              <div className="overflow-x-auto rounded-2xl border border-gray-200 max-h-96 overflow-y-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead className="sticky top-0 bg-gray-50">
-                    <tr className="text-[10px] font-black uppercase tracking-wider text-gray-500 border-b border-gray-200">
-                      <th className="py-2.5 px-3">Diner</th>
-                      <th className="py-2.5 px-3">Meal & Slot</th>
-                      <th className="py-2.5 px-3">Thali / Type</th>
-                      <th className="py-2.5 px-3 text-center">Token Code</th>
+            <div className="overflow-x-auto rounded-xl border border-stone-200 max-h-96 overflow-y-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="sticky top-0 bg-stone-50">
+                  <tr className="text-[10px] font-bold uppercase tracking-wider text-stone-500 border-b border-stone-200">
+                    <th className="py-2.5 px-3">Diner</th>
+                    <th className="py-2.5 px-3">Meal Period</th>
+                    <th className="py-2.5 px-3">Thali / Type</th>
+                    <th className="py-2.5 px-3 text-center">Token Code</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {!headcountData?.diners || headcountData.diners.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-8 text-center text-stone-400 font-medium">
+                        No diners recorded yet for tomorrow.
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {!headcountData?.diners || headcountData.diners.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="py-8 text-center text-gray-400 font-bold">
-                          No diners recorded yet for tomorrow.
+                  ) : (
+                    headcountData.diners.map((d, idx) => (
+                      <tr key={idx} className="hover:bg-stone-50/60 transition">
+                        <td className="py-2.5 px-3">
+                          <strong className="font-semibold text-stone-900 block">{d.studentName}</strong>
+                          <span className="text-[10px] text-stone-400">{d.studentEmail}</span>
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span className="font-bold text-stone-800 uppercase text-[11px]">
+                            {d.mealPeriod}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span className="font-medium text-stone-800 block text-[11px]">{d.thaliName}</span>
+                          <span className={`inline-block mt-0.5 text-[9px] font-semibold px-1.5 py-0.5 rounded ${
+                            d.bookingType === "membership_token"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-orange-50 text-orange-700 border border-orange-200"
+                          }`}>
+                            {d.bookingType === "membership_token" ? "Passholder" : "Paid Walk-in"}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-center">
+                          <span className="font-mono font-bold text-xs text-stone-900 bg-stone-100 px-2 py-1 rounded-lg">
+                            {d.token}
+                          </span>
                         </td>
                       </tr>
-                    ) : (
-                      headcountData.diners.map((d, idx) => (
-                        <tr key={idx} className="hover:bg-purple-50/20 transition">
-                          <td className="py-2.5 px-3">
-                            <strong className="font-bold text-gray-900 block">{d.studentName}</strong>
-                            <span className="text-[10px] text-gray-400">{d.studentEmail}</span>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <span className="font-extrabold text-purple-900 block uppercase text-[10px]">
-                              {d.mealPeriod}
-                            </span>
-                            <span className="text-[10px] text-gray-500">{d.timeSlot}</span>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <span className="font-semibold text-gray-800 block text-[11px]">{d.thaliName}</span>
-                            <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
-                              d.bookingType === "membership_token"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-orange-100 text-orange-800"
-                            }`}>
-                              {d.bookingType === "membership_token" ? "Passholder" : "Paid Walk-in"}
-                            </span>
-                          </td>
-                          <td className="py-2.5 px-3 text-center">
-                            <span className="font-mono font-black text-xs text-gray-900 bg-gray-100 px-2 py-1 rounded-lg">
-                              {d.token}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-
           </div>
 
           {/* ── MODAL: EDIT CUT-OFF DEADLINE TIMES ── */}
