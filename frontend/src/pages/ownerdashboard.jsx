@@ -1,6 +1,5 @@
 import { API_BASE_URL } from "../config/api";
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
 import { Html5Qrcode } from "html5-qrcode";
 import { useAuth } from "../context/useAuth";
 import { useActiveMess } from "../context/useActiveMess";
@@ -1040,39 +1039,6 @@ export default function OwnerDashboard() {
         </div>
       )}
 
-      {/* ── ADVANCE KITCHEN HEADCOUNT BANNER ── */}
-      <div className="bg-stone-900 rounded-2xl p-5 sm:p-6 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 border border-stone-800">
-        <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-            <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-            </svg>
-          </div>
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-medium text-stone-300">
-                Advance Orders &bull; Tomorrow
-              </span>
-              <span className="text-[11px] font-medium text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800/60">
-                Orders lock at 10:00 PM
-              </span>
-            </div>
-            <h3 className="text-base font-semibold text-white">
-              Tomorrow's Kitchen Headcount & Prep
-            </h3>
-            <p className="text-xs text-stone-400 max-w-xl">
-              Confirmed meal count booked in advance by students. Use this to prepare rations and avoid food wastage.
-            </p>
-          </div>
-        </div>
-        <Link
-          to="/owner/meals"
-          className="px-4 py-2 bg-white hover:bg-stone-100 text-stone-900 font-medium text-xs rounded-lg transition shrink-0 self-start md:self-auto flex items-center gap-1.5 shadow-sm"
-        >
-          <span>View Prep Sheet</span>
-          <span>&rarr;</span>
-        </Link>
-      </div>
 
       {/* ── CORE GRID: COUNTER SCANNER & PROFILE COMMAND ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
