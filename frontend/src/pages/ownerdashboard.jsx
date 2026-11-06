@@ -31,7 +31,7 @@ export default function OwnerDashboard() {
   // Business Profile Form States
   const [messName, setMessName] = useState("");
   const [locality, setLocality] = useState("");
-  const [cuisineType, setCuisineType] = useState("North Indian");
+  const [cuisineType, setCuisineType] = useState("Veg Only");
   const [phone, setPhone] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [seatingCapacity, setSeatingCapacity] = useState(40);
@@ -41,7 +41,7 @@ export default function OwnerDashboard() {
   const [showAddMess, setShowAddMess] = useState(false);
   const [newMessName, setNewMessName] = useState("");
   const [newLocality, setNewLocality] = useState("");
-  const [newCuisineType, setNewCuisineType] = useState("North Indian");
+  const [newCuisineType, setNewCuisineType] = useState("Veg Only");
   const [newPhone, setNewPhone] = useState("");
   const [newCapacity, setNewCapacity] = useState(40);
   const [newPricePerMeal, setNewPricePerMeal] = useState(80);
@@ -106,7 +106,7 @@ export default function OwnerDashboard() {
     const timer = setTimeout(() => {
       setMessName(activeMess.name || "");
       setLocality(activeMess.locality || "");
-      setCuisineType(activeMess.cuisineType || "North Indian");
+      setCuisineType(activeMess.cuisineType || "Veg Only");
       setPhone(activeMess.phone || "");
       setImageUrl(activeMess.imageUrl || "");
       setSeatingCapacity(activeMess.seatingCapacity ?? 40);
@@ -932,11 +932,8 @@ export default function OwnerDashboard() {
                 onChange={(e) => setNewCuisineType(e.target.value)}
                 className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
               >
-                <option value="North Indian">North Indian</option>
-                <option value="South Indian">South Indian</option>
-                <option value="Maharashtrian">Maharashtrian</option>
-                <option value="Gujarati">Gujarati</option>
-                <option value="Multi-Cuisine">Multi-Cuisine</option>
+                <option value="Veg Only">Veg Only</option>
+                <option value="Both Veg & Non-Veg">Both Veg & Non-Veg</option>
               </select>
             </div>
 
@@ -1464,11 +1461,11 @@ export default function OwnerDashboard() {
                     onChange={(e) => setCuisineType(e.target.value)}
                     className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
                   >
-                    <option value="North Indian">North Indian</option>
-                    <option value="South Indian">South Indian</option>
-                    <option value="Maharashtrian">Maharashtrian</option>
-                    <option value="Gujarati">Gujarati</option>
-                    <option value="Multi-Cuisine">Multi-Cuisine</option>
+                    <option value="Veg Only">Veg Only</option>
+                    <option value="Both Veg & Non-Veg">Both Veg & Non-Veg</option>
+                    {cuisineType && cuisineType !== "Veg Only" && cuisineType !== "Both Veg & Non-Veg" && (
+                      <option value={cuisineType}>{cuisineType}</option>
+                    )}
                   </select>
                 </div>
 

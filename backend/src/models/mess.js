@@ -28,8 +28,8 @@ const messSchema = new mongoose.Schema(
     city: { type: String, default: "Pune", trim: true },
     cuisineType: {
       type: String,
-      default: "North Indian",
-      enum: ["North Indian", "South Indian", "Maharashtrian", "Gujarati", "Multi-Cuisine"],
+      default: "Veg Only",
+      trim: true,
     },
     phone: { type: String, default: "+91 98765 43210" },
     imageUrl: {

@@ -5,11 +5,8 @@ import MessCard from "../components/MessCard";
 
 const CUISINE_OPTIONS = [
   "All",
-  "North Indian",
-  "South Indian",
-  "Maharashtrian",
-  "Gujarati",
-  "Multi-Cuisine",
+  "Veg Only",
+  "Both Veg & Non-Veg",
 ];
 
 const POPULAR_HUBS = ["FC Road", "Kothrud", "Karve Nagar", "Viman Nagar", "Hinjewadi", "Katraj"];
@@ -78,9 +75,22 @@ export default function FindMess() {
       );
     }
 
-    // Cuisine Filter
+    // Food Category Filter
     if (selectedCuisine !== "All") {
-      list = list.filter((m) => m.cuisineType === selectedCuisine);
+      if (selectedCuisine === "Veg Only") {
+        list = list.filter((m) => {
+          const c = (m.cuisineType || "").toLowerCase();
+          const n = (m.name || "").toLowerCase();
+          return (c.includes("veg") || n.includes("veg")) && !c.includes("non") && !n.includes("non");
+        });
+      } else if (selectedCuisine === "Both Veg & Non-Veg") {
+        list = list.filter((m) => {
+          const c = (m.cuisineType || "").toLowerCase();
+          return c.includes("non") || c.includes("both");
+        });
+      } else {
+        list = list.filter((m) => m.cuisineType === selectedCuisine);
+      }
     }
 
     // Only Open Filter
