@@ -43,7 +43,6 @@ export default function OwnerDashboard() {
   const [newCuisineType, setNewCuisineType] = useState("Veg Only");
   const [newPhone, setNewPhone] = useState("");
   const [newCapacity, setNewCapacity] = useState(40);
-  const [newPricePerMeal, setNewPricePerMeal] = useState(80);
   const [newOwnerEmail, setNewOwnerEmail] = useState("");
   const [newManagerEmails, setNewManagerEmails] = useState("");
 
@@ -302,7 +301,7 @@ export default function OwnerDashboard() {
           cuisineType: newCuisineType,
           phone: newPhone || "+91 98765 43210",
           seatingCapacity: Number(newCapacity),
-          pricePerMeal: Number(newPricePerMeal || 80),
+          pricePerMeal: 80,
           ownerEmail: targetOwnerEmail,
           ownerId: isSuperAdmin ? "" : (currentUser?.uid || ""),
           allowedManagerEmails: newManagerEmails ? newManagerEmails.split(",").map((s) => s.trim()).filter(Boolean) : [],
@@ -949,18 +948,6 @@ export default function OwnerDashboard() {
                 max="500"
                 value={newCapacity}
                 onChange={(e) => setNewCapacity(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-stone-700 mb-1.5">Base Price / Meal (₹)</label>
-              <input
-                type="number"
-                min="30"
-                max="500"
-                value={newPricePerMeal}
-                onChange={(e) => setNewPricePerMeal(e.target.value)}
                 className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
               />
             </div>
