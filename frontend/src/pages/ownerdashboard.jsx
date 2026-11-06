@@ -36,13 +36,18 @@ export default function OwnerDashboard() {
   const [seatingCapacity, setSeatingCapacity] = useState(40);
   const [isOpen, setIsOpen] = useState(true);
 
-  // Add New Mess Modal/Form toggle (SuperAdmin Exclusive Feature)
+  // Edit Mess Modal State
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  // Add New Mess Modal/Form toggle
   const [showAddMess, setShowAddMess] = useState(false);
   const [newMessName, setNewMessName] = useState("");
   const [newLocality, setNewLocality] = useState("");
   const [newCuisineType, setNewCuisineType] = useState("Veg Only");
   const [newPhone, setNewPhone] = useState("");
   const [newCapacity, setNewCapacity] = useState(40);
+  const [newImageUrl, setNewImageUrl] = useState("");
+  const [newIsOpen, setNewIsOpen] = useState(true);
   const [newOwnerEmail, setNewOwnerEmail] = useState("");
   const [newManagerEmails, setNewManagerEmails] = useState("");
 
@@ -198,6 +203,31 @@ export default function OwnerDashboard() {
 
   const reloadOrders = () => setOrdersReloadKey((k) => k + 1);
 
+  // Open Edit Modal for a specific mess outlet or the active one
+  const handleOpenEdit = (messItem) => {
+    const target = messItem || activeMess;
+    if (target) {
+      const targetId = target._id || target.id;
+      if (targetId && targetId !== activeMessId) {
+        switchMess(targetId);
+      }
+      setMessName(target.name || "");
+      setLocality(target.locality || "");
+      setCuisineType(target.cuisineType || "Veg Only");
+      setPhone(target.phone || "");
+      setImageUrl(target.imageUrl || "");
+      setSeatingCapacity(target.seatingCapacity ?? 40);
+      setIsOpen(target.isOpen ?? true);
+      setPermOwnerEmail(target.ownerEmail || "");
+      setPermManagerEmails(
+        Array.isArray(target.allowedManagerEmails)
+          ? target.allowedManagerEmails.join(", ")
+          : ""
+      );
+    }
+    setShowEditModal(true);
+  };
+
   // Handle Update Business Profile
   const handleUpdateMess = async (e) => {
     e.preventDefault();
@@ -222,6 +252,7 @@ export default function OwnerDashboard() {
 
       const data = await res.json();
       if (data.success) {
+        setShowEditModal(false);
         setStatusMessage({ text: "Outlet profile updated successfully! 🎉", type: "success" });
         refreshMesses();
       } else {
@@ -279,7 +310,10 @@ export default function OwnerDashboard() {
   // Handle Register New Mess Outlet (SuperAdmin or Normal Owner)
   const handleCreateMess = async (e) => {
     e.preventDefault();
-    if (!newMessName.trim() || !newLocality.trim()) return;
+    if (!newMessName.trim() || !newLocality.trim()) {
+      setStatusMessage({ text: "Please enter mess name and locality.", type: "error" });
+      return;
+    }
     setActionLoading(true);
 
     try {
@@ -302,10 +336,11 @@ export default function OwnerDashboard() {
           phone: newPhone || "+91 98765 43210",
           seatingCapacity: Number(newCapacity),
           pricePerMeal: 80,
+          imageUrl: newImageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600",
           ownerEmail: targetOwnerEmail,
           ownerId: isSuperAdmin ? "" : (currentUser?.uid || ""),
           allowedManagerEmails: newManagerEmails ? newManagerEmails.split(",").map((s) => s.trim()).filter(Boolean) : [],
-          isOpen: true,
+          isOpen: newIsOpen,
         }),
       });
 
@@ -315,6 +350,9 @@ export default function OwnerDashboard() {
         setNewMessName("");
         setNewLocality("");
         setNewPhone("");
+        setNewImageUrl("");
+        setNewCapacity(40);
+        setNewIsOpen(true);
         setNewOwnerEmail("");
         setNewManagerEmails("");
         await refreshMesses();
@@ -325,7 +363,7 @@ export default function OwnerDashboard() {
           text: isSuperAdmin
             ? newOwnerEmail.trim()
               ? `New mess "${data.data?.name}" created and access granted to ${newOwnerEmail.trim()}! 🚀`
-              : `New mess "${data.data?.name}" created successfully! You can switch to it now, or edit permissions in Outlet Settings below to grant access to any Google or email ID. 🚀`
+              : `New mess "${data.data?.name}" created successfully! 🚀`
             : `Mess "${data.data?.name}" registered successfully under your account! 🚀`,
           type: "success",
         });
@@ -348,6 +386,7 @@ export default function OwnerDashboard() {
       const deletedName = activeMess.name;
       await deleteMess(activeMessId);
       setShowDeleteModal(false);
+      setShowEditModal(false);
       setStatusMessage({
         text: `Branch "${deletedName}" has been successfully deleted.`,
         type: "success",
@@ -681,7 +720,7 @@ export default function OwnerDashboard() {
 
           <button
             type="button"
-            onClick={() => setShowAddMess(!showAddMess)}
+            onClick={() => setShowAddMess(true)}
             className="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white text-xs font-medium rounded-lg shadow-sm transition flex items-center gap-1.5"
             title="Register a new mess branch"
           >
@@ -690,6 +729,21 @@ export default function OwnerDashboard() {
             </svg>
             <span>Add Mess</span>
           </button>
+
+          {activeMess && (
+            <button
+              type="button"
+              onClick={() => handleOpenEdit(activeMess)}
+              disabled={loadingMesses || actionLoading || deletingMess}
+              className="px-3 py-2 bg-white hover:bg-stone-50 text-stone-700 hover:text-stone-900 border border-stone-200 hover:border-stone-300 text-xs font-medium rounded-lg transition flex items-center gap-1.5"
+              title={`Edit profile & settings for ${activeMess.name}`}
+            >
+              <svg className="w-3.5 h-3.5 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+              <span>Edit Mess</span>
+            </button>
+          )}
 
           {activeMess && (
             <button
@@ -912,168 +966,192 @@ export default function OwnerDashboard() {
         </>
       )}
 
-      {/* ── COLLAPSIBLE: REGISTER NEW MESS (NORMAL OWNER OR SUPERADMIN) ── */}
-      {showAddMess && (
-        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-sm space-y-5 animate-in fade-in duration-200">
-          <div className="flex justify-between items-start">
-            <div className="space-y-1">
-              <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wide">
-                {isSuperAdmin ? "Administrator Action" : "New Branch"}
+      {/* ── MESS OUTLETS COLLECTION SECTION ── */}
+      <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
+                Outlets Directory
               </span>
-              <h2 className="text-lg font-bold text-stone-900 tracking-tight">
-                {isSuperAdmin ? "Add Mess Branch" : "Register Mess Branch"}
-              </h2>
-              <p className="text-xs text-stone-500 max-w-2xl">
-                {isSuperAdmin
-                  ? "Create a new mess branch (e.g. Annapurna, Mom's Kitchen). You can manage its menu and finances immediately, or link it to any owner's email."
-                  : `Launch a new mess branch under your account (${currentUser?.email || "you"}). You can immediately publish menus and time slots.`}
+              <span className="text-[11px] font-bold bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 rounded-md">
+                {allMesses.length} {allMesses.length === 1 ? "Mess" : "Messes"} in Collection
+              </span>
+            </div>
+            <h2 className="text-lg font-bold text-stone-900 tracking-tight mt-0.5">
+              Mess Collection
+            </h2>
+            <p className="text-xs text-stone-500">
+              All your registered mess outlets. Click on any outlet to switch the counter or edit its details.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowAddMess(true)}
+            className="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold rounded-lg shadow-xs transition flex items-center gap-1.5 self-start sm:self-auto"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span>+ Add Mess</span>
+          </button>
+        </div>
+
+        {allMesses.length === 0 ? (
+          <div className="p-8 text-center border-2 border-dashed border-stone-200 rounded-xl bg-stone-50/50 space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center mx-auto text-xl">
+              🏪
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-stone-900">No Mess Outlets in Collection</h3>
+              <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
+                You haven&apos;t registered any mess outlets yet. Click below to add your first mess.
               </p>
             </div>
             <button
               type="button"
-              onClick={() => setShowAddMess(false)}
-              className="text-stone-400 hover:text-stone-600 p-1.5 rounded-lg hover:bg-stone-100 transition"
+              onClick={() => setShowAddMess(true)}
+              className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold rounded-lg transition inline-flex items-center gap-1.5"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
+              <span>Add Mess Outlet</span>
             </button>
           </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
+            {allMesses.map((m) => {
+              const isCurrentActive = (m._id || m.id) === activeMessId;
+              const isVerified = m.verificationStatus === "verified" || m.isVerified;
+              return (
+                <div
+                  key={m._id || m.id}
+                  onClick={() => switchMess(m._id || m.id)}
+                  className={`group relative rounded-xl border p-4.5 transition cursor-pointer flex flex-col justify-between gap-3 text-left ${
+                    isCurrentActive
+                      ? "bg-orange-50/40 border-orange-400 ring-2 ring-orange-500/20 shadow-xs"
+                      : "bg-white hover:bg-stone-50/80 border-stone-200 hover:border-stone-300 shadow-2xs"
+                  }`}
+                >
+                  <div className="space-y-3">
+                    {/* Top Row: Status Badges */}
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <span
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${
+                          m.isOpen
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : "bg-stone-100 text-stone-600 border-stone-200"
+                        }`}
+                      >
+                        {m.isOpen ? "● Open for Dining" : "○ Paused"}
+                      </span>
 
-          <form onSubmit={handleCreateMess} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 pt-2">
-            <div className="lg:col-span-2">
-              <label className="block text-xs font-medium text-stone-700 mb-1.5">Mess / Branch Name *</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Annapurna Dining Hall"
-                value={newMessName}
-                onChange={(e) => setNewMessName(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
-              />
-            </div>
+                      <div className="flex items-center gap-1">
+                        {isVerified ? (
+                          <span className="text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded">
+                            🛡️ Verified
+                          </span>
+                        ) : m.verificationStatus === "pending_review" ? (
+                          <span className="text-[10px] font-semibold bg-sky-50 text-sky-800 border border-sky-200 px-1.5 py-0.5 rounded">
+                            ⏳ In Review
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded">
+                            Sandbox
+                          </span>
+                        )}
+                        {isCurrentActive && (
+                          <span className="text-[10px] font-bold bg-orange-600 text-white px-2 py-0.5 rounded-md">
+                            Active
+                          </span>
+                        )}
+                      </div>
+                    </div>
 
-            <div className="lg:col-span-2">
-              <label className="block text-xs font-medium text-stone-700 mb-1.5">Locality / Campus Area *</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. FC Road / Kothrud, Pune"
-                value={newLocality}
-                onChange={(e) => setNewLocality(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
-              />
-            </div>
+                    {/* Outlet Info */}
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-stone-100 border border-stone-200 overflow-hidden flex-shrink-0">
+                        {m.imageUrl ? (
+                          <img
+                            src={m.imageUrl}
+                            alt={m.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=120";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-stone-400 text-lg">
+                            🍽️
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-bold text-stone-900 truncate">
+                          {m.name}
+                        </h3>
+                        <p className="text-xs text-stone-500 truncate flex items-center gap-1 mt-0.5">
+                          <span>📍</span>
+                          <span>{m.locality || "Campus Area"}</span>
+                        </p>
+                        <div className="flex items-center gap-2 mt-1.5 text-[11px] text-stone-600">
+                          <span className="bg-stone-100 px-1.5 py-0.5 rounded text-stone-700 font-medium">
+                            {m.cuisineType || "Veg Only"}
+                          </span>
+                          <span>•</span>
+                          <span>🪑 {m.seatingCapacity ?? 40} seats</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-            <div>
-              <label className="block text-xs font-medium text-stone-700 mb-1.5">Cuisine Type</label>
-              <select
-                value={newCuisineType}
-                onChange={(e) => setNewCuisineType(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
-              >
-                <option value="Veg Only">Veg Only</option>
-                <option value="Both Veg & Non-Veg">Both Veg & Non-Veg</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-stone-700 mb-1.5">Phone Number</label>
-              <input
-                type="text"
-                placeholder="+91 98765 43210"
-                value={newPhone}
-                onChange={(e) => setNewPhone(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-stone-700 mb-1.5">Seating Capacity</label>
-              <input
-                type="number"
-                min="5"
-                max="500"
-                value={newCapacity}
-                onChange={(e) => setNewCapacity(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
-              />
-            </div>
-
-            {/* Optional Owner Email assignment */}
-            {isSuperAdmin ? (
-              <>
-                <div className="lg:col-span-3">
-                  <label className="block text-xs font-medium text-stone-700 mb-1.5 flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                    </svg>
-                    <span>Assign Owner Google / Email ID (Optional)</span>
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="e.g. messowner@gmail.com"
-                    value={newOwnerEmail}
-                    onChange={(e) => setNewOwnerEmail(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
-                  />
-                  <p className="text-[11px] text-stone-500 mt-1">
-                    Optional. You can also grant or update access at any time in Mess Profile Settings.
-                  </p>
+                  {/* Bottom Action Buttons on Card */}
+                  <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-medium text-stone-400">
+                      {isCurrentActive ? "Active on terminal" : "Click to select"}
+                    </span>
+                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEdit(m)}
+                        className="px-2.5 py-1 bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 hover:border-stone-300 text-xs font-medium rounded-lg transition flex items-center gap-1"
+                        title="Edit outlet details"
+                      >
+                        <svg className="w-3 h-3 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          switchMess(m._id || m.id);
+                          setShowDeleteModal(true);
+                        }}
+                        className="p-1.5 bg-white hover:bg-rose-50 text-stone-400 hover:text-rose-600 border border-stone-200 hover:border-rose-200 text-xs font-medium rounded-lg transition"
+                        title="Delete this outlet"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="lg:col-span-3">
-                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
-                    Additional Manager Emails (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="manager1@gmail.com, staff@gmail.com"
-                    value={newManagerEmails}
-                    onChange={(e) => setNewManagerEmails(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
-                  />
-                  <p className="text-[11px] text-stone-500 mt-1">
-                    Comma-separated secondary emails allowed to manage this outlet.
-                  </p>
-                </div>
-              </>
-            ) : (
-              <div className="lg:col-span-6 bg-stone-50 border border-stone-200 rounded-lg p-3 flex items-center gap-2 text-xs text-stone-600">
-                <svg className="w-4 h-4 text-stone-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>
-                  This outlet will be registered under your verified account: <strong className="font-medium text-stone-800">{currentUser?.email}</strong>.
-                </span>
-              </div>
-            )}
-
-            <div className="lg:col-span-6 flex items-center justify-end pt-2">
-              <button
-                type="submit"
-                disabled={actionLoading}
-                className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium text-xs rounded-lg transition shadow-xs disabled:opacity-50 flex items-center gap-1.5"
-              >
-                <span>
-                  {actionLoading
-                    ? "Registering..."
-                    : isSuperAdmin
-                    ? "Add Mess Branch"
-                    : "Register Mess Branch"}
-                </span>
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
 
 
-      {/* ── CORE GRID: COUNTER SCANNER & PROFILE COMMAND ── */}
+      {/* ── CORE OPERATIONS: COUNTER SCANNER & LIVE QUEUE ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* LEFT COLUMN: COUNTER TOKEN & QR SCANNER */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-6 space-y-6">
           <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm space-y-5">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -1305,8 +1383,10 @@ export default function OwnerDashboard() {
               </div>
             )}
           </div>
+        </div>
 
-          {/* Live Orders & Meal Queue */}
+        {/* RIGHT COLUMN: LIVE ORDERS & MEAL QUEUE */}
+        <div className="lg:col-span-6 space-y-6">
           <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs space-y-4">
             <div className="flex justify-between items-center">
               <div>
@@ -1320,7 +1400,7 @@ export default function OwnerDashboard() {
               </span>
             </div>
 
-            <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
               {loadingOrders ? (
                 <p className="text-xs text-stone-400 text-center py-8">Loading queue...</p>
               ) : orders.length === 0 ? (
@@ -1372,34 +1452,241 @@ export default function OwnerDashboard() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: BUSINESS PROFILE & OUTLET CONTROLS */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-xs space-y-6">
+      </div>
+
+      {/* ── MODAL: ADD NEW MESS OUTLET ── */}
+      {showAddMess && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-7 border border-stone-200 shadow-xl space-y-5 my-8 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-150">
             <div className="flex justify-between items-start border-b border-stone-100 pb-4">
               <div>
-                <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wide">
-                  Outlet Settings
+                <span className="text-[11px] font-semibold text-orange-600 uppercase tracking-wider">
+                  New Outlet
                 </span>
                 <h2 className="text-xl font-bold text-stone-900 mt-0.5 tracking-tight">
+                  Add Mess Outlet
+                </h2>
+                <p className="text-xs text-stone-500">
+                  Register a new mess branch to expand your campus dining network.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddMess(false)}
+                className="w-8 h-8 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 flex items-center justify-center transition flex-shrink-0"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateMess} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
+                    Mess / Canteen Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Annapurna Mess"
+                    value={newMessName}
+                    onChange={(e) => setNewMessName(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
+                    Locality / Campus Area *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. FC Road / Kothrud, Pune"
+                    value={newLocality}
+                    onChange={(e) => setNewLocality(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
+                    Primary Cuisine Type
+                  </label>
+                  <select
+                    value={newCuisineType}
+                    onChange={(e) => setNewCuisineType(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
+                  >
+                    <option value="Veg Only">Veg Only</option>
+                    <option value="Both Veg & Non-Veg">Both Veg & Non-Veg</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
+                    Contact Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="+91 98765 43210"
+                    value={newPhone}
+                    onChange={(e) => setNewPhone(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
+                    Seating Capacity
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={newCapacity}
+                    onChange={(e) => setNewCapacity(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1.5">
+                    Photo URL (Cover Image)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="https://..."
+                    value={newImageUrl}
+                    onChange={(e) => setNewImageUrl(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-2">
+                  Operating Status
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                    <input
+                      type="radio"
+                      name="newIsOpenStatus"
+                      checked={newIsOpen === true}
+                      onChange={() => setNewIsOpen(true)}
+                      className="text-orange-600 focus:ring-orange-500"
+                    />
+                    <span className="text-stone-800">Open for Bookings</span>
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                    <input
+                      type="radio"
+                      name="newIsOpenStatus"
+                      checked={newIsOpen === false}
+                      onChange={() => setNewIsOpen(false)}
+                      className="text-orange-600 focus:ring-orange-500"
+                    />
+                    <span className="text-stone-500">Paused (Temporarily Closed)</span>
+                  </label>
+                </div>
+              </div>
+
+              {isSuperAdmin && (
+                <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl space-y-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 block">
+                    Admin Assignment (Optional)
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                        Owner Google / Email ID
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="messowner@gmail.com"
+                        value={newOwnerEmail}
+                        onChange={(e) => setNewOwnerEmail(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                        Secondary Manager Emails
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="mgr1@gmail.com, mgr2@gmail.com"
+                        value={newManagerEmails}
+                        onChange={(e) => setNewManagerEmails(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-stone-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddMess(false)}
+                  className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs rounded-lg transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading}
+                  className="px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium text-xs rounded-lg shadow-xs transition disabled:opacity-50"
+                >
+                  {actionLoading ? "Registering..." : "+ Register Mess Outlet"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: EDIT MESS OUTLET PROFILE ── */}
+      {showEditModal && activeMess && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-7 border border-stone-200 shadow-xl space-y-5 my-8 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-150">
+            <div className="flex justify-between items-start border-b border-stone-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
+                    Outlet Settings
+                  </span>
+                  <span
+                    className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full border ${
+                      isOpen
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-stone-100 text-stone-600 border-stone-200"
+                    }`}
+                  >
+                    {isOpen ? "Open for Dining" : "Paused / Closed"}
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold text-stone-900 mt-1 tracking-tight">
                   Mess Business Profile
                 </h2>
                 <p className="text-xs text-stone-500">
                   Update listing details, seating capacity, and student visibility.
                 </p>
               </div>
-
-              <span
-                className={`text-[10px] uppercase font-medium px-2.5 py-1 rounded-full border ${
-                  isOpen
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : "bg-stone-100 text-stone-600 border-stone-200"
-                }`}
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                className="w-8 h-8 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 flex items-center justify-center transition flex-shrink-0"
               >
-                {isOpen ? "Open for Dining" : "Paused / Closed"}
-              </span>
+                ✕
+              </button>
             </div>
 
-            <form onSubmit={handleUpdateMess} className="space-y-5">
+            <form onSubmit={handleUpdateMess} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-stone-700 mb-1.5">
@@ -1487,7 +1774,6 @@ export default function OwnerDashboard() {
                 </div>
               </div>
 
-              {/* Status Toggle */}
               <div>
                 <label className="block text-xs font-medium text-stone-700 mb-2">
                   Operating Status
@@ -1496,7 +1782,7 @@ export default function OwnerDashboard() {
                   <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
                     <input
                       type="radio"
-                      name="isOpenStatus"
+                      name="isOpenStatusEdit"
                       checked={isOpen === true}
                       onChange={() => setIsOpen(true)}
                       className="text-orange-600 focus:ring-orange-500"
@@ -1506,7 +1792,7 @@ export default function OwnerDashboard() {
                   <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
                     <input
                       type="radio"
-                      name="isOpenStatus"
+                      name="isOpenStatusEdit"
                       checked={isOpen === false}
                       onChange={() => setIsOpen(false)}
                       className="text-orange-600 focus:ring-orange-500"
@@ -1516,6 +1802,51 @@ export default function OwnerDashboard() {
                 </div>
               </div>
 
+              {/* SuperAdmin Access Control (if Admin) */}
+              {isSuperAdmin && (
+                <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl space-y-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 block">
+                    SuperAdmin Access Control
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                        Owner Google / Email ID
+                      </label>
+                      <input
+                        type="email"
+                        value={permOwnerEmail}
+                        onChange={(e) => setPermOwnerEmail(e.target.value)}
+                        placeholder="messowner@gmail.com"
+                        className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                        Additional Manager Emails
+                      </label>
+                      <input
+                        type="text"
+                        value={permManagerEmails}
+                        onChange={(e) => setPermManagerEmails(e.target.value)}
+                        placeholder="mgr1@gmail.com, mgr2@gmail.com"
+                        className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end pt-1">
+                    <button
+                      type="button"
+                      onClick={handleUpdatePermissions}
+                      disabled={permSaving}
+                      className="px-3.5 py-1.5 bg-stone-900 hover:bg-stone-800 text-white font-medium text-xs rounded-lg transition disabled:opacity-50"
+                    >
+                      {permSaving ? "Updating Access..." : "Update Permissions"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={actionLoading}
@@ -1524,125 +1855,35 @@ export default function OwnerDashboard() {
                 {actionLoading ? "Saving Changes..." : "Save Changes"}
               </button>
 
-              {/* ── ACCESS & PERMISSIONS SECTION ── */}
-              {activeMess && (
-                <div className="pt-5 border-t border-stone-100 space-y-4">
-                  {isSuperAdmin ? (
-                    <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 sm:p-5 space-y-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div className="space-y-0.5">
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
-                            SuperAdmin Access Control
-                          </span>
-                          <h4 className="text-sm font-bold text-stone-900">
-                            Assign Outlet to Google or Email Account
-                          </h4>
-                        </div>
-                        <span
-                          className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full border self-start sm:self-auto ${
-                            activeMess.isClaimed
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                              : "bg-amber-50 text-amber-700 border-amber-200"
-                          }`}
-                        >
-                          {activeMess.isClaimed
-                            ? `Linked (${activeMess.ownerId ? "Account Active" : "Claimed"})`
-                            : "Pre-Created (Waiting for Owner Signup)"}
-                        </span>
-                      </div>
-
-                      <p className="text-xs text-stone-600 leading-relaxed">
-                        Specify any mess owner&rsquo;s Google account or email. When they sign in or register with that email, <strong>&ldquo;{activeMess.name}&rdquo;</strong> will connect automatically to their portal with full operational access.
-                      </p>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <div>
-                          <label className="block text-xs font-medium text-stone-700 mb-1">
-                            Mess Owner Email / Google ID *
-                          </label>
-                          <input
-                            type="email"
-                            required
-                            value={permOwnerEmail}
-                            onChange={(e) => setPermOwnerEmail(e.target.value)}
-                            placeholder="e.g. momskitchen@gmail.com"
-                            className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-medium text-stone-700 mb-1">
-                            Additional Manager Emails (Optional)
-                          </label>
-                          <input
-                            type="text"
-                            value={permManagerEmails}
-                            onChange={(e) => setPermManagerEmails(e.target.value)}
-                            placeholder="manager1@gmail.com, staff@gmail.com"
-                            className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end pt-1">
-                        <button
-                          type="button"
-                          onClick={handleUpdatePermissions}
-                          disabled={permSaving}
-                          className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white font-medium text-xs rounded-lg transition shadow-xs disabled:opacity-50 flex items-center gap-1.5"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                          </svg>
-                          <span>{permSaving ? "Updating Access..." : "Grant Access"}</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-xs space-y-1">
-                      <div className="flex items-center gap-1.5 text-stone-800 font-semibold">
-                        <svg className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                        <span>Assigned Outlet</span>
-                      </div>
-                      <p className="text-stone-600">
-                        This mess is assigned to <strong className="text-stone-800">{activeMess.ownerEmail}</strong>. Multi-outlet provisioning is managed by the administrator.
-                      </p>
-                    </div>
-                  )}
+              {/* Danger Zone: Outlet Deletion */}
+              <div className="pt-4 border-t border-stone-100 flex items-center justify-between gap-3">
+                <div>
+                  <span className="text-xs font-semibold text-rose-700 block">
+                    Danger Zone
+                  </span>
+                  <span className="text-[11px] text-stone-500 block">
+                    Permanently delete &ldquo;{activeMess.name}&rdquo;.
+                  </span>
                 </div>
-              )}
-
-              {/* Danger Zone: Outlet Deletion (Available for all owners & admins) */}
-              {activeMess && (
-                <div className="pt-5 border-t border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <span className="text-xs font-semibold text-rose-700 block">
-                      Danger Zone • Delete Outlet
-                    </span>
-                    <span className="text-[11px] text-stone-500 block">
-                      Permanently remove &ldquo;{activeMess.name}&rdquo; and all associated configuration.
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowDeleteModal(true)}
-                    disabled={actionLoading || deletingMess}
-                    className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-medium text-xs rounded-lg border border-rose-200 transition flex items-center gap-1.5 disabled:opacity-50"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    <span>Delete Outlet</span>
-                  </button>
-                </div>
-              )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setShowDeleteModal(true);
+                  }}
+                  disabled={actionLoading || deletingMess}
+                  className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-medium text-xs rounded-lg border border-rose-200 transition flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  <span>Delete Outlet</span>
+                </button>
+              </div>
             </form>
           </div>
         </div>
-
-      </div>
+      )}
 
       {/* ── CONFIRMATION MODAL: DELETE OUTLET BRANCH ── */}
       {showDeleteModal && activeMess && (
