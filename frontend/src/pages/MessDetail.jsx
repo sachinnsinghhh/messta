@@ -34,8 +34,7 @@ export default function MessDetail() {
   // Step A: Selected Meal Section / Spread ID (e.g. "lunch", "dinner", "breakfast")
   const [selectedMeal, setSelectedMeal] = useState("lunch");
 
-  // Step B: Selected Time-Slot Interval & Selected Thali
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
+  // Step 2: Selected Thali
   const [selectedThali, setSelectedThali] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -109,18 +108,7 @@ export default function MessDetail() {
     }
   }, [mealSpreads, selectedMeal]);
 
-  // Auto-select first available time slot interval when meal section changes
-  useEffect(() => {
-    if (!mess) return;
-    const slots = (mess.timeSlots && mess.timeSlots[selectedMeal]) || [];
-    if (slots.length > 0) {
-      const firstAvailable = slots.find((s) => (s.maxCapacity - s.bookedCount) > 0) || slots[0];
-      const timer = setTimeout(() => {
-        setSelectedTimeSlot(firstAvailable);
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedMeal, mess]);
+
 
   // Dynamic Spread Capacity Aggregator
   const getSpreadStats = (spreadId) => {
@@ -344,13 +332,13 @@ export default function MessDetail() {
           <div className="space-y-4">
             <div>
               <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
-                Step A
+                Step 1
               </span>
               <h2 className="text-lg font-black text-gray-900 mt-1">
-                Choose Meal Spread
+                Choose Meal Session
               </h2>
               <p className="text-xs text-gray-500">
-                Select your preferred operational window to inspect live capacity quotas.
+                Select your dining session (Lunch or Dinner).
               </p>
             </div>
 
@@ -394,90 +382,24 @@ export default function MessDetail() {
           </div>
 
           {/* ═══════════════════════════════════════════════════════════ */}
-          {/* ── STEP B: SELECT TIME SLOT & THALI ── */}
+          {/* ── STEP 2: SELECT THALI / MEAL OPTION ── */}
           {/* ═══════════════════════════════════════════════════════════ */}
-          <div className="space-y-6 pt-2">
-            
-            {/* Part 1: Select Precise Time Slot Interval */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
-                    Step B • Part 1
-                  </span>
-                  <h3 className="text-sm font-black text-gray-900 mt-1 uppercase tracking-wider">
-                    Select Your Dining Time Slot Interval
-                  </h3>
-                </div>
-                <span className="text-[10px] font-black text-orange-600 uppercase bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200">
-                  {(mealSpreads.find((s) => s.id === selectedMeal)?.name || selectedMeal).toUpperCase()}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
+                  Step 2
                 </span>
+                <h3 className="text-base font-black text-gray-900 mt-1 uppercase tracking-wider">
+                  Browse Available Daily Thalis ({availableThalis.length})
+                </h3>
               </div>
-
-              {/* Time Slots Carousel/Grid */}
-              {((mess.timeSlots && mess.timeSlots[selectedMeal]) || []).length === 0 ? (
-                <div className="p-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-center text-xs text-gray-500">
-                  Flexible counter dining • No strict interval restrictions for this spread.
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {((mess.timeSlots && mess.timeSlots[selectedMeal]) || []).map((slot) => {
-                  const remaining = Math.max(0, slot.maxCapacity - slot.bookedCount);
-                  const isSelected = selectedTimeSlot?.id === slot.id || selectedTimeSlot?.timeWindow === slot.timeWindow;
-                  const isFull = remaining === 0;
-
-                  return (
-                    <button
-                      key={slot.id}
-                      type="button"
-                      disabled={isFull}
-                      onClick={() => setSelectedTimeSlot(slot)}
-                      className={`p-3 rounded-2xl border text-left transition-all ${
-                        isSelected
-                          ? "bg-gray-900 text-white border-gray-900 shadow-xs ring-2 ring-gray-900/20"
-                          : isFull
-                          ? "bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed"
-                          : "bg-gray-50 border-gray-200 hover:border-orange-400 hover:bg-white text-gray-800"
-                      }`}
-                    >
-                      <span className="font-extrabold text-xs block leading-tight">
-                        {slot.timeWindow}
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold block pt-1 ${
-                          isSelected
-                            ? "text-orange-400"
-                            : isFull
-                            ? "text-red-500 font-black"
-                            : "text-emerald-700"
-                        }`}
-                      >
-                        {isFull ? "Sold Out ✕" : `${remaining} seats left`}
-                      </span>
-                    </button>
-                  );
-                })}
-                </div>
-              )}
+              <span className="text-[10px] font-black text-orange-600 uppercase bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200">
+                {(mealSpreads.find((s) => s.id === selectedMeal)?.name || selectedMeal).toUpperCase()}
+              </span>
             </div>
 
-            {/* Part 2: Select Thali Option (with clear pricing & tier coverage indicator) */}
-            <div className="space-y-3 pt-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
-                    Step B • Part 2
-                  </span>
-                  <h3 className="text-sm font-black text-gray-900 mt-1 uppercase tracking-wider">
-                    Browse Available Daily Thalis ({availableThalis.length})
-                  </h3>
-                </div>
-                <span className="text-[10px] font-bold text-gray-500">
-                  Select a thali to reserve
-                </span>
-              </div>
-
-              {availableThalis.length === 0 ? (
+            {availableThalis.length === 0 ? (
                 <div className="p-8 text-center bg-gray-50 rounded-3xl border border-gray-200 space-y-2">
                   <span className="text-3xl">🍲</span>
                   <p className="text-xs text-gray-500 font-bold">
@@ -633,14 +555,11 @@ export default function MessDetail() {
 
         </div>
 
-      </div>
-
-      {/* ── STEP C: SMART DECISION ENGINE CHECKOUT MODAL ── */}
+      {/* ── STEP 3: CHECKOUT MODAL ── */}
       {isModalOpen && (
         <BookingModal
           mess={mess}
           selectedMeal={selectedMeal}
-          selectedTimeSlot={selectedTimeSlot}
           selectedThali={selectedThali}
           onClose={() => setIsModalOpen(false)}
           onBookingSuccess={reloadMess}

@@ -96,7 +96,7 @@ export default function BookingModal({
   const slotWindow =
     selectedTimeSlot?.timeWindow ||
     mess?.mealSpreads?.find((s) => s.id === selectedMeal)?.timing ||
-    (selectedMeal === "lunch" ? "12:30 PM – 01:00 PM" : "08:00 PM – 08:30 PM");
+    (selectedMeal === "lunch" ? "11:30 AM – 02:30 PM" : "07:00 PM – 10:30 PM");
 
   let isTokenMatch = false;
   let matchBadge = "";
@@ -501,7 +501,7 @@ export default function BookingModal({
 
                 <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-gray-200">
                   <div>
-                    <span className="text-gray-400 font-bold block uppercase text-[9px]">Time-Slot Interval</span>
+                    <span className="text-gray-400 font-bold block uppercase text-[9px]">Dining Window</span>
                     <span className="font-extrabold text-gray-800">{slotWindow}</span>
                   </div>
                   <div>
