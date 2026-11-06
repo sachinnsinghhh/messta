@@ -15,7 +15,7 @@ export default function OwnerMeals() {
     refreshMesses,
   } = useActiveMess(currentUser);
 
-  // Active Management Tab: "thalis" (Daily Menu & Pricing) | "slots" (Timings & Capacity) | "headcount" (Tomorrow's Bookings)
+  // Active Management Tab: "thalis" (Daily Menu & Pricing) | "schedule" (Timings, Capacity & Bookings)
   const [activeTab, setActiveTab] = useState("thalis");
 
   const DEFAULT_SPREADS = useMemo(
@@ -672,9 +672,9 @@ export default function OwnerMeals() {
 
         <button
           type="button"
-          onClick={() => setActiveTab("slots")}
+          onClick={() => setActiveTab("schedule")}
           className={`px-4 py-2 rounded-lg font-medium text-xs transition flex items-center gap-2 ${
-            activeTab === "slots"
+            activeTab === "schedule" || activeTab === "slots" || activeTab === "headcount"
               ? "bg-stone-900 text-white shadow-xs"
               : "bg-white text-stone-600 hover:bg-stone-100 border border-stone-200"
           }`}
@@ -682,25 +682,10 @@ export default function OwnerMeals() {
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>Meal Timings & Windows</span>
+          <span>Meal Timings & Bookings</span>
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 font-mono">
             {mealSpreads.length} windows
           </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("headcount")}
-          className={`px-4 py-2 rounded-lg font-medium text-xs transition flex items-center gap-2 ${
-            activeTab === "headcount"
-              ? "bg-stone-900 text-white shadow-xs"
-              : "bg-white text-stone-600 hover:bg-stone-100 border border-stone-200"
-          }`}
-        >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-          </svg>
-          <span>Tomorrow's Bookings</span>
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium">
             {headcountData?.headcount?.total ?? 0} booked
           </span>
@@ -730,9 +715,9 @@ export default function OwnerMeals() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════ */}
-      {/* ── TAB 1: STEP A - MEAL PERIOD & TIME-SLOT CONFIGURATION ── */}
+      {/* ── TAB 2: MEAL TIMINGS, WINDOWS & TOMORROW'S BOOKINGS ── */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      {activeTab === "slots" && (
+      {(activeTab === "schedule" || activeTab === "slots" || activeTab === "headcount") && (
         <div className="space-y-8 animate-in fade-in duration-200">
           
           {/* Header Card */}
@@ -840,14 +825,11 @@ export default function OwnerMeals() {
               );
             })}
           </div>
-        </div>
-      )}
 
-      {/* ══════════════════════════════════════════════════════════════ */}
-      {/* ── TAB 1.5: TOMORROW'S KITCHEN HEADCOUNT & RATION PREP SHEET ── */}
-      {/* ══════════════════════════════════════════════════════════════ */}
-      {activeTab === "headcount" && (
-        <div className="space-y-8 animate-in fade-in duration-200">
+          {/* ══════════════════════════════════════════════════════════════ */}
+          {/* ── 2. TOMORROW'S CONFIRMED BOOKINGS & ADVANCE ROSTER ── */}
+          {/* ══════════════════════════════════════════════════════════════ */}
+          <div className="pt-6 border-t border-stone-200 space-y-6">
           
           {/* Header Card with Cut-Off Status */}
           <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs space-y-4">
@@ -1044,24 +1026,25 @@ export default function OwnerMeals() {
               </table>
             </div>
           </div>
+          </div>
 
           {/* ── MODAL: EDIT CUT-OFF DEADLINE TIMES ── */}
           {showCutOffModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-              <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 space-y-4 animate-in zoom-in-95 duration-200">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-stone-200 space-y-4 animate-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                   <div>
-                    <span className="text-[10px] font-black uppercase text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md">
-                      Cut-Off Engine Configuration
+                    <span className="text-[10px] font-semibold uppercase text-orange-700 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-md">
+                      Cut-Off Configuration
                     </span>
-                    <h3 className="font-black text-gray-900 text-base mt-0.5">
+                    <h3 className="font-bold text-stone-900 text-base mt-1">
                       Configure Daily Booking Cut-Off Times
                     </h3>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowCutOffModal(false)}
-                    className="text-gray-400 hover:text-gray-600 text-lg font-bold p-1 cursor-pointer"
+                    className="text-stone-400 hover:text-stone-600 text-base font-bold p-1 cursor-pointer"
                   >
                     ✕
                   </button>
@@ -1069,43 +1052,43 @@ export default function OwnerMeals() {
 
                 <div className="space-y-4 text-xs">
                   <div>
-                    <label className="block font-bold text-gray-700 mb-1">
-                      Tomorrow's Lunch Cut-Off Time (Night Before)
+                    <label className="block font-semibold text-stone-700 mb-1">
+                      Tomorrow&apos;s Lunch Cut-Off Time (Night Before)
                     </label>
                     <input
                       type="time"
                       value={editLunchCutOff}
                       onChange={(e) => setEditLunchCutOff(e.target.value)}
-                      className="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl font-mono text-gray-900 focus:bg-white focus:ring-2 focus:ring-purple-500"
+                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl font-mono text-stone-900 focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none"
                     />
-                    <p className="text-[10px] text-gray-400 mt-1">
-                      Standard default: 22:00 (10:00 PM tonight). After this time, tomorrow's lunch bookings lock.
+                    <p className="text-[10px] text-stone-400 mt-1">
+                      Standard default: 22:00 (10:00 PM tonight). After this time, tomorrow&apos;s lunch bookings lock.
                     </p>
                   </div>
 
                   <div>
-                    <label className="block font-bold text-gray-700 mb-1">
-                      Tomorrow's Dinner Cut-Off Time
+                    <label className="block font-semibold text-stone-700 mb-1">
+                      Tomorrow&apos;s Dinner Cut-Off Time
                     </label>
                     <input
                       type="time"
                       value={editDinnerCutOff}
                       onChange={(e) => setEditDinnerCutOff(e.target.value)}
-                      className="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl font-mono text-gray-900 focus:bg-white focus:ring-2 focus:ring-purple-500"
+                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl font-mono text-stone-900 focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none"
                     />
-                    <p className="text-[10px] text-gray-400 mt-1">
+                    <p className="text-[10px] text-stone-400 mt-1">
                       Standard default: 14:00 (02:00 PM day of dinner).
                     </p>
                   </div>
 
                   <div>
-                    <label className="block font-bold text-gray-700 mb-1">
+                    <label className="block font-semibold text-stone-700 mb-1">
                       Dinner Cut-Off Deadline Day
                     </label>
                     <select
                       value={editDinnerDay}
                       onChange={(e) => setEditDinnerDay(e.target.value)}
-                      className="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl font-medium text-gray-900 focus:bg-white focus:ring-2 focus:ring-purple-500"
+                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl font-medium text-stone-900 focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none"
                     >
                       <option value="same_day">Same Day Afternoon (2:00 PM day of dinner)</option>
                       <option value="previous_night">Night Before (10:00 PM along with lunch)</option>
@@ -1113,11 +1096,11 @@ export default function OwnerMeals() {
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                <div className="flex justify-end gap-2 pt-2 border-t border-stone-100">
                   <button
                     type="button"
                     onClick={() => setShowCutOffModal(false)}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition cursor-pointer"
+                    className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs rounded-xl transition cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1125,7 +1108,7 @@ export default function OwnerMeals() {
                     type="button"
                     disabled={savingCutOff}
                     onClick={handleSaveCutOffConfig}
-                    className="px-5 py-2 bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs rounded-xl transition cursor-pointer disabled:opacity-50"
+                    className="px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs rounded-xl transition cursor-pointer disabled:opacity-50 shadow-xs"
                   >
                     {savingCutOff ? "Saving..." : "Save Cut-Off Times"}
                   </button>
