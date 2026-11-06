@@ -21,6 +21,17 @@ const DEFAULT_SPREADS = [
   },
 ];
 
+const formatTime12h = (t) => {
+  if (!t) return "";
+  if (t.includes("AM") || t.includes("PM")) return t;
+  const [h, m] = t.split(":");
+  const hour = parseInt(h, 10);
+  if (isNaN(hour)) return t;
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const h12 = hour % 12 || 12;
+  return `${h12}:${m || "00"} ${ampm}`;
+};
+
 export default function MessDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -280,65 +291,85 @@ export default function MessDetail() {
           )}
 
           {/* ═══════════════════════════════════════════════════════════ */}
-          {/* ── ADVANCE BOOKING & CUT-OFF TIMING ENGINE BANNER ── */}
+          {/* ── ADVANCE BOOKING & CUT-OFF TIMING CARD ── */}
           {/* ═══════════════════════════════════════════════════════════ */}
-          <div className="p-5 rounded-3xl bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 text-white shadow-md space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-2.5">
-                <span className="text-2xl">⏰</span>
+          <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 border border-orange-100 flex items-center justify-center text-lg shrink-0">
+                  🗓️
+                </div>
                 <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-purple-300 bg-purple-800/80 px-2.5 py-0.5 rounded-full border border-purple-600/50">
-                      Tomorrow-Only Advance Window
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">
+                      Advance Booking
                     </span>
-                    <span className="text-[10px] font-extrabold text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-700/50">
-                      Zero Waste • Fresh Kitchen Prep
+                    <span className="text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 rounded-md">
+                      Tomorrow Only
                     </span>
                   </div>
-                  <h3 className="text-base sm:text-lg font-black tracking-tight mt-1 text-white">
-                    Advance Seat Booking Strictly for Tomorrow
+                  <h3 className="text-base font-bold text-stone-900 tracking-tight mt-0.5">
+                    Reserve Your Meal for Tomorrow
                   </h3>
                 </div>
               </div>
+
+              <div className="flex items-center gap-1.5 text-[11px] text-stone-500 bg-stone-50 px-2.5 py-1 rounded-lg border border-stone-200 self-start sm:self-auto">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                <span>Fresh kitchen preparation</span>
+              </div>
             </div>
-            <p className="text-xs text-purple-200/80 leading-relaxed">
-              To eliminate kitchen guesswork and ensure fresh hot food without food waste, all students (both Membership Passholders & Per-Plate Walk-ins) must reserve their seats one day in advance before the daily cut-off deadlines.
+
+            <p className="text-xs text-stone-500 leading-relaxed">
+              Meals are prepared fresh daily based on advance reservations. Please book before the daily cut-off times:
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs">
-              <div className="p-3 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] text-purple-300 font-bold block uppercase">Tomorrow's Lunch</span>
-                  <span className="font-extrabold text-white text-xs">Closes 10:00 PM Tonight</span>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/90 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base">☀️</span>
+                  <div>
+                    <span className="font-semibold text-stone-900 block text-xs">Tomorrow&apos;s Lunch</span>
+                    <span className="text-[11px] text-stone-500">
+                      Closes tonight at {formatTime12h(mess?.advanceBookingConfig?.lunchCutOffTime || "22:00")}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-[10px] bg-purple-800/90 text-purple-200 font-bold px-2.5 py-1 rounded-full border border-purple-600/40">
-                  Night-before lock
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white text-stone-700 border border-stone-200 shadow-2xs">
+                  Night before
                 </span>
               </div>
-              <div className="p-3 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] text-teal-300 font-bold block uppercase">Tomorrow's Dinner</span>
-                  <span className="font-extrabold text-white text-xs">Closes 02:00 PM Tomorrow</span>
+
+              <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/90 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base">🌙</span>
+                  <div>
+                    <span className="font-semibold text-stone-900 block text-xs">Tomorrow&apos;s Dinner</span>
+                    <span className="text-[11px] text-stone-500">
+                      Closes tomorrow at {formatTime12h(mess?.advanceBookingConfig?.dinnerCutOffTime || "14:00")}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-[10px] bg-teal-900/90 text-teal-200 font-bold px-2.5 py-1 rounded-full border border-teal-600/40">
-                  Afternoon lock
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white text-stone-700 border border-stone-200 shadow-2xs">
+                  Same day afternoon
                 </span>
               </div>
             </div>
           </div>
 
           {/* ═══════════════════════════════════════════════════════════ */}
-          {/* ── STEP A: CHOOSE MEAL SPREAD (LUNCH / DINNER / BREAKFAST) ── */}
+          {/* ── STEP 1: CHOOSE MEAL SESSION (LUNCH / DINNER) ── */}
           {/* ═══════════════════════════════════════════════════════════ */}
           <div className="space-y-4">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-md">
                 Step 1
               </span>
-              <h2 className="text-lg font-black text-gray-900 mt-1">
+              <h2 className="text-lg font-bold text-stone-900 tracking-tight mt-1.5">
                 Choose Meal Session
               </h2>
-              <p className="text-xs text-gray-500">
-                Select your dining session (Lunch or Dinner).
+              <p className="text-xs text-stone-500">
+                Select your dining session to view today&apos;s published thalis and capacity.
               </p>
             </div>
 
@@ -350,31 +381,35 @@ export default function MessDetail() {
                   <div
                     key={spread.id}
                     onClick={() => setSelectedMeal(spread.id)}
-                    className={`p-5 rounded-3xl border-2 cursor-pointer transition-all ${
+                    className={`p-5 rounded-2xl border cursor-pointer transition-all ${
                       isSelected
-                        ? "border-orange-500 bg-gradient-to-br from-orange-50 to-amber-50/40 shadow-xs ring-2 ring-orange-500/20"
-                        : "border-gray-200 bg-gray-50/70 hover:border-gray-300 hover:bg-white"
+                        ? "border-orange-600 bg-orange-50/40 shadow-xs ring-1 ring-orange-500"
+                        : "border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50/40"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2.5">
                         <span className="text-2xl">{spread.icon || "🍽️"}</span>
-                        <h3 className="font-black text-sm text-gray-900">{spread.name}</h3>
+                        <div>
+                          <h3 className="font-bold text-sm text-stone-900">{spread.name}</h3>
+                          <span className="text-[11px] text-stone-500 font-medium">{spread.timing}</span>
+                        </div>
                       </div>
                       <span
-                        className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                        className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${
                           stats.remaining === 0
-                            ? "bg-red-100 text-red-700"
-                            : "bg-emerald-100 text-emerald-800"
+                            ? "bg-rose-50 text-rose-700 border-rose-200"
+                            : "bg-emerald-50 text-emerald-700 border-emerald-200"
                         }`}
                       >
-                        {stats.remaining === 0 ? "Full" : `${stats.remaining} Slots Left`}
+                        {stats.remaining === 0 ? "Full" : `${stats.remaining} Left`}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
-                      {spread.timing ? `${spread.timing} • ` : ""}
-                      {spread.description || "Freshly prepared dining spread."}
-                    </p>
+                    {spread.description && (
+                      <p className="text-xs text-stone-500 leading-relaxed line-clamp-2 mt-1">
+                        {spread.description}
+                      </p>
+                    )}
                   </div>
                 );
               })}
