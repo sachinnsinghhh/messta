@@ -38,12 +38,6 @@ export default function OwnerMemberships() {
   const [feedback, setFeedback] = useState({ text: "", type: "" });
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
-  // Token Burn Rate calculation algorithm
-  const estimatedDays = useMemo(() => {
-    const tokens = Number(newTotalTokens) || 0;
-    const meals = Number(newMealsPerDay) || 1;
-    return Math.max(1, Math.ceil(tokens / meals));
-  }, [newTotalTokens, newMealsPerDay]);
 
   // Load plans, subscribers, and broadcasts for active outlet via async effect
   useEffect(() => {
@@ -415,18 +409,6 @@ export default function OwnerMemberships() {
                 </div>
               </div>
 
-              {/* Token Burn Rate Estimator Algorithm Display */}
-              <div className="p-3 bg-orange-50/70 border border-orange-200/80 rounded-xl flex items-center justify-between text-xs">
-                <div>
-                  <span className="text-[10px] text-gray-500 uppercase font-black block">Estimated Burn Rate</span>
-                  <span className="font-extrabold text-orange-900">
-                    ~{estimatedDays} Days of Dining
-                  </span>
-                </div>
-                <span className="text-[11px] font-bold text-orange-700 bg-white px-2 py-1 rounded-lg border border-orange-200">
-                  ₹{newPrice && newTotalTokens ? (Number(newPrice) / Number(newTotalTokens)).toFixed(1) : 0} / token
-                </span>
-              </div>
 
               <div>
                 <label className="block text-[11px] font-bold uppercase text-gray-700 mb-1">
