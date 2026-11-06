@@ -53,6 +53,26 @@ function getMessCoordinates(mess) {
   return { lat: 18.5204, lng: 73.8567 };
 }
 
+// Relatable student truths & humorous hooks (no corporate feature jargon)
+const STUDENT_PUNCHLINES = [
+  {
+    title: "Kyunki Roz Maggi Se Pet Nahi Bharta.",
+    sub: "Hostel ki paani wali dal ko bolo alvida. Find hot, hearty food near your campus — so you never have to lie to Mom when she asks 'Khana khaya beta?'",
+  },
+  {
+    title: "Ghar Jaisa Khana. Minus Mummy Ke Taane.",
+    sub: "Unlimited rotis, piping hot sabzi, and zero drama. Wholesome daily meals within walking distance of your hostel.",
+  },
+  {
+    title: "Mummy Se Jhooth Mat Bolo Ki Khana Achha Hai.",
+    sub: "Degree pass ho sakti hai, paani wali dal se pet nahi. Treat yourself to actual tasty food today.",
+  },
+  {
+    title: "Pocket Money Bachao. Pet Bhar Ke Khao.",
+    sub: "Because daily food delivery orders will make you broke by the 10th of the month. Eat good, spend less.",
+  },
+];
+
 export default function Home() {
   const [allMesses, setAllMesses] = useState([]);
   const [searchArea, setSearchArea] = useState("");
@@ -90,41 +110,15 @@ export default function Home() {
   const [radiusKm, setRadiusKm] = useState(5);
   const [locationFeedback, setLocationFeedback] = useState("");
 
-  // Live culinary greeting based on current time of day
-  const culinaryGreeting = useMemo(() => {
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 11) {
-      return {
-        badge: "Breakfast & Morning Prep",
-        headline: "Hot Poha, Upma & Fresh Lunch Prep Underway",
-        sub: "Kitchens across Pune campuses are simmering today's fresh menu.",
-      };
-    } else if (hour >= 11 && hour < 16) {
-      return {
-        badge: "Lunch Counters Active",
-        headline: "Steaming Rotis, Dal Tadka & Thalis Ready Now",
-        sub: "Skip long canteen lines — book your slot or check remaining thalis.",
-      };
-    } else if (hour >= 16 && hour < 19) {
-      return {
-        badge: "Evening Prep & Snack Hour",
-        headline: "Lock Tonight's Dinner Before 8:00 PM Rush",
-        sub: "Guaranteed fresh dinner meals reserved directly with kitchen masters.",
-      };
-    } else if (hour >= 19 && hour < 23) {
-      return {
-        badge: "Dinner Service Live",
-        headline: "Warm Homely Thalis Served Piping Hot",
-        sub: "Show your dynamic token at the counter and enjoy healthy meals.",
-      };
-    } else {
-      return {
-        badge: "Kitchens Recharging",
-        headline: "Plan Tomorrow's Healthy Meals & Passes",
-        sub: "Reserve your monthly tiffin pass or browse verified student messes.",
-      };
-    }
+  // Rotating relatable student punchlines (cycles every 4.5 seconds)
+  const [punchlineIndex, setPunchlineIndex] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPunchlineIndex((prev) => (prev + 1) % STUDENT_PUNCHLINES.length);
+    }, 4500);
+    return () => clearInterval(timer);
   }, []);
+
 
   // Fetch complete listings to allow full radius calculations
   useEffect(() => {
@@ -351,14 +345,31 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Dynamic Catchphrase & Subtitle */}
+          {/* Relatable Student Meme Catchphrase & Subtitle */}
           <div className="space-y-3 max-w-3xl mx-auto">
-            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-              {culinaryGreeting.headline}
+            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight min-h-[3.5rem] sm:min-h-[4rem] flex items-center justify-center transition-all duration-300">
+              {STUDENT_PUNCHLINES[punchlineIndex].title}
             </h1>
-            <p className="text-sm sm:text-base text-stone-300 max-w-2xl mx-auto leading-relaxed font-normal">
-              Fresh, hygienic student thalis & flexible passes from trusted mess partners near MIT Kothrud, FC Road, Cummins & across Pune.
+            <p className="text-sm sm:text-base text-amber-100/90 max-w-2xl mx-auto leading-relaxed font-normal min-h-[2.5rem] flex items-center justify-center transition-all duration-300">
+              {STUDENT_PUNCHLINES[punchlineIndex].sub}
             </p>
+
+            {/* Quick-tap relatable mood indicators */}
+            <div className="pt-2 flex justify-center items-center gap-1.5">
+              {STUDENT_PUNCHLINES.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setPunchlineIndex(idx)}
+                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                    punchlineIndex === idx
+                      ? "w-7 bg-orange-500 shadow-sm"
+                      : "w-2 bg-white/25 hover:bg-white/50"
+                  }`}
+                  aria-label={`Student truth ${idx + 1}`}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Search Bar with Tactile Button */}
