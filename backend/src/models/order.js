@@ -66,9 +66,32 @@ const orderSchema = new mongoose.Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "failed"],
+      enum: ["pending", "pending_verification", "paid", "failed"],
       default: "pending",
       index: true,
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["token_pass", "razorpay", "upi_qr", "cash"],
+      default: "token_pass",
+    },
+    utrNumber: {
+      type: String,
+      default: null,
+      sparse: true,
+      index: true,
+    },
+    verifiedAt: {
+      type: Date,
+      default: null,
+    },
+    verifiedBy: {
+      type: String,
+      default: null,
+    },
+    rejectionReason: {
+      type: String,
+      default: null,
     },
     token: {
       type: String,
@@ -78,7 +101,7 @@ const orderSchema = new mongoose.Schema(
     },
     tokenStatus: {
       type: String,
-      enum: ["active", "redeemed", "expired"],
+      enum: ["active", "locked", "redeemed", "expired", "cancelled"],
       default: "active",
       index: true,
     },

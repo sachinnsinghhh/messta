@@ -75,6 +75,11 @@ export default function OwnerDashboard() {
   const [statusMessage, setStatusMessage] = useState({ text: "", type: "" });
   const [ordersReloadKey, setOrdersReloadKey] = useState(0);
 
+  // Pending UPI Payments Awaiting Counter Verification
+  const [pendingUpiOrders, setPendingUpiOrders] = useState([]);
+  const [loadingPendingUpi, setLoadingPendingUpi] = useState(false);
+  const [copiedUtr, setCopiedUtr] = useState("");
+
   // Mess Verification Modal & Fields
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [verifyStreet, setVerifyStreet] = useState("");
@@ -172,6 +177,36 @@ export default function OwnerDashboard() {
     };
   }, [activeMessId, ordersReloadKey]);
 
+  // Fetch pending UPI verifications (auto-polls every 6s)
+  useEffect(() => {
+    if (!activeMessId) return;
+    let ignore = false;
+
+    async function fetchPendingUpi() {
+      try {
+        setLoadingPendingUpi(true);
+        const res = await fetch(`${API_BASE_URL}/api/orders/pending-upi/${activeMessId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!ignore && data.success) {
+          setPendingUpiOrders(data.data || []);
+        }
+      } catch {
+        // Non-blocking
+      } finally {
+        if (!ignore) setLoadingPendingUpi(false);
+      }
+    }
+
+    fetchPendingUpi();
+    const pollInterval = setInterval(fetchPendingUpi, 6000);
+
+    return () => {
+      ignore = true;
+      clearInterval(pollInterval);
+    };
+  }, [activeMessId, ordersReloadKey]);
+
   // Fetch staff personnel for the active mess outlet
   useEffect(() => {
     if (!activeMessId) return;
@@ -202,6 +237,86 @@ export default function OwnerDashboard() {
   }, [activeMessId]);
 
   const reloadOrders = () => setOrdersReloadKey((k) => k + 1);
+
+  // Approve Pending UPI Payment
+  const handleApproveUpi = async (orderId) => {
+    if (!orderId) return;
+    setActionLoading(true);
+    setStatusMessage({ text: "", type: "" });
+
+    try {
+      const activeOp = messStaff.find((s) => (s._id || s.id) === selectedStaffId);
+      const res = await fetch(`${API_BASE_URL}/api/orders/approve-upi`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId,
+          ownerName: activeOp?.name || activeMess?.name || "Counter Manager",
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        playScannerBeep(true);
+        setStatusMessage({
+          text: `Payment verified! Token ${data.order?.token} is unlocked and confirmed. 🎉`,
+          type: "success",
+        });
+        reloadOrders();
+      } else {
+        playScannerBeep(false);
+        setStatusMessage({
+          text: data.message || "Failed to approve payment.",
+          type: "error",
+        });
+      }
+    } catch {
+      playScannerBeep(false);
+      setStatusMessage({ text: "Server error approving UPI payment.", type: "error" });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Reject Pending UPI Payment
+  const handleRejectUpi = async (orderId) => {
+    if (!orderId) return;
+    const reason = window.prompt("Reason for rejecting this UPI reference:", "Payment not received in mess UPI account / soundbox");
+    if (reason === null) return;
+
+    setActionLoading(true);
+    setStatusMessage({ text: "", type: "" });
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/orders/reject-upi`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId,
+          reason: reason || "Payment reference not found in mess account.",
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        playScannerBeep(false);
+        setStatusMessage({
+          text: "UPI payment rejected and token cancelled.",
+          type: "success",
+        });
+        reloadOrders();
+      } else {
+        setStatusMessage({
+          text: data.message || "Failed to reject payment.",
+          type: "error",
+        });
+      }
+    } catch {
+      setStatusMessage({ text: "Server error rejecting UPI payment.", type: "error" });
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // Open Edit Modal for a specific mess outlet or the active one
   const handleOpenEdit = (messItem) => {
@@ -1337,22 +1452,57 @@ export default function OwnerDashboard() {
                   </div>
                 )}
 
+                {/* Anti-Fraud Warning for Locked/Pending UPI Payments */}
+                {(scannedResult.data.tokenStatus === "locked" || scannedResult.data.paymentStatus === "pending_verification") && (
+                  <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-xl space-y-2 text-xs">
+                    <div className="flex items-center gap-2 text-amber-900 font-bold">
+                      <span className="text-base">⚠️</span>
+                      <span>Payment Pending Verification: Do not serve meal until approved.</span>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-amber-800 pt-1 border-t border-amber-200">
+                      <span>UTR: <strong className="font-mono">{scannedResult.data.utrNumber || "N/A"}</strong></span>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const orderToApprove = orders.find((o) => o.token === scannedResult.data.token) ||
+                            pendingUpiOrders.find((o) => o.token === scannedResult.data.token);
+                          if (orderToApprove) {
+                            await handleApproveUpi(orderToApprove._id);
+                            await processScannedPayload(scannedResult.data.token);
+                          }
+                        }}
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition text-xs flex items-center gap-1"
+                      >
+                        <span>Approve & Unlock Now ✓</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Mark as Served Action */}
                 <button
                   type="button"
                   disabled={
                     scanLoading ||
                     scannedResult.data.tokenStatus === "served" ||
-                    scannedResult.data.tokenStatus === "redeemed"
+                    scannedResult.data.tokenStatus === "redeemed" ||
+                    scannedResult.data.tokenStatus === "locked" ||
+                    scannedResult.data.paymentStatus === "pending_verification"
                   }
                   onClick={() => handleRedeemToken(scannedResult.data.token)}
-                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-stone-200 disabled:text-stone-400 text-white font-medium text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                  className={`w-full py-2.5 font-medium text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
+                    scannedResult.data.tokenStatus === "locked" || scannedResult.data.paymentStatus === "pending_verification"
+                      ? "bg-amber-100 text-amber-800 border border-amber-300 cursor-not-allowed"
+                      : "bg-emerald-600 hover:bg-emerald-700 disabled:bg-stone-200 disabled:text-stone-400 text-white"
+                  }`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span>
-                    {scannedResult.data.tokenStatus === "served" || scannedResult.data.tokenStatus === "redeemed"
+                    {scannedResult.data.tokenStatus === "locked" || scannedResult.data.paymentStatus === "pending_verification"
+                      ? "⚠️ Cannot Serve: UPI Payment Pending Verification"
+                      : scannedResult.data.tokenStatus === "served" || scannedResult.data.tokenStatus === "redeemed"
                       ? "Meal Already Served"
                       : scannedResult.tokenType === "membership" || scannedResult.type === "subscription"
                       ? "Deduct 1 Token & Mark Served"
@@ -1364,22 +1514,137 @@ export default function OwnerDashboard() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: LIVE ORDERS & MEAL QUEUE */}
+        {/* RIGHT COLUMN: PENDING UPI APPROVALS & LIVE QUEUE */}
         <div className="lg:col-span-6 space-y-6">
+
+          {/* ── CARD 1: PENDING UPI APPROVALS (ANTI-FRAUD VERIFICATION DESK) ── */}
+          <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs space-y-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md">
+                    Fraud Prevention Desk
+                  </span>
+                  {pendingUpiOrders.length > 0 && (
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                  )}
+                </div>
+                <h3 className="text-sm font-bold text-stone-900 tracking-tight mt-1">
+                  Pending UPI Approvals
+                </h3>
+                <p className="text-xs text-stone-500">
+                  Verify student 12-digit UTR against your UPI Soundbox / Banking App.
+                </p>
+              </div>
+              <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                pendingUpiOrders.length > 0
+                  ? "bg-amber-100 text-amber-800 border border-amber-300"
+                  : "bg-stone-100 text-stone-600"
+              }`}>
+                {pendingUpiOrders.length} pending
+              </span>
+            </div>
+
+            <div className="space-y-2.5 max-h-[300px] overflow-y-auto pr-1">
+              {loadingPendingUpi && pendingUpiOrders.length === 0 ? (
+                <p className="text-xs text-stone-400 text-center py-6">Checking for pending payments...</p>
+              ) : pendingUpiOrders.length === 0 ? (
+                <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200/80 text-emerald-900 text-xs flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-lg">✓</span>
+                    <div>
+                      <span className="font-bold block">All UPI Payments Verified</span>
+                      <span className="text-[11px] text-emerald-700">No unverified walk-in student payments waiting.</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-medium text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">
+                    Clean Queue
+                  </span>
+                </div>
+              ) : (
+                pendingUpiOrders.map((pOrd) => (
+                  <div
+                    key={pOrd._id}
+                    className="p-3.5 bg-amber-50/40 rounded-xl border border-amber-200 text-xs space-y-2.5 transition"
+                  >
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-stone-900 text-sm">{pOrd.userName}</span>
+                          <span className="text-[10px] font-medium bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded uppercase">
+                            {pOrd.mealType}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-stone-500 block mt-0.5">
+                          {pOrd.thaliName} &bull; {new Date(pOrd.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <span className="text-sm font-mono font-black text-stone-900">
+                        ₹{pOrd.amount}
+                      </span>
+                    </div>
+
+                    {/* UTR Copy Row */}
+                    <div className="p-2 bg-white rounded-lg border border-stone-200 flex items-center justify-between text-[11px]">
+                      <div>
+                        <span className="text-[9px] uppercase font-bold text-stone-400 block">UPI Reference (UTR)</span>
+                        <strong className="font-mono text-stone-800 text-xs">{pOrd.utrNumber || "No UTR Provided"}</strong>
+                      </div>
+                      {pOrd.utrNumber && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(pOrd.utrNumber);
+                            setCopiedUtr(pOrd._id);
+                            setTimeout(() => setCopiedUtr(""), 2000);
+                          }}
+                          className="px-2 py-1 bg-stone-50 hover:bg-stone-100 text-stone-700 font-bold rounded border border-stone-200 transition cursor-pointer"
+                        >
+                          {copiedUtr === pOrd._id ? "Copied! ✓" : "Copy UTR 📋"}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Approve / Reject Actions */}
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleApproveUpi(pOrd._id)}
+                        disabled={actionLoading}
+                        className="py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-lg transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <span>✓ Approve & Unlock</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRejectUpi(pOrd._id)}
+                        disabled={actionLoading}
+                        className="py-1.5 bg-white hover:bg-rose-50 text-rose-600 hover:text-rose-700 border border-rose-200 font-bold text-xs rounded-lg transition cursor-pointer"
+                      >
+                        <span>✕ Reject</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* ── CARD 2: LIVE ORDERS & MEAL QUEUE ── */}
           <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs space-y-4">
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-sm font-bold text-stone-900 tracking-tight">
-                  Live Queue
+                  Confirmed Live Queue
                 </h3>
-                <p className="text-xs text-stone-500">Active reservations for {activeMess?.name || "this mess"}.</p>
+                <p className="text-xs text-stone-500">Active confirmed reservations for {activeMess?.name || "this mess"}.</p>
               </div>
               <span className="text-xs font-medium bg-stone-100 text-stone-700 px-2.5 py-0.5 rounded-full">
                 {orders.length} waiting
               </span>
             </div>
 
-            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
               {loadingOrders ? (
                 <p className="text-xs text-stone-400 text-center py-8">Loading queue...</p>
               ) : orders.length === 0 ? (
@@ -1398,7 +1663,12 @@ export default function OwnerDashboard() {
                     className="p-3 bg-stone-50 hover:bg-stone-100/80 rounded-xl border border-stone-200/70 flex items-center justify-between text-xs transition"
                   >
                     <div>
-                      <span className="font-mono font-semibold text-stone-900 block">{ord.token}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-semibold text-stone-900 block">{ord.token}</span>
+                        {ord.paymentMethod === "upi_qr" && (
+                          <span className="text-[9px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.2 rounded">UPI Verified</span>
+                        )}
+                      </div>
                       <span className="text-[11px] text-stone-500">
                         {ord.userName} • <span className="font-medium text-stone-700">{ord.mealType}</span>
                       </span>
@@ -1409,6 +1679,8 @@ export default function OwnerDashboard() {
                         className={`text-[10px] font-medium px-2 py-0.5 rounded-md ${
                           ord.tokenStatus === "redeemed"
                             ? "bg-stone-200 text-stone-700"
+                            : ord.tokenStatus === "locked"
+                            ? "bg-amber-100 text-amber-800"
                             : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                         }`}
                       >

@@ -51,6 +51,39 @@ const isValidBookingDate = (dateString) => {
   );
 };
 
+// Anti-Fraud UTR validation algorithm
+const validateUtrFormat = (utr) => {
+  if (!utr || typeof utr !== "string") {
+    return { valid: false, reason: "12-digit UPI Reference Number (UTR) is required." };
+  }
+  const clean = utr.trim();
+  // Standard Indian Banking UPI Ref / UTR is exactly 12 numeric digits
+  if (!/^\d{12}$/.test(clean)) {
+    return { valid: false, reason: "Invalid UTR format. Bank reference number must be exactly 12 numeric digits (e.g. 428901928312)." };
+  }
+  // Anti-fraud: reject common fake or dummy sequential patterns
+  const dummyPatterns = [
+    "000000000000",
+    "111111111111",
+    "222222222222",
+    "333333333333",
+    "444444444444",
+    "555555555555",
+    "666666666666",
+    "777777777777",
+    "888888888888",
+    "999999999999",
+    "123456789012",
+    "012345678901",
+    "123412341234",
+    "987654321098",
+  ];
+  if (dummyPatterns.includes(clean)) {
+    return { valid: false, reason: "Invalid or dummy UTR detected. Please enter the authentic 12-digit reference number from your UPI payment app (GPay / PhonePe / Paytm)." };
+  }
+  return { valid: true, cleanUtr: clean };
+};
+
 // @desc    Initiate a Razorpay payment order and reserve a preliminary order record
 // @route   POST /api/orders/create-payment
 exports.createPaymentOrder = async (req, res) => {
@@ -117,7 +150,7 @@ exports.createPaymentOrder = async (req, res) => {
       razorpayOrderId: razorpayOrder.id,
       token: uniqueToken,
       paymentStatus: "pending",
-      tokenStatus: "active",
+      tokenStatus: "locked",
     });
 
     const savedOrder = await preliminaryOrder.save();
@@ -139,11 +172,11 @@ exports.createPaymentOrder = async (req, res) => {
   }
 };
 
-// @desc    Verify payment signature and finalize slot reservation
+// @desc    Verify payment signature and finalize slot reservation (Hybrid: Gateway vs UPI QR Verification)
 // @route   POST /api/orders/verify-payment
 exports.verifyPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, dbOrderId } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, dbOrderId, utrNumber, paymentMethod } = req.body;
 
     const order = await Order.findById(dbOrderId);
     if (!order) {
@@ -153,38 +186,104 @@ exports.verifyPayment = async (req, res) => {
       });
     }
 
-    order.paymentStatus = "paid";
-    order.razorpayPaymentId = razorpay_payment_id || `pay_${Date.now()}`;
-    await order.save();
+    // 1. GATEWAY PAYMENT VERIFICATION (Razorpay PG)
+    if (razorpay_signature && razorpay_signature !== "upi_qr_verified") {
+      const secret = process.env.RAZORPAY_KEY_SECRET || "rzp_secret_placeholder";
+      const hmac = crypto.createHmac("sha256", secret);
+      hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+      const expectedSignature = hmac.digest("hex");
 
-    // Safely decrement available slots for the mess
-    const slotKey = order.mealType === "lunch" ? "availableSlots.lunch" : "availableSlots.dinner";
-    await Mess.findByIdAndUpdate(order.messId, {
-      $inc: { [slotKey]: -1 },
+      const isDevFallback = !process.env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET === "rzp_secret_placeholder";
+      const isValidSignature = isDevFallback || expectedSignature === razorpay_signature;
+
+      if (!isValidSignature) {
+        order.paymentStatus = "failed";
+        order.tokenStatus = "cancelled";
+        await order.save();
+        return res.status(400).json({
+          success: false,
+          message: "Payment signature verification failed. Untrusted payment payload.",
+        });
+      }
+
+      // Valid Gateway Payment -> Instantly Activate!
+      order.paymentStatus = "paid";
+      order.tokenStatus = "active";
+      order.paymentMethod = "razorpay";
+      order.razorpayPaymentId = razorpay_payment_id;
+      order.verifiedAt = new Date();
+      order.verifiedBy = "Razorpay Gateway (Auto)";
+      await order.save();
+
+      // Decrement available slots
+      const slotKey = order.mealType === "lunch" ? "availableSlots.lunch" : "availableSlots.dinner";
+      await Mess.findByIdAndUpdate(order.messId, { $inc: { [slotKey]: -1 } });
+
+      // Escrow ledger credit
+      try {
+        const commAmt = Math.round(Number(order.amount) * 0.04 * 100) / 100;
+        await creditPartnerWallet({
+          messId: order.messId,
+          grossAmount: order.amount,
+          platePrice: order.amount,
+          commissionType: "per_plate",
+          source: "per_plate_booking",
+          title: `${order.userName || "Student"} - ${order.mealType?.toUpperCase() || "Meal"} Plate`,
+          description: `Student paid ₹${order.amount} via Razorpay Gateway. Super Admin cut: ₹${commAmt} (4% of plate price). Credited ₹${order.amount - commAmt} to mess income.`,
+          studentName: order.userName || order.userEmail || "Student",
+          orderId: order.token || `ORD_${order._id.toString().slice(-6)}`,
+          paymentMethod: "razorpay",
+        });
+      } catch (wErr) {
+        console.warn("Wallet split notice during order verification:", wErr.message);
+      }
+
+      return res.status(200).json({
+        success: true,
+        verified: true,
+        tokenStatus: "active",
+        message: "Payment captured successfully via Gateway! Meal token is active.",
+        order,
+      });
+    }
+
+    // 2. DIRECT UPI QR CODE SCAN / UTR VERIFICATION
+    const submittedUtr = utrNumber || (razorpay_payment_id && razorpay_payment_id.startsWith("upi_") ? razorpay_payment_id.replace("upi_", "") : "");
+    const utrCheck = validateUtrFormat(submittedUtr);
+    if (!utrCheck.valid) {
+      return res.status(400).json({
+        success: false,
+        message: utrCheck.reason,
+      });
+    }
+
+    // Anti-replay / Duplicate check across all orders
+    const duplicateOrder = await Order.findOne({
+      utrNumber: utrCheck.cleanUtr,
+      paymentStatus: { $in: ["paid", "pending_verification"] },
+      _id: { $ne: order._id },
     });
 
-    // Messta Virtual Escrow Ledger: credit mess wallet and split 4% plate platform cut
-    try {
-      const commAmt = Math.round(Number(order.amount) * 0.04 * 100) / 100;
-      await creditPartnerWallet({
-        messId: order.messId,
-        grossAmount: order.amount,
-        platePrice: order.amount,
-        commissionType: "per_plate",
-        source: "per_plate_booking",
-        title: `${order.userName || "Student"} - ${order.mealType?.toUpperCase() || "Meal"} Plate`,
-        description: `Student paid ₹${order.amount} via Universal QR. Super Admin cut: ₹${commAmt} (4% of plate price). Credited ₹${order.amount - commAmt} to mess income.`,
-        studentName: order.userName || order.userEmail || "Student",
-        orderId: order.token || `ORD_${order._id.toString().slice(-6)}`,
-        paymentMethod: "upi_qr",
+    if (duplicateOrder) {
+      return res.status(400).json({
+        success: false,
+        message: `This UPI reference number (UTR: ${utrCheck.cleanUtr}) has already been used on ${duplicateOrder.bookingDate || "a previous order"}. Duplicate submissions are blocked by the fraud prevention system.`,
       });
-    } catch (wErr) {
-      console.warn("Wallet split notice during order verification:", wErr.message);
     }
+
+    // Lock token and transition to pending_verification for mess owner review
+    order.paymentStatus = "pending_verification";
+    order.tokenStatus = "locked";
+    order.paymentMethod = "upi_qr";
+    order.utrNumber = utrCheck.cleanUtr;
+    order.razorpayPaymentId = `upi_${utrCheck.cleanUtr}`;
+    await order.save();
 
     return res.status(200).json({
       success: true,
-      message: "Payment captured successfully! Slot confirmed.",
+      pendingVerification: true,
+      tokenStatus: "locked",
+      message: "UPI reference submitted! Token locked awaiting mess counter verification.",
       order,
     });
   } catch (error) {
@@ -240,6 +339,9 @@ exports.verifyToken = async (req, res) => {
           amount: order.amount,
           messId: order.messId,
           messName: order.messName,
+          utrNumber: order.utrNumber,
+          paymentMethod: order.paymentMethod,
+          rejectionReason: order.rejectionReason,
         },
       });
     }
@@ -313,10 +415,26 @@ exports.redeemToken = async (req, res) => {
         });
       }
 
+      if (order.tokenStatus === "locked" || order.paymentStatus === "pending_verification") {
+        return res.status(400).json({
+          success: false,
+          message: `⚠️ PAYMENT PENDING: Token is LOCKED (UTR: ${order.utrNumber || "N/A"}). Please approve the student's UPI reference on your Counter Desk before serving meal.`,
+          order,
+        });
+      }
+
+      if (order.tokenStatus === "cancelled" || order.paymentStatus === "failed") {
+        return res.status(400).json({
+          success: false,
+          message: "❌ CANCELLED: This meal reservation was rejected or payment failed. Do not serve meal.",
+          order,
+        });
+      }
+
       if (order.paymentStatus !== "paid") {
         return res.status(400).json({
           success: false,
-          message: "Cannot redeem meal: Payment status is pending or failed.",
+          message: "Cannot redeem meal: Payment status is not completed.",
           order,
         });
       }
@@ -631,6 +749,22 @@ exports.scanQrCode = async (req, res) => {
             data: order,
           });
         }
+        if (order.tokenStatus === "locked" || order.paymentStatus === "pending_verification") {
+          return res.status(400).json({
+            success: false,
+            message: `⚠️ PAYMENT PENDING: Token is LOCKED (UTR: ${order.utrNumber || "N/A"}). Please approve the UPI reference on Counter Desk before serving meal.`,
+            tokenType: "per_plate",
+            data: order,
+          });
+        }
+        if (order.tokenStatus === "cancelled" || order.paymentStatus === "failed") {
+          return res.status(400).json({
+            success: false,
+            message: "❌ CANCELLED: This meal reservation was cancelled or payment failed. Do not serve meal.",
+            tokenType: "per_plate",
+            data: order,
+          });
+        }
         if (order.paymentStatus !== "paid") {
           return res.status(400).json({
             success: false,
@@ -694,17 +828,23 @@ exports.scanQrCode = async (req, res) => {
             amount: order.amount,
             messId: order.messId,
             messName: order.messName,
+            utrNumber: order.utrNumber,
+            paymentMethod: order.paymentMethod,
             scannedByStaffName: order.scannedByStaffName,
             scannedShift: order.scannedShift,
           },
         });
       }
 
+      const isLocked = order.tokenStatus === "locked" || order.paymentStatus === "pending_verification";
+
       return res.status(200).json({
         success: true,
         redeemed: false,
         tokenType: "per_plate",
-        message: "Single-plate meal ticket verified.",
+        message: isLocked
+          ? "⚠️ Token Locked: Payment pending counter staff approval."
+          : "Single-plate meal ticket verified.",
         data: {
           token: order.token,
           tokenStatus: order.tokenStatus,
@@ -716,6 +856,9 @@ exports.scanQrCode = async (req, res) => {
           amount: order.amount,
           messId: order.messId,
           messName: order.messName,
+          utrNumber: order.utrNumber,
+          paymentMethod: order.paymentMethod,
+          rejectionReason: order.rejectionReason,
         },
       });
     }
@@ -1101,7 +1244,7 @@ exports.smartBook = async (req, res) => {
         razorpayOrderId: razorpayOrder.id,
         token: uniqueToken,
         paymentStatus: "pending",
-        tokenStatus: "active",
+        tokenStatus: "locked",
       });
 
       const savedOrder = await preliminaryOrder.save();
@@ -1214,6 +1357,168 @@ exports.smartBook = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error executing smart booking decision engine.",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Mess Counter / Owner approves pending UPI payment and unlocks token
+// @route   POST /api/orders/approve-upi
+// @access  Private / Owner Counter
+exports.approveUpiPayment = async (req, res) => {
+  try {
+    const { orderId, ownerName } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ success: false, message: "Order ID is required." });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    if (order.paymentStatus === "paid" && order.tokenStatus === "active") {
+      return res.status(200).json({
+        success: true,
+        message: "Order has already been verified and token is active.",
+        order,
+      });
+    }
+
+    order.paymentStatus = "paid";
+    order.tokenStatus = "active";
+    order.verifiedAt = new Date();
+    order.verifiedBy = ownerName || "Mess Counter Staff";
+    order.rejectionReason = null;
+    await order.save();
+
+    // Safely decrement available slots for the mess
+    const slotKey = order.mealType === "lunch" ? "availableSlots.lunch" : "availableSlots.dinner";
+    await Mess.findByIdAndUpdate(order.messId, {
+      $inc: { [slotKey]: -1 },
+    });
+
+    // Messta Virtual Escrow Ledger: credit mess wallet and split 4% plate platform cut
+    try {
+      const commAmt = Math.round(Number(order.amount) * 0.04 * 100) / 100;
+      await creditPartnerWallet({
+        messId: order.messId,
+        grossAmount: order.amount,
+        platePrice: order.amount,
+        commissionType: "per_plate",
+        source: "per_plate_booking",
+        title: `${order.userName || "Student"} - ${order.mealType?.toUpperCase() || "Meal"} Plate`,
+        description: `Student paid ₹${order.amount} via UPI QR (UTR: ${order.utrNumber || "N/A"}). Super Admin cut: ₹${commAmt} (4% of plate price). Credited ₹${order.amount - commAmt} to mess income. Verified by ${order.verifiedBy}.`,
+        studentName: order.userName || order.userEmail || "Student",
+        orderId: order.token || `ORD_${order._id.toString().slice(-6)}`,
+        paymentMethod: "upi_qr",
+      });
+    } catch (wErr) {
+      console.warn("Wallet split notice during order verification:", wErr.message);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `UPI Payment verified! Token ${order.token} is now ACTIVE and unlocked.`,
+      order,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error approving UPI payment.",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Mess Counter / Owner rejects unverified / fake UPI payment
+// @route   POST /api/orders/reject-upi
+// @access  Private / Owner Counter
+exports.rejectUpiPayment = async (req, res) => {
+  try {
+    const { orderId, reason } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ success: false, message: "Order ID is required." });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    order.paymentStatus = "failed";
+    order.tokenStatus = "cancelled";
+    order.rejectionReason = reason || "Payment reference (UTR) not received in mess bank account / soundbox.";
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment rejected. Token cancelled.",
+      order,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error rejecting UPI payment.",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Get all orders pending UPI verification for a mess
+// @route   GET /api/orders/pending-upi/:messId
+// @access  Private / Owner Counter
+exports.getPendingUpiOrders = async (req, res) => {
+  try {
+    const { messId } = req.params;
+    let query = { paymentStatus: "pending_verification" };
+
+    if (messId && messId !== "all" && mongoose.Types.ObjectId.isValid(messId)) {
+      query.messId = messId;
+    }
+
+    const orders = await Order.find(query).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: orders.length,
+      data: orders,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error fetching pending UPI orders.",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Get live order status (for student modal polling)
+// @route   GET /api/orders/:id/status
+// @access  Public / Student
+exports.getOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID." });
+    }
+
+    const order = await Order.findById(
+      id,
+      "paymentStatus tokenStatus token amount utrNumber rejectionReason bookingDate mealType thaliName messName"
+    );
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: order,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error fetching order status.",
       error: error.message,
     });
   }

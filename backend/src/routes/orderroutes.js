@@ -9,6 +9,10 @@ const {
   redeemToken,
   scanQrCode,
   getMessOrders,
+  getPendingUpiOrders,
+  approveUpiPayment,
+  rejectUpiPayment,
+  getOrderStatus,
 } = require("../controllers/ordercontroller");
 
 // Booking & payment endpoints
@@ -22,5 +26,11 @@ router.post("/scan-qr", scanQrCode);
 router.get("/token/:token", verifyToken);
 router.put("/token/:token/redeem", redeemToken);
 router.get("/mess/:messId", getMessOrders);
+
+// Mess Counter UPI Escrow Verification endpoints
+router.get("/pending-upi/:messId", getPendingUpiOrders);
+router.post("/approve-upi", approveUpiPayment);
+router.post("/reject-upi", rejectUpiPayment);
+router.get("/:id/status", getOrderStatus);
 
 module.exports = router;
