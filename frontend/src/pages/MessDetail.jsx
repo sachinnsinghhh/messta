@@ -491,11 +491,11 @@ export default function MessDetail() {
                     onClick={() => handleInitiateBooking({
                       name: "Standard Daily Meal",
                       category: "Veg",
-                      sellingPrice: mess.pricePerMeal || 80,
+                      sellingPrice: mess.pricePerMeal || 65,
                     })}
                     className="mt-2 px-5 py-2 bg-orange-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs"
                   >
-                    Reserve Standard Meal (₹{mess.pricePerMeal || 80})
+                    Reserve Standard Meal (₹{mess.pricePerMeal || 65})
                   </button>
                 </div>
               ) : (

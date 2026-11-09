@@ -91,8 +91,6 @@ export default function OwnerMeals() {
 
   // Dynamic Price Formulation: (cost of monthly membership / total tokens) * 1.3
   const [benchmarkPlanId, setBenchmarkPlanId] = useState("auto");
-  const [customMonthlyCost] = useState(3000);
-  const [customTotalTokens] = useState(60);
 
   // ── ADVANCE KITCHEN HEADCOUNT & RATION PREP SHEET STATES ──
   const [headcountData, setHeadcountData] = useState(null);
@@ -186,6 +184,14 @@ export default function OwnerMeals() {
                 .flatMap((p) => [p._id, p.planName]);
               return Array.from(new Set([...prev, ...vegAndComboNames]));
             });
+            // Auto-initialize selling price to lowest per-token rate + 30%
+            const lowestCostPlan = [...plansList].sort(
+              (a, b) => (Number(a.price) / (Number(a.totalTokens) || 60)) - (Number(b.price) / (Number(b.totalTokens) || 60))
+            )[0];
+            if (lowestCostPlan) {
+              const base = Number(lowestCostPlan.price) / (Number(lowestCostPlan.totalTokens) || 60);
+              setSellingPrice(Math.round(base * 1.30));
+            }
           }
         }
       } catch (err) {
@@ -206,39 +212,74 @@ export default function OwnerMeals() {
   }, [activeMessId]);
 
   // ── DYNAMIC PRICING FORMULATION ENGINE ──
-  // Formula: (cost of monthly membership / total number of tokens) * 1.3
+  // Rule:
+  // 1. If thali is included in membership plan(s):
+  //    Take the LOWEST per-token value among all membership plans for which this thali is included,
+  //    and apply algorithm: Selling Price = lowestPerToken * 1.30.
+  // 2. If thali is under NO membership plan:
+  //    Default to ₹65 (Veg) and ₹75 (Non-Veg).
   const benchmarkDetails = useMemo(() => {
-    let monthlyCost = Number(customMonthlyCost) || 3000;
-    let totalTokens = Number(customTotalTokens) || 60;
+    const isNonVeg =
+      (mealCategory || "").toLowerCase().includes("non-veg") ||
+      (mealCategory || "").toLowerCase().includes("non_veg");
+
+    // Filter to only those published plans this thali is included in
+    const includedPlans =
+      allowMembershipRedemption !== false && publishedPlans.length > 0
+        ? publishedPlans.filter((p) => {
+            const isExplicit = eligibleTiers.includes(p._id) || eligibleTiers.includes(p.planName);
+            if (isExplicit) return true;
+            const pCat = (p.category || "veg").toLowerCase();
+            if (eligibleTiers.includes("all")) return true;
+            if (pCat.includes("combo") && eligibleTiers.includes("combo")) return true;
+            if (pCat.includes("veg") && (eligibleTiers.includes("veg") || eligibleTiers.includes("lite"))) return true;
+            if (pCat.includes("non_veg") && eligibleTiers.includes("non_veg")) return true;
+            return false;
+          })
+        : [];
+
+    let monthlyCost = 3000;
+    let totalTokens = 60;
     let planTitle = "Custom Benchmark";
+    let baseCostPerToken = 50;
+    let formulaSellingPrice = 65;
+    let isStandalone = false;
 
-    if (benchmarkPlanId === "auto" && publishedPlans.length > 0) {
-      const catLower = (mealCategory || "").toLowerCase();
-      const matchingPlans = publishedPlans.filter((p) => {
-        if (catLower.includes("non-veg") || catLower.includes("non_veg")) return p.category === "non_veg";
-        if (catLower.includes("lite")) return p.category === "lite" || p.category === "veg";
-        return p.category === "veg" || p.category === "combo";
-      });
-      const pool = matchingPlans.length > 0 ? matchingPlans : publishedPlans;
-      // Prioritize full standard monthly plan (highest token count, e.g. 60 tokens)
-      const match = [...pool].sort((a, b) => (Number(b.totalTokens) || 0) - (Number(a.totalTokens) || 0))[0];
-
-      if (match) {
-        monthlyCost = Number(match.price) || 3000;
-        totalTokens = Number(match.totalTokens) || 60;
-        planTitle = match.planName;
-      }
-    } else if (benchmarkPlanId !== "custom" && benchmarkPlanId !== "auto") {
+    if (benchmarkPlanId !== "auto" && benchmarkPlanId !== "custom") {
+      // Explicit plan selected by owner
       const match = publishedPlans.find((p) => p._id === benchmarkPlanId || p.planName === benchmarkPlanId);
       if (match) {
         monthlyCost = Number(match.price) || 3000;
         totalTokens = Number(match.totalTokens) || 60;
+        baseCostPerToken = totalTokens > 0 ? monthlyCost / totalTokens : 50;
+        formulaSellingPrice = Math.round(baseCostPerToken * 1.30);
         planTitle = match.planName;
       }
+    } else if (includedPlans.length > 0) {
+      // Automatic: Take the LOWEST per-token value among all included plans!
+      const sortedByLowestPerToken = [...includedPlans].sort((a, b) => {
+        const costA = (Number(a.price) || 0) / (Number(a.totalTokens) || 60);
+        const costB = (Number(b.price) || 0) / (Number(b.totalTokens) || 60);
+        return costA - costB;
+      });
+
+      const lowestPlan = sortedByLowestPerToken[0];
+      monthlyCost = Number(lowestPlan.price) || 3000;
+      totalTokens = Number(lowestPlan.totalTokens) || 60;
+      baseCostPerToken = totalTokens > 0 ? monthlyCost / totalTokens : 50;
+      formulaSellingPrice = Math.round(baseCostPerToken * 1.30);
+      planTitle = lowestPlan.planName;
+    } else {
+      // Standalone thali under NO membership plan:
+      // User rule: Veg -> 65-70 (₹65), Non-Veg -> 70-78 (₹75)
+      isStandalone = true;
+      formulaSellingPrice = isNonVeg ? 75 : 65;
+      baseCostPerToken = Math.round((formulaSellingPrice / 1.30) * 10) / 10;
+      monthlyCost = Math.round(baseCostPerToken * 60);
+      totalTokens = 60;
+      planTitle = isNonVeg ? "Standalone Non-Veg (No Plan Linked)" : "Standalone Veg (No Plan Linked)";
     }
 
-    const baseCostPerToken = totalTokens > 0 ? monthlyCost / totalTokens : 0;
-    const formulaSellingPrice = Math.round(baseCostPerToken * 1.3);
     const ownerPayout = Math.round((formulaSellingPrice * 0.95) * 100) / 100;
     const platformFee = Math.round((formulaSellingPrice * 0.05) * 100) / 100;
     const extraProfit = Math.round((ownerPayout - baseCostPerToken) * 100) / 100;
@@ -252,8 +293,11 @@ export default function OwnerMeals() {
       ownerPayout,
       platformFee,
       extraProfit,
+      isStandalone,
+      includedPlans,
+      includedPlansCount: includedPlans.length,
     };
-  }, [benchmarkPlanId, publishedPlans, mealCategory, customMonthlyCost, customTotalTokens]);
+  }, [benchmarkPlanId, publishedPlans, mealCategory, eligibleTiers, allowMembershipRedemption]);
 
   // Local state for optimistic updates
   const [localBookmarks, setLocalBookmarks] = useState(null);
@@ -387,14 +431,21 @@ export default function OwnerMeals() {
     }
   };
   // ── STEP B & C OPERATIONS: DYNAMIC PRICING ALGORITHM & CHANNELS ──
-  // Formula: (cost of monthly membership / total number of tokens) * 1.3
+  // Formula: Lowest per-token rate among included plans * 1.30 (or default 65/75 for standalone)
   const handleCalculatePrice = () => {
-    const { monthlyCost, totalTokens, baseCostPerToken, formulaSellingPrice, planTitle, ownerPayout, extraProfit, platformFee } = benchmarkDetails;
+    const { monthlyCost, totalTokens, baseCostPerToken, formulaSellingPrice, planTitle, ownerPayout, extraProfit, platformFee, isStandalone } = benchmarkDetails;
     setSellingPrice(formulaSellingPrice);
-    setFeedback({
-      text: `⚡ Messta Algorithm Applied! Selling price ₹${formulaSellingPrice}: (${planTitle} ₹${monthlyCost} ÷ ${totalTokens} tokens = ₹${baseCostPerToken}/meal) + 30% advance markup. Your net payout: ₹${ownerPayout}/plate (+₹${extraProfit} extra profit over monthly cost!). Messta cut: 5% (₹${platformFee}).`,
-      type: "success",
-    });
+    if (isStandalone) {
+      setFeedback({
+        text: `⚡ Standalone Thali Price Set: ₹${formulaSellingPrice} (${planTitle}). Net payout: ₹${ownerPayout} (95%), Messta fee: 5% (₹${platformFee}).`,
+        type: "success",
+      });
+    } else {
+      setFeedback({
+        text: `⚡ Lowest Per-Token Plan Applied! Selling price ₹${formulaSellingPrice}: anchored to ${planTitle} (₹${monthlyCost} ÷ ${totalTokens} tokens = ₹${baseCostPerToken}/meal) + 30% advance markup. Net payout: ₹${ownerPayout}/plate (+₹${extraProfit} extra profit over monthly cost!). Messta cut: 5% (₹${platformFee}).`,
+        type: "success",
+      });
+    }
   };
 
   // Published Plan Selection Handlers (Crucial Link)
@@ -439,10 +490,15 @@ export default function OwnerMeals() {
       setEligibleTiers(["veg", "lite", "combo", "all", ...vegPlans]);
       setAllowDirectPurchase(true);
       setAllowMembershipRedemption(true);
-      const benchmarkCost = publishedPlans.find((p) => p.category === "veg")?.price || 3000;
-      const benchmarkTokens = publishedPlans.find((p) => p.category === "veg")?.totalTokens || 60;
-      const calc = Math.round((benchmarkCost / benchmarkTokens) * 1.3);
-      setSellingPrice(calc || 65);
+      const matching = publishedPlans.filter((p) => p.category === "veg" || p.category === "combo");
+      if (matching.length > 0) {
+        const lowest = [...matching].sort(
+          (a, b) => (Number(a.price) / (Number(a.totalTokens) || 60)) - (Number(b.price) / (Number(b.totalTokens) || 60))
+        )[0];
+        setSellingPrice(Math.round((Number(lowest.price) / (Number(lowest.totalTokens) || 60)) * 1.30));
+      } else {
+        setSellingPrice(65);
+      }
     } else if (presetName === "nonveg") {
       setThaliName("Special Chicken Thali");
       setMealCategory("Non-Veg");
@@ -454,10 +510,15 @@ export default function OwnerMeals() {
       setEligibleTiers(["non_veg", "combo", ...nonVegPlans]);
       setAllowDirectPurchase(true);
       setAllowMembershipRedemption(true);
-      const benchmarkCost = publishedPlans.find((p) => p.category === "non_veg")?.price || 3900;
-      const benchmarkTokens = publishedPlans.find((p) => p.category === "non_veg")?.totalTokens || 60;
-      const calc = Math.round((benchmarkCost / benchmarkTokens) * 1.3);
-      setSellingPrice(calc || 85);
+      const matching = publishedPlans.filter((p) => p.category === "non_veg" || p.category === "combo");
+      if (matching.length > 0) {
+        const lowest = [...matching].sort(
+          (a, b) => (Number(a.price) / (Number(a.totalTokens) || 60)) - (Number(b.price) / (Number(b.totalTokens) || 60))
+        )[0];
+        setSellingPrice(Math.round((Number(lowest.price) / (Number(lowest.totalTokens) || 60)) * 1.30));
+      } else {
+        setSellingPrice(75);
+      }
     } else if (presetName === "lite") {
       setThaliName("Lite Daily Thali");
       setMealCategory("Lite");
@@ -469,10 +530,15 @@ export default function OwnerMeals() {
       setEligibleTiers(["veg", "lite", "combo", "all", ...litePlans]);
       setAllowDirectPurchase(true);
       setAllowMembershipRedemption(true);
-      const benchmarkCost = publishedPlans.find((p) => p.category === "lite")?.price || 2400;
-      const benchmarkTokens = publishedPlans.find((p) => p.category === "lite")?.totalTokens || 60;
-      const calc = Math.round((benchmarkCost / benchmarkTokens) * 1.3);
-      setSellingPrice(calc || 52);
+      const matching = publishedPlans.filter((p) => p.category === "lite" || p.category === "veg" || p.category === "combo");
+      if (matching.length > 0) {
+        const lowest = [...matching].sort(
+          (a, b) => (Number(a.price) / (Number(a.totalTokens) || 60)) - (Number(b.price) / (Number(b.totalTokens) || 60))
+        )[0];
+        setSellingPrice(Math.round((Number(lowest.price) / (Number(lowest.totalTokens) || 60)) * 1.30));
+      } else {
+        setSellingPrice(55);
+      }
     }
   };
 
@@ -1469,18 +1535,39 @@ export default function OwnerMeals() {
                       +30% Dynamic Formula
                     </span>
                   </div>
-                  <p className="text-[11px] text-stone-500 mt-0.5">
-                    Anchored to <strong>{benchmarkDetails.planTitle}</strong> (Base: ₹{benchmarkDetails.baseCostPerToken}/meal).
-                  </p>
+                  {benchmarkDetails.isStandalone ? (
+                    <p className="text-[11px] text-purple-700 mt-0.5 font-semibold">
+                      Standalone Thali (Not included in any membership pass) &bull; Standard Default Price: <strong>₹{benchmarkDetails.formulaSellingPrice}</strong> ({mealCategory})
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-stone-500 mt-0.5">
+                      Anchored to lowest per-meal rate among included plans: <strong>{benchmarkDetails.planTitle}</strong> (Base: ₹{benchmarkDetails.baseCostPerToken}/meal).
+                    </p>
+                  )}
 
                   {/* Plan Switcher Pills when mess has multiple plans */}
-                  {publishedPlans.length > 1 && (
+                  {publishedPlans.length > 1 && !benchmarkDetails.isStandalone && (
                     <div className="flex items-center gap-1.5 flex-wrap pt-1.5">
                       <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider">Anchor Plan:</span>
+                      {/* Auto option (lowest per-token value) */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setBenchmarkPlanId("auto");
+                        }}
+                        className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition flex items-center gap-1 cursor-pointer ${
+                          benchmarkPlanId === "auto"
+                            ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
+                            : "bg-white text-stone-700 border-stone-200 hover:border-emerald-400 hover:bg-emerald-50/50"
+                        }`}
+                      >
+                        <span>⚡ Lowest Rate (Auto)</span>
+                      </button>
+
                       {publishedPlans.map((plan) => {
+                        const isSelectedForThali = isPlanSelected(plan);
                         const isCurrent =
-                          benchmarkPlanId === plan._id ||
-                          (benchmarkPlanId === "auto" && benchmarkDetails.planTitle === plan.planName);
+                          benchmarkPlanId === plan._id;
                         const planBase = plan.totalTokens > 0 ? (plan.price / plan.totalTokens).toFixed(1) : 0;
                         const planSuggested = Math.round(planBase * 1.3);
                         return (
@@ -1494,8 +1581,11 @@ export default function OwnerMeals() {
                             className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition flex items-center gap-1 cursor-pointer ${
                               isCurrent
                                 ? "bg-orange-600 text-white border-orange-600 shadow-2xs ring-1 ring-orange-500"
-                                : "bg-white text-stone-700 border-stone-200 hover:border-orange-400 hover:bg-orange-50/50"
+                                : isSelectedForThali
+                                ? "bg-white text-stone-700 border-stone-300 hover:border-orange-400 hover:bg-orange-50/50"
+                                : "bg-stone-100 text-stone-400 border-stone-200 hover:text-stone-600"
                             }`}
+                            title={isSelectedForThali ? "Included in this thali" : "Not tagged for this thali"}
                           >
                             <span>{isCurrent ? "✓" : "⚡"}</span>
                             <span>{plan.planName} (₹{planBase}/meal → ₹{planSuggested})</span>

@@ -118,11 +118,18 @@ exports.createPaymentOrder = async (req, res) => {
       });
     }
 
-    let price = Number(req.body.thaliPrice) || mess.pricePerMeal;
+    const isNonVegOrder = String(req.body.thaliCategory || "").toLowerCase().includes("non-veg");
+    let price = Number(req.body.thaliPrice);
     if (!price || price <= 0) {
-      const plan = await MessPlan.findOne({ messId: mess._id }).sort({ totalTokens: -1 });
-      const baseCost = plan ? (plan.price / (plan.totalTokens || 60)) : 50;
-      price = Math.round(baseCost * 1.30);
+      const allPlans = await MessPlan.find({ messId: mess._id });
+      if (allPlans.length > 0) {
+        const lowestUnitCost = Math.min(
+          ...allPlans.map((p) => Number(p.price) / (Number(p.totalTokens) || 60))
+        );
+        price = Math.round(lowestUnitCost * 1.30);
+      } else {
+        price = isNonVegOrder ? 75 : (mess.pricePerMeal || 65);
+      }
     }
     const options = {
       amount: price * 100, // amount in paise
@@ -1145,11 +1152,41 @@ exports.smartBook = async (req, res) => {
       (t) => t.id === thaliId || String(t._id) === thaliId || t.name === thaliName
     );
 
+    const thaliCat = (thaliCategory || thali?.category || "Veg").toLowerCase();
+    const isNonVeg = thaliCat.includes("non-veg") || thaliCat.includes("non_veg");
+
     let price = Number(thaliPrice || thali?.sellingPrice);
     if (!price || price <= 0) {
-      const plan = await MessPlan.findOne({ messId: mess._id }).sort({ totalTokens: -1 });
-      const baseCost = plan ? (plan.price / (plan.totalTokens || 60)) : (mess.pricePerMeal ? mess.pricePerMeal / 1.30 : 50);
-      price = Math.round(baseCost * 1.30);
+      const allPlans = await MessPlan.find({ messId: mess._id });
+      const eligibleTiers = (thali?.eligibleTiers || []).map((t) => String(t).toLowerCase());
+
+      const includedPlans =
+        thali?.allowMembershipRedemption !== false && allPlans.length > 0
+          ? allPlans.filter((p) => {
+              const pId = String(p._id).toLowerCase();
+              const pName = (p.planName || "").toLowerCase();
+              const pCat = (p.category || "veg").toLowerCase();
+              if (eligibleTiers.includes(pId) || eligibleTiers.includes(pName)) return true;
+              if (eligibleTiers.includes("all")) return true;
+              if (pCat.includes("combo") && eligibleTiers.includes("combo")) return true;
+              if (pCat.includes("veg") && (eligibleTiers.includes("veg") || eligibleTiers.includes("lite"))) return true;
+              if (pCat.includes("non_veg") && eligibleTiers.includes("non_veg")) return true;
+              return false;
+            })
+          : [];
+
+      if (includedPlans.length > 0) {
+        // Take the lowest per-token value among all plans for which that particular thali is there
+        const lowestUnitCost = Math.min(
+          ...includedPlans.map((p) => Number(p.price) / (Number(p.totalTokens) || 60))
+        );
+        price = Math.round(lowestUnitCost * 1.30);
+      } else {
+        // Thali is under NO membership plan:
+        // Veg -> default ₹65 (within 65-70)
+        // Non-Veg -> default ₹75 (within 70-78)
+        price = isNonVeg ? 75 : 65;
+      }
     }
     const category = (thaliCategory || thali?.category || "Veg").toLowerCase();
     const finalThaliName = thaliName || thali?.name || "Standard Thali";
