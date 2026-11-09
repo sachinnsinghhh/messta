@@ -42,6 +42,10 @@ export const auth = getAuth(app);
 
 // Create a new instance of the Google OAuth provider and export it
 export const googleProvider = new GoogleAuthProvider();
+// Force Google OAuth to always present the account chooser dialog
+googleProvider.setCustomParameters({
+  prompt: "select_account",
+});
 
 // Export all the authentication action functions so our Login page can use them directly
 export { 

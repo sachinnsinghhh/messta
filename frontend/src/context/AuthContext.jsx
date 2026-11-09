@@ -39,6 +39,10 @@ export function AuthProvider({ children }) {
 
   // Google Sign-In with chosen role
   const loginWithGoogle = async (role = "user") => {
+    // Explicitly prompt the user to choose their Google account each time
+    googleProvider.setCustomParameters({
+      prompt: "select_account",
+    });
     const res = await signInWithPopup(auth, googleProvider);
     setActiveRole(role);
     return res;
