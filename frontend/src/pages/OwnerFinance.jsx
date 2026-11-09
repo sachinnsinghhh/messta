@@ -1687,7 +1687,7 @@ export default function OwnerFinance() {
             <div className="p-4 bg-purple-900/40 rounded-2xl border border-purple-700/50 text-xs text-purple-200 leading-relaxed space-y-1">
               <span className="font-black text-white block">💡 How your Messta Virtual Wallet operates:</span>
               <p className="text-[11px] text-purple-200/90">
-                All student payments (monthly passes and per-plate walk-ins) made via the Messta Universal UPI QR arrive in our central escrow account. The system automatically slices Messta's platform commission (₹2 per plate or 4% on passes) and immediately credits your net share to this Virtual Wallet. The platform administrator triggers direct bank payouts to your registered bank account on a recurring schedule.
+                All student payments (monthly passes and advance per-plate meals) arrive in the Messta platform vault. The system credits 100% of your registered monthly plan rate to your wallet (retaining only the ₹150 student token guarantee fee), and credits 95% on advance per-plate bookings (5% platform fee). Direct bank payouts are settled to your registered account on schedule.
               </p>
             </div>
           </div>

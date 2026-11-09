@@ -167,7 +167,7 @@ export default function StudentMembership() {
           frequency: selectedPlanForPayment.frequency,
           mealsPerDay: selectedPlanForPayment.mealsPerDay || 2,
           totalTokens: selectedPlanForPayment.totalTokens,
-          price: selectedPlanForPayment.price,
+          price: Number(selectedPlanForPayment.price) + 150,
           utrNumber: membershipUtr,
         }),
       });
@@ -829,17 +829,31 @@ export default function StudentMembership() {
                       <div className="space-y-3">
                         <div className="flex justify-between items-start">
                           <div>
-                            <span className="text-[10px] font-black uppercase px-2.5 py-0.5 bg-orange-100 text-orange-700 rounded-md">
-                              {p.category}
-                            </span>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[10px] font-black uppercase px-2.5 py-0.5 bg-orange-100 text-orange-700 rounded-md">
+                                {p.category}
+                              </span>
+                              <span className="text-[9px] font-bold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-md border border-emerald-300">
+                                🛡️ Zero-Waste Token Pass
+                              </span>
+                            </div>
                             <h4 className="font-black text-base text-gray-900 mt-1">{p.planName}</h4>
                           </div>
-                          <span className="text-xl font-black text-orange-600">₹{p.price}</span>
+                          <div className="text-right">
+                            <span className="text-xl font-black text-orange-600 block">₹{Number(p.price) + 150}</span>
+                            <span className="text-[9px] text-gray-400 font-semibold block">₹{p.price} mess + ₹150 pass fee</span>
+                          </div>
                         </div>
 
                         <p className="text-xs text-gray-500 leading-relaxed">
-                          {p.description || "Comprehensive token package for college students."}
+                          {p.description || "Comprehensive token package for college students with zero-waste pause protection."}
                         </p>
+
+                        {/* Value proposition pill */}
+                        <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-200/80 text-[10px] text-emerald-900 font-semibold flex items-center gap-1.5">
+                          <span>✨</span>
+                          <span>Never waste money on missed days: tokens never expire!</span>
+                        </div>
 
                         <div className="flex flex-wrap gap-2 text-[10px] font-extrabold pt-1">
                           <span className="px-2 py-0.5 bg-white border border-gray-200 rounded-md text-gray-700">
@@ -849,7 +863,7 @@ export default function StudentMembership() {
                             {p.totalTokens} Tokens
                           </span>
                           <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md">
-                            ₹{(p.price / p.totalTokens).toFixed(0)} / meal
+                            ₹{((Number(p.price) + 150) / p.totalTokens).toFixed(0)} / meal
                           </span>
                         </div>
                       </div>
@@ -899,14 +913,18 @@ export default function StudentMembership() {
             </div>
 
             {/* Price Box */}
-            <div className="p-4 bg-purple-50/70 rounded-2xl border border-purple-200 text-center space-y-1">
-              <span className="text-[10px] font-bold text-gray-500 uppercase">Total Membership Fee</span>
+            <div className="p-4 bg-purple-50/70 rounded-2xl border border-purple-200 text-center space-y-2">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Zero-Waste Pass Total</span>
               <div className="text-3xl font-black text-purple-900 font-mono">
-                ₹{selectedPlanForPayment.price}
+                ₹{Number(selectedPlanForPayment.price) + 150}
               </div>
               <p className="text-[11px] text-gray-600 font-bold">
                 {selectedPlanForPayment.planName} • {selectedPlanForPayment.totalTokens} Tokens ({selectedPlanForPayment.frequency})
               </p>
+              <div className="pt-2 border-t border-purple-200/60 text-[10px] text-gray-600 flex justify-between">
+                <span>Mess Monthly Rate: <strong>₹{selectedPlanForPayment.price}</strong></span>
+                <span>Messta Token Guarantee: <strong>₹150</strong></span>
+              </div>
             </div>
 
             {/* Central QR Code Display */}
@@ -918,7 +936,7 @@ export default function StudentMembership() {
                 <img
                   src={
                     paymentConfig.centralQrImageUrl ||
-                    `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3D${encodeURIComponent(paymentConfig.centralUpiId)}%26pn%3DMessta%2520Escrow%26am%3D${selectedPlanForPayment.price}%26cu%3DINR%26tn%3DMembership_${selectedPlanForPayment.planName.replace(/\s+/g, "_")}`
+                    `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3D${encodeURIComponent(paymentConfig.centralUpiId)}%26pn%3DMessta%2520Escrow%26am%3D${Number(selectedPlanForPayment.price) + 150}%26cu%3DINR%26tn%3DMembership_${selectedPlanForPayment.planName.replace(/\s+/g, "_")}`
                   }
                   alt="Messta Central UPI QR"
                   className="w-44 h-44 rounded-xl border border-gray-200 p-2 bg-white shadow-xs"
@@ -996,7 +1014,7 @@ export default function StudentMembership() {
                 </>
               ) : (
                 <>
-                  <span>✅ I Have Paid ₹{selectedPlanForPayment.price} — Activate Pass</span>
+                  <span>✅ I Have Paid ₹{Number(selectedPlanForPayment.price) + 150} — Activate Zero-Waste Pass</span>
                 </>
               )}
             </button>

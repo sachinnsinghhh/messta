@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const mongoose = require("mongoose");
 const Order = require("../models/order");
 const Mess = require("../models/mess");
+const MessPlan = require("../models/MessPlan");
 const Subscription = require("../models/Subscription");
 const Staff = require("../models/Staff");
 const { deductRecipeStockFromInventory } = require("./inventorycontroller");
@@ -117,7 +118,12 @@ exports.createPaymentOrder = async (req, res) => {
       });
     }
 
-    const price = mess.pricePerMeal || 80;
+    let price = Number(req.body.thaliPrice) || mess.pricePerMeal;
+    if (!price || price <= 0) {
+      const plan = await MessPlan.findOne({ messId: mess._id }).sort({ price: 1 });
+      const baseCost = plan ? (plan.price / (plan.totalTokens || 60)) : 50;
+      price = Math.round(baseCost * 1.30);
+    }
     const options = {
       amount: price * 100, // amount in paise
       currency: "INR",
@@ -221,7 +227,7 @@ exports.verifyPayment = async (req, res) => {
 
       // Escrow ledger credit
       try {
-        const commAmt = Math.round(Number(order.amount) * 0.04 * 100) / 100;
+        const commAmt = Math.round(Number(order.amount) * 0.05 * 100) / 100;
         await creditPartnerWallet({
           messId: order.messId,
           grossAmount: order.amount,
@@ -229,7 +235,7 @@ exports.verifyPayment = async (req, res) => {
           commissionType: "per_plate",
           source: "per_plate_booking",
           title: `${order.userName || "Student"} - ${order.mealType?.toUpperCase() || "Meal"} Plate`,
-          description: `Student paid ₹${order.amount} via Razorpay Gateway. Super Admin cut: ₹${commAmt} (4% of plate price). Credited ₹${order.amount - commAmt} to mess income.`,
+          description: `Student paid ₹${order.amount} via Razorpay Gateway. Messta commission: ₹${commAmt} (5% platform fee). Credited ₹${order.amount - commAmt} (95%) to mess income.`,
           studentName: order.userName || order.userEmail || "Student",
           orderId: order.token || `ORD_${order._id.toString().slice(-6)}`,
           paymentMethod: "razorpay",
@@ -1139,7 +1145,12 @@ exports.smartBook = async (req, res) => {
       (t) => t.id === thaliId || String(t._id) === thaliId || t.name === thaliName
     );
 
-    const price = Number(thaliPrice || thali?.sellingPrice || 80);
+    let price = Number(thaliPrice || thali?.sellingPrice);
+    if (!price || price <= 0) {
+      const plan = await MessPlan.findOne({ messId: mess._id }).sort({ price: 1 });
+      const baseCost = plan ? (plan.price / (plan.totalTokens || 60)) : (mess.pricePerMeal ? mess.pricePerMeal / 1.30 : 50);
+      price = Math.round(baseCost * 1.30);
+    }
     const category = (thaliCategory || thali?.category || "Veg").toLowerCase();
     const finalThaliName = thaliName || thali?.name || "Standard Thali";
     const slotWindow =
@@ -1398,9 +1409,9 @@ exports.approveUpiPayment = async (req, res) => {
       $inc: { [slotKey]: -1 },
     });
 
-    // Messta Virtual Escrow Ledger: credit mess wallet and split 4% plate platform cut
+    // Messta Virtual Escrow Ledger: credit mess wallet and split 5% plate platform cut
     try {
-      const commAmt = Math.round(Number(order.amount) * 0.04 * 100) / 100;
+      const commAmt = Math.round(Number(order.amount) * 0.05 * 100) / 100;
       await creditPartnerWallet({
         messId: order.messId,
         grossAmount: order.amount,
@@ -1408,7 +1419,7 @@ exports.approveUpiPayment = async (req, res) => {
         commissionType: "per_plate",
         source: "per_plate_booking",
         title: `${order.userName || "Student"} - ${order.mealType?.toUpperCase() || "Meal"} Plate`,
-        description: `Student paid ₹${order.amount} via UPI QR (UTR: ${order.utrNumber || "N/A"}). Super Admin cut: ₹${commAmt} (4% of plate price). Credited ₹${order.amount - commAmt} to mess income. Verified by ${order.verifiedBy}.`,
+        description: `Student paid ₹${order.amount} via UPI QR (UTR: ${order.utrNumber || "N/A"}). Messta commission: ₹${commAmt} (5% platform fee). Credited ₹${order.amount - commAmt} (95%) to mess income. Verified by ${order.verifiedBy}.`,
         studentName: order.userName || order.userEmail || "Student",
         orderId: order.token || `ORD_${order._id.toString().slice(-6)}`,
         paymentMethod: "upi_qr",

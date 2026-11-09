@@ -237,6 +237,9 @@ export default function OwnerMeals() {
 
     const baseCostPerToken = totalTokens > 0 ? monthlyCost / totalTokens : 0;
     const formulaSellingPrice = Math.round(baseCostPerToken * 1.3);
+    const ownerPayout = Math.round((formulaSellingPrice * 0.95) * 100) / 100;
+    const platformFee = Math.round((formulaSellingPrice * 0.05) * 100) / 100;
+    const extraProfit = Math.round((ownerPayout - baseCostPerToken) * 100) / 100;
 
     return {
       monthlyCost,
@@ -244,6 +247,9 @@ export default function OwnerMeals() {
       planTitle,
       baseCostPerToken: Math.round(baseCostPerToken * 10) / 10,
       formulaSellingPrice,
+      ownerPayout,
+      platformFee,
+      extraProfit,
     };
   }, [benchmarkPlanId, publishedPlans, mealCategory, customMonthlyCost, customTotalTokens]);
 
@@ -381,10 +387,10 @@ export default function OwnerMeals() {
   // ── STEP B & C OPERATIONS: DYNAMIC PRICING ALGORITHM & CHANNELS ──
   // Formula: (cost of monthly membership / total number of tokens) * 1.3
   const handleCalculatePrice = () => {
-    const { monthlyCost, totalTokens, baseCostPerToken, formulaSellingPrice, planTitle } = benchmarkDetails;
+    const { monthlyCost, totalTokens, baseCostPerToken, formulaSellingPrice, planTitle, ownerPayout, extraProfit, platformFee } = benchmarkDetails;
     setSellingPrice(formulaSellingPrice);
     setFeedback({
-      text: `⚡ Generated Selling Price ₹${formulaSellingPrice}: (${planTitle} ₹${monthlyCost} monthly ÷ ${totalTokens} tokens = ₹${baseCostPerToken}/meal) × 1.3 walk-in markup (+30%).`,
+      text: `⚡ Messta Algorithm Applied! Selling price ₹${formulaSellingPrice}: (${planTitle} ₹${monthlyCost} ÷ ${totalTokens} tokens = ₹${baseCostPerToken}/meal) + 30% advance markup. Your net payout: ₹${ownerPayout}/plate (+₹${extraProfit} extra profit over monthly cost!). Messta cut: 5% (₹${platformFee}).`,
       type: "success",
     });
   };
@@ -1449,15 +1455,20 @@ export default function OwnerMeals() {
               </div>
             )}
 
-            {/* Price & Pricing Assistant */}
+            {/* Price & Dynamic Pricing Assistant */}
             <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-stone-900 tracking-wider">
-                    Walk-in Selling Price (₹)
-                  </label>
-                  <p className="text-[11px] text-stone-500">
-                    The per-plate price charged to direct walk-in students.
+                  <div className="flex items-center gap-1.5">
+                    <label className="block text-xs font-bold uppercase text-stone-900 tracking-wider">
+                      Advance Per-Plate Price (₹)
+                    </label>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                      +30% Dynamic Formula
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    Anchored to <strong>{benchmarkDetails.planTitle}</strong> (Base: ₹{benchmarkDetails.baseCostPerToken}/meal).
                   </p>
                 </div>
 
@@ -1476,11 +1487,39 @@ export default function OwnerMeals() {
                   <button
                     type="button"
                     onClick={handleCalculatePrice}
-                    className="px-3 py-2 bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 font-semibold text-xs rounded-xl transition flex items-center gap-1 shadow-2xs"
-                    title="Auto-calculate price from membership token base rate (1.3×)"
+                    className="px-3 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-1 shadow-xs cursor-pointer active:scale-95"
+                    title="Auto-calculate price from registered monthly plan (+30% markup)"
                   >
-                    <span>⚡ Suggest (1.3×)</span>
+                    <span>⚡ Auto-Suggest (+30%)</span>
                   </button>
+                </div>
+              </div>
+
+              {/* Dynamic Revenue & Profit Split Preview */}
+              <div className="p-3 bg-white rounded-xl border border-stone-200 text-xs space-y-2">
+                <div className="flex justify-between items-center text-[11px] border-b border-stone-100 pb-1.5">
+                  <span className="text-stone-500">Advance Plate Selling Price:</span>
+                  <span className="font-extrabold text-stone-900 font-mono text-sm">₹{sellingPrice}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                  <div className="p-2 rounded-lg bg-emerald-50/80 border border-emerald-200">
+                    <span className="text-emerald-900 font-bold block">Your Net Earnings (95%)</span>
+                    <span className="text-emerald-700 font-mono font-black text-sm">
+                      ₹{(sellingPrice * 0.95).toFixed(2)}
+                    </span>
+                    <span className="text-[10px] text-emerald-800 block mt-0.5 font-medium">
+                      +₹{Math.max(0, (sellingPrice * 0.95) - benchmarkDetails.baseCostPerToken).toFixed(2)} extra profit/thali vs monthly rate!
+                    </span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-stone-50 border border-stone-200">
+                    <span className="text-stone-700 font-bold block">Messta Platform Fee (5%)</span>
+                    <span className="text-stone-900 font-mono font-black text-sm">
+                      ₹{(sellingPrice * 0.05).toFixed(2)}
+                    </span>
+                    <span className="text-[10px] text-stone-500 block mt-0.5 font-medium">
+                      Zero payment gateway deductions
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

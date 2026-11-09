@@ -260,10 +260,53 @@ export default function MessDetail() {
             <div className="flex items-center gap-3">
               <Link
                 to={`/membership?messId=${mess._id || mess.id}`}
-                className="px-4 py-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-xs transition active:scale-95 flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-xs transition active:scale-95 flex items-center gap-1.5"
               >
-                <span>🎟️</span>
-                <span>Membership Pass Vault</span>
+                <span>🛡️</span>
+                <span>Zero-Waste Monthly Passes</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* ═══════════════════════════════════════════════════════════ */}
+          {/* ── TWO CLEAN DINING CHOICES (STUDENT FREEDOM) ── */}
+          {/* ═══════════════════════════════════════════════════════════ */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Choice 1: Advance Single Plate */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-orange-50/80 to-amber-50/50 border border-orange-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 px-2 py-0.5 rounded-md">
+                  Choice 1: Advance Single Plate
+                </span>
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  Save ~35% vs Walk-In
+                </span>
+              </div>
+              <h3 className="font-extrabold text-sm text-gray-900">Pay-As-You-Go Daily Dining</h3>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                Book tomorrow's fresh thali before cut-off time. Zero monthly commitment, pay per plate, 1-click checkout.
+              </p>
+            </div>
+
+            {/* Choice 2: 30-Day Zero-Waste Token Pass */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50/90 to-teal-50/60 border border-emerald-300 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
+                  Choice 2: Zero-Waste Monthly Pass
+                </span>
+                <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded border border-purple-200">
+                  +₹150 Token Guarantee
+                </span>
+              </div>
+              <h3 className="font-extrabold text-sm text-emerald-950">Mess Monthly Rate + Flexible Tokens</h3>
+              <p className="text-xs text-emerald-800 leading-relaxed">
+                Pay standard monthly mess rate + flat ₹150. Your tokens never expire when you skip meals or travel home!
+              </p>
+              <Link
+                to={`/membership?messId=${mess._id || mess.id}`}
+                className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 hover:text-emerald-900"
+              >
+                <span>Browse Monthly Passes →</span>
               </Link>
             </div>
           </div>
@@ -537,7 +580,12 @@ export default function MessDetail() {
                               </div>
                               <h4 className="font-black text-base text-gray-900 mt-1">{thali.name}</h4>
                             </div>
-                            <span className="text-xl font-black text-orange-600">₹{thali.sellingPrice}</span>
+                            <div className="text-right">
+                              <span className="text-xl font-black text-orange-600 block">₹{thali.sellingPrice}</span>
+                              <span className="text-[9px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                Save ~35% vs Walk-In
+                              </span>
+                            </div>
                           </div>
 
                           <p className="text-xs text-gray-500 leading-relaxed font-medium">
@@ -576,7 +624,7 @@ export default function MessDetail() {
                           onClick={() => handleInitiateBooking(thali)}
                           className="w-full py-2.5 bg-gray-900 hover:bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
                         >
-                          <span>{coversThali ? "Redeem 1 Token" : `Select & Book (₹${thali.sellingPrice})`}</span>
+                          <span>{coversThali ? "Redeem 1 Token (₹0)" : `Book Advance Plate (₹${thali.sellingPrice})`}</span>
                           <span>→</span>
                         </button>
                       </div>

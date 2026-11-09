@@ -154,23 +154,28 @@ router.post("/", async (req, res) => {
 
     const savedSub = await newSub.save();
 
-    // Messta Virtual Escrow Ledger: credit mess wallet and split commission (Tokens in pass x ₹1)
+    // Messta Virtual Escrow Ledger: credit mess wallet and split ₹150 flat Zero-Waste Token Guarantee fee
     try {
-      let passPrice = Number(req.body.price) || 2400;
-      if (!req.body.price && planId) {
+      let baseMessPrice = 2400;
+      if (planId) {
         const planDoc = await MessPlan.findById(planId);
-        if (planDoc?.price) passPrice = Number(planDoc.price);
+        if (planDoc?.price) baseMessPrice = Number(planDoc.price);
+      } else if (req.body.price) {
+        baseMessPrice = Number(req.body.price);
       }
+
+      // Total collected from student includes ₹150 flat Zero-Waste guarantee fee
+      const totalCollected = baseMessPrice + 150;
       const passTokens = Number(totalTokens) || Number(savedSub.totalTokens) || 60;
 
       await creditPartnerWallet({
         messId,
-        grossAmount: passPrice,
+        grossAmount: totalCollected,
         commissionType: "membership",
         source: "membership_pass",
         tokens: passTokens,
-        title: `${userName || "Student"} - ${planName || "Membership Pass"}`,
-        description: `Student purchased ${passTokens}-token membership for ₹${passPrice} via Universal QR. Retained ₹${passTokens * 1} (${passTokens} tokens × ₹1) platform commission; credited ₹${passPrice - passTokens} to mess income.`,
+        title: `${userName || "Student"} - ${planName || "Zero-Waste Monthly Pass"}`,
+        description: `Student purchased ${passTokens}-token Zero-Waste Pass for ₹${totalCollected} (Base Plan ₹${baseMessPrice} + ₹150 Messta Token Guarantee fee). Credited ₹${baseMessPrice} (100% of mess rate) to mess wallet; retained ₹150 Messta Token Guarantee fee.`,
         studentName: userName || userEmail || "Student",
         orderId: passCode,
         paymentMethod: "upi_qr",

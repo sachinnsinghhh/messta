@@ -80,23 +80,27 @@ const adminProfileSchema = new mongoose.Schema(
     },
 
     // ── 3. COMMISSION CONFIGURATION ──
-    // Membership Rule: (Number of Tokens x ₹1)
+    // Zero-Waste Membership Pass Rule: Flat ₹150 Token Guarantee Fee
+    membershipFlatFee: {
+      type: Number,
+      default: 150, // ₹150 flat fee per zero-waste pass
+    },
     membershipTokenRate: {
       type: Number,
-      default: 1.0, // ₹1.00 per token
+      default: 150,
     },
-    // Per-Plate Rule: (Plate Price x 0.04) i.e. 4%
+    // Advance Per-Plate Rule: (Plate Price x 0.05) i.e. 5%
     perPlateRatePct: {
       type: Number,
-      default: 4.0, // 4.0% of plate price
+      default: 5.0, // 5.0% of advance plate price
     },
     commissionPerPlate: {
       type: Number,
-      default: 4.0, // % or flat representation
+      default: 5.0, // % representation
     },
     commissionMembershipPct: {
       type: Number,
-      default: 1.0, // ₹1/token representation
+      default: 150, // ₹150 flat per pass
     },
 
     autoEodSettlementEnabled: {

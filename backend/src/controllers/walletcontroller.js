@@ -109,10 +109,10 @@ const getOrCreatePartnerWallet = async (messId, messName = "", bankDetails = nul
 // 1. CREDIT PARTNER WALLET & SPLIT COMMISSION (TRANSACTION ENGINE)
 // ─────────────────────────────────────────────────────────────────────────────
 // Formula:
-// 1. Membership Pass: Super Admin Commission = (Tokens in Plan × ₹1)
-//    Remaining (Gross - Commission) credited to Mess Owner Net Income
-// 2. Per-Plate Meal: Super Admin Commission = (Plate Price × 0.04) [4%]
-//    Remaining (96%) credited to Mess Owner Net Income
+// 1. Zero-Waste Membership Pass: Messta Platform Fee = Flat ₹150 Token Guarantee Fee
+//    Remaining (Gross - ₹150, i.e. 100% of Base Mess Plan Price) credited to Mess Owner Net Income
+// 2. Advance Per-Plate Meal: Messta Platform Fee = (Plate Price × 0.05) [5%]
+//    Remaining (95%) credited to Mess Owner Net Income
 // ─────────────────────────────────────────────────────────────────────────────
 exports.creditPartnerWallet = async ({
   messId,
@@ -136,18 +136,20 @@ exports.creditPartnerWallet = async ({
     let tokenCount = 0;
 
     if (isMembership) {
-      // Membership Rule: (Number of Tokens × ₹1)
+      // Zero-Waste Membership Pass Rule: Flat ₹150 Messta Token Guarantee Fee!
+      // Mess gets 100% of their registered monthly plan rate.
       tokenCount = tokens && Number(tokens) > 0 ? Number(tokens) : Math.max(1, Math.round(gross / 40));
-      commission = Math.round(tokenCount * 1.0 * 100) / 100;
+      commission = gross > 150 ? 150 : Math.round(gross * 0.05 * 100) / 100;
       if (!description) {
-        description = `Student bought membership pass (${tokenCount} tokens) for ₹${gross}. Messta cut: ₹${commission} (${tokenCount} tokens × ₹1). Credited ₹${gross - commission} to mess income.`;
+        description = `Student bought Zero-Waste Membership Pass (${tokenCount} tokens) for ₹${gross}. Messta Token Guarantee fee: ₹${commission}. Mess owner income: ₹${gross - commission} (100% of mess rate).`;
       }
     } else {
-      // Per-Plate Rule: (Plate Price × 0.04) [4%]
+      // Advance Per-Plate Rule: Messta Platform Commission = 5% (Plate Price × 0.05)
+      // Mess Owner Net Payout = 95% (Plate Price × 0.95)
       const effectivePlatePrice = platePrice && Number(platePrice) > 0 ? Number(platePrice) : gross;
-      commission = Math.round(effectivePlatePrice * 0.04 * 100) / 100;
+      commission = Math.round(effectivePlatePrice * 0.05 * 100) / 100;
       if (!description) {
-        description = `Student paid ₹${gross} for meal plate. Messta cut: ₹${commission} (4% of plate price). Credited ₹${gross - commission} to mess income.`;
+        description = `Student paid ₹${gross} for advance meal plate. Messta fee: ₹${commission} (5% platform fee). Credited ₹${gross - commission} (95%) to mess income.`;
       }
     }
 
@@ -906,7 +908,7 @@ exports.executeDailyEodSettlement = async (req, res) => {
     // ── TRANSFER ADMIN COMMISSION TO ADMIN'S REGISTERED BANK ACCOUNT ──
     const adminCommissionToday = Math.max(
       1850,
-      Math.round(totalPartnerFundsDisbursed * 0.04)
+      Math.round(totalPartnerFundsDisbursed * 0.05)
     );
     const adminUtr = `UTR-EOD-ADMIN-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
 

@@ -493,15 +493,24 @@ export default function BookingModal({
                   <div className="p-3.5 bg-amber-50/70 rounded-2xl border border-amber-200 space-y-1.5 animate-in fade-in duration-200 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase text-amber-900 tracking-wider">
-                        Direct Plate Booking
+                        Advance Single Plate
                       </span>
-                      <span className="text-[10px] font-bold text-amber-700 uppercase">
-                        Pay As You Go
+                      <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                        Save ~35% vs Walk-In
                       </span>
                     </div>
                     <p className="text-[11px] text-amber-800 leading-relaxed">
                       {mismatchReason}
                     </p>
+                    <div className="p-2 bg-white/80 rounded-xl border border-amber-200/80 text-[10px] text-stone-600 flex items-center justify-between">
+                      <span>💡 Prefer monthly dining?</span>
+                      <a
+                        href={`/membership?messId=${mess._id || mess.id}`}
+                        className="font-black text-orange-600 hover:underline"
+                      >
+                        30-Day Zero-Waste Pass (+₹150) →
+                      </a>
+                    </div>
                     <div className="flex justify-between items-center pt-2 border-t border-amber-200">
                       <span className="font-bold text-stone-700">Total Payable:</span>
                       <span className="font-black text-orange-600 text-lg font-mono">₹{thaliPrice}</span>

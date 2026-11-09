@@ -503,12 +503,12 @@ export default function SuperAdminFinance() {
                     ₹{(walletData?.masterWallet?.totalPlatformCommissionEarned || macro.netPlatformRevenue || 84520).toLocaleString("en-IN")}
                   </div>
                   <p className="text-xs text-purple-100 mt-1 font-medium">
-                    (Tokens × ₹1 on Passes) + (4% on Walk-in Plates)
+                    (₹150 Flat on Passes) + (5% on Advance Plates)
                   </p>
                 </div>
                 <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-purple-200 mt-2">
-                  <span>Walk-in (4%): ₹{(macro.perPlateCommissionTotal || 46200).toLocaleString("en-IN")}</span>
-                  <span>Passes (₹1/T): ₹{(macro.membershipCommissionTotal || 38320).toLocaleString("en-IN")}</span>
+                  <span>Advance (5%): ₹{(macro.perPlateCommissionTotal || 46200).toLocaleString("en-IN")}</span>
+                  <span>Passes (₹150/pass): ₹{(macro.membershipCommissionTotal || 38320).toLocaleString("en-IN")}</span>
                 </div>
               </div>
               <button
@@ -596,7 +596,7 @@ export default function SuperAdminFinance() {
                   <div className="text-2xl font-black text-purple-900 tracking-tight mt-1">
                     ₹{(walletData?.masterWallet?.totalPlatformCommissionEarned || 84520).toLocaleString("en-IN")}
                   </div>
-                  <p className="text-[11px] text-purple-700">Pass: Tokens × ₹1 + Plate: 4%</p>
+                  <p className="text-[11px] text-purple-700">Pass: ₹150 Flat + Plate: 5%</p>
                 </div>
                 <button
                   type="button"
@@ -1052,8 +1052,8 @@ export default function SuperAdminFinance() {
                           +₹{m.platformCommission.toLocaleString("en-IN")}
                         </span>
                         <div className="text-[9px] text-purple-700 font-semibold mt-0.5 space-y-0.5">
-                          <span className="block">Pass: ₹{m.membershipCommission} ({m.activeMembershipsCount * 60}T × ₹1)</span>
-                          <span className="block">Plate: ₹{m.perPlateCommission} (4%)</span>
+                          <span className="block">Pass: ₹{m.membershipCommission} ({m.activeMembershipsCount} × ₹150)</span>
+                          <span className="block">Plate: ₹{m.perPlateCommission} (5%)</span>
                         </div>
                       </td>
 
@@ -2028,7 +2028,7 @@ export default function SuperAdminFinance() {
               <div className="p-3.5 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl border border-purple-200 text-purple-950 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] uppercase font-bold text-purple-700 block">Accumulated Commission Float</span>
-                  <span className="text-xs text-purple-600">(Tokens × ₹1) + (4% Walk-in)</span>
+                  <span className="text-xs text-purple-600">(₹150 Passes) + (5% Advance Plates)</span>
                 </div>
                 <strong className="font-black text-base text-purple-900 font-mono">
                   ₹{(walletData?.masterWallet?.availableCommissionFloat || walletData?.masterWallet?.totalPlatformCommissionEarned || 84520).toLocaleString("en-IN")}

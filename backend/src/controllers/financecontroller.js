@@ -1130,12 +1130,11 @@ exports.getMasterAdminOverview = async (req, res) => {
       const profitMargin = grossRevenue > 0 ? Number(((netProfit / grossRevenue) * 100).toFixed(1)) : 0;
 
       // Exact Messta Commission Rules:
-      // 1. Per-Plate: (Plate Price × 0.04) i.e. 4% on walk-in meal tokens
-      const perPlateCommission = Math.round(perPlateRevenue * 0.04 * 100) / 100;
+      // 1. Advance Per-Plate: (Plate Price × 0.05) i.e. 5% platform fee
+      const perPlateCommission = Math.round(perPlateRevenue * 0.05 * 100) / 100;
 
-      // 2. Membership: (Total Tokens in Purchased Passes × ₹1)
-      const totalMembershipTokens = messSubs.reduce((sum, s) => sum + (Number(s.totalTokens) || 0), 0);
-      const membershipCommission = Math.round(totalMembershipTokens * 1.0);
+      // 2. Zero-Waste Membership: Flat ₹150 Token Guarantee Fee per pass
+      const membershipCommission = messSubs.length * 150;
 
       const platformCommission = perPlateCommission + membershipCommission;
 
