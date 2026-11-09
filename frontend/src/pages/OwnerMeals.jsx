@@ -90,7 +90,7 @@ export default function OwnerMeals() {
   const [allowMembershipRedemption, setAllowMembershipRedemption] = useState(true);
 
   // Dynamic Price Formulation: (cost of monthly membership / total tokens) * 1.3
-  const [benchmarkPlanId] = useState("auto");
+  const [benchmarkPlanId, setBenchmarkPlanId] = useState("auto");
   const [customMonthlyCost] = useState(3000);
   const [customTotalTokens] = useState(60);
 
@@ -214,12 +214,14 @@ export default function OwnerMeals() {
 
     if (benchmarkPlanId === "auto" && publishedPlans.length > 0) {
       const catLower = (mealCategory || "").toLowerCase();
-      const match =
-        publishedPlans.find((p) => {
-          if (catLower.includes("non-veg") || catLower.includes("non_veg")) return p.category === "non_veg";
-          if (catLower.includes("lite")) return p.category === "lite" || p.category === "veg";
-          return p.category === "veg" || p.category === "combo";
-        }) || publishedPlans[0];
+      const matchingPlans = publishedPlans.filter((p) => {
+        if (catLower.includes("non-veg") || catLower.includes("non_veg")) return p.category === "non_veg";
+        if (catLower.includes("lite")) return p.category === "lite" || p.category === "veg";
+        return p.category === "veg" || p.category === "combo";
+      });
+      const pool = matchingPlans.length > 0 ? matchingPlans : publishedPlans;
+      // Prioritize full standard monthly plan (highest token count, e.g. 60 tokens)
+      const match = [...pool].sort((a, b) => (Number(b.totalTokens) || 0) - (Number(a.totalTokens) || 0))[0];
 
       if (match) {
         monthlyCost = Number(match.price) || 3000;
@@ -227,7 +229,7 @@ export default function OwnerMeals() {
         planTitle = match.planName;
       }
     } else if (benchmarkPlanId !== "custom" && benchmarkPlanId !== "auto") {
-      const match = publishedPlans.find((p) => p._id === benchmarkPlanId);
+      const match = publishedPlans.find((p) => p._id === benchmarkPlanId || p.planName === benchmarkPlanId);
       if (match) {
         monthlyCost = Number(match.price) || 3000;
         totalTokens = Number(match.totalTokens) || 60;
@@ -1470,6 +1472,38 @@ export default function OwnerMeals() {
                   <p className="text-[11px] text-stone-500 mt-0.5">
                     Anchored to <strong>{benchmarkDetails.planTitle}</strong> (Base: ₹{benchmarkDetails.baseCostPerToken}/meal).
                   </p>
+
+                  {/* Plan Switcher Pills when mess has multiple plans */}
+                  {publishedPlans.length > 1 && (
+                    <div className="flex items-center gap-1.5 flex-wrap pt-1.5">
+                      <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider">Anchor Plan:</span>
+                      {publishedPlans.map((plan) => {
+                        const isCurrent =
+                          benchmarkPlanId === plan._id ||
+                          (benchmarkPlanId === "auto" && benchmarkDetails.planTitle === plan.planName);
+                        const planBase = plan.totalTokens > 0 ? (plan.price / plan.totalTokens).toFixed(1) : 0;
+                        const planSuggested = Math.round(planBase * 1.3);
+                        return (
+                          <button
+                            key={plan._id}
+                            type="button"
+                            onClick={() => {
+                              setBenchmarkPlanId(plan._id);
+                              setSellingPrice(planSuggested);
+                            }}
+                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition flex items-center gap-1 cursor-pointer ${
+                              isCurrent
+                                ? "bg-orange-600 text-white border-orange-600 shadow-2xs ring-1 ring-orange-500"
+                                : "bg-white text-stone-700 border-stone-200 hover:border-orange-400 hover:bg-orange-50/50"
+                            }`}
+                          >
+                            <span>{isCurrent ? "✓" : "⚡"}</span>
+                            <span>{plan.planName} (₹{planBase}/meal → ₹{planSuggested})</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">

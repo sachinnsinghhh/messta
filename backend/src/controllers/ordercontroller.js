@@ -120,7 +120,7 @@ exports.createPaymentOrder = async (req, res) => {
 
     let price = Number(req.body.thaliPrice) || mess.pricePerMeal;
     if (!price || price <= 0) {
-      const plan = await MessPlan.findOne({ messId: mess._id }).sort({ price: 1 });
+      const plan = await MessPlan.findOne({ messId: mess._id }).sort({ totalTokens: -1 });
       const baseCost = plan ? (plan.price / (plan.totalTokens || 60)) : 50;
       price = Math.round(baseCost * 1.30);
     }
@@ -1147,7 +1147,7 @@ exports.smartBook = async (req, res) => {
 
     let price = Number(thaliPrice || thali?.sellingPrice);
     if (!price || price <= 0) {
-      const plan = await MessPlan.findOne({ messId: mess._id }).sort({ price: 1 });
+      const plan = await MessPlan.findOne({ messId: mess._id }).sort({ totalTokens: -1 });
       const baseCost = plan ? (plan.price / (plan.totalTokens || 60)) : (mess.pricePerMeal ? mess.pricePerMeal / 1.30 : 50);
       price = Math.round(baseCost * 1.30);
     }
