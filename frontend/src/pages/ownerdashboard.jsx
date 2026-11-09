@@ -450,7 +450,7 @@ export default function OwnerDashboard() {
           cuisineType: newCuisineType,
           phone: newPhone || "+91 98765 43210",
           seatingCapacity: Number(newCapacity),
-          pricePerMeal: 80,
+          pricePerMeal: 65,
           imageUrl: newImageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600",
           ownerEmail: targetOwnerEmail,
           ownerId: isSuperAdmin ? "" : (currentUser?.uid || ""),

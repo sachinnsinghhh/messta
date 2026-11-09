@@ -24,6 +24,22 @@ export default function MessCard({ mess }) {
     ? "Dinner Service Active"
     : "Kitchen Prepping";
 
+  // Determine actual starting plate price from active thalis or mess pricing
+  const effectivePrice = (() => {
+    if (mess.activeThalis && Array.isArray(mess.activeThalis) && mess.activeThalis.length > 0) {
+      const activePrices = mess.activeThalis
+        .filter((t) => t.isActive !== false && Number(t.sellingPrice) > 0)
+        .map((t) => Number(t.sellingPrice));
+      if (activePrices.length > 0) {
+        return Math.min(...activePrices);
+      }
+    }
+    if (mess.pricePerMeal && mess.pricePerMeal !== 80) {
+      return mess.pricePerMeal;
+    }
+    return 65;
+  })();
+
   return (
     <article className="group bg-white rounded-3xl border border-stone-200/90 overflow-hidden shadow-xs hover:shadow-xl hover:shadow-orange-950/5 hover:border-orange-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
       
@@ -175,7 +191,7 @@ export default function MessCard({ mess }) {
               Per Meal
             </span>
             <div className="flex items-baseline gap-0.5">
-              <span className="text-lg font-black text-stone-900">₹{mess.pricePerMeal || 80}</span>
+              <span className="text-lg font-black text-stone-900">₹{effectivePrice}</span>
               <span className="text-[10px] text-stone-500 font-normal">/thali</span>
             </div>
           </div>

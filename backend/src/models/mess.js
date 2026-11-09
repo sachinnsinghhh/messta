@@ -46,7 +46,7 @@ const messSchema = new mongoose.Schema(
     claimedAt: { type: Date, default: null },
     claimedByUid: { type: String, default: "" },
     createdByRole: { type: String, enum: ["superadmin", "owner"], default: "superadmin" },
-    pricePerMeal: { type: Number, default: 80, min: 0 },
+    pricePerMeal: { type: Number, default: 65, min: 0 },
 
     todayMenu: {
       lunch: { type: String, default: "Roti, Dal Tadka, Jeera Rice, Paneer Sabzi, Salad" },

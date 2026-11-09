@@ -83,7 +83,7 @@ export default function BookingModal({
 
   // 2. SMART DECISION ENGINE: Evaluate Token Match vs Cross-Category Out-of-Plan
   const thaliCategory = (selectedThali?.category || "Veg").toLowerCase();
-  const thaliPrice = selectedThali?.sellingPrice || mess.pricePerMeal || 80;
+  const thaliPrice = selectedThali?.sellingPrice || (mess.pricePerMeal && mess.pricePerMeal !== 80 ? mess.pricePerMeal : 65);
   const thaliName = selectedThali?.name || "Standard Meal Thali";
   const slotWindow =
     selectedTimeSlot?.timeWindow ||

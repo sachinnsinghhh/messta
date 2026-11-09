@@ -34,7 +34,7 @@ const getDefaultThalis = () => [
     name: "Paneer Thali",
     category: "Veg",
     mealType: "both",
-    sellingPrice: 98,
+    sellingPrice: 65,
     description: "Shahi Paneer butter masala, 3 tawa rotis, dal tadka, jeera rice, gulab jamun & salad.",
     eligibleTiers: ["veg", "lite", "combo", "all", "Veg Membership", "Lite Membership"],
     items: [
@@ -51,7 +51,7 @@ const getDefaultThalis = () => [
     name: "Special Non-Veg Thali",
     category: "Non-Veg",
     mealType: "both",
-    sellingPrice: 140,
+    sellingPrice: 75,
     description: "Kolhapuri Chicken rassa/sukka, 3 rotis, steamed indrayani rice, and fresh salad.",
     eligibleTiers: ["non_veg", "combo", "Non-Veg Membership"],
     items: [
@@ -67,7 +67,7 @@ const getDefaultThalis = () => [
     name: "Lite Thali",
     category: "Lite",
     mealType: "both",
-    sellingPrice: 80,
+    sellingPrice: 55,
     description: "2 Rotis, dry seasonal sabzi, dal fry, plain rice & kachumber salad.",
     eligibleTiers: ["veg", "lite", "combo", "all", "Veg Membership", "Lite Membership"],
     items: [
@@ -154,6 +154,15 @@ exports.getAllMesses = async (req, res) => {
       if (!obj.activeThalis || obj.activeThalis.length === 0) {
         obj.activeThalis = getDefaultThalis();
       }
+      // Calculate dynamic lowest price from active thalis
+      const activePrices = (obj.activeThalis || [])
+        .filter((t) => t.isActive !== false && Number(t.sellingPrice) > 0)
+        .map((t) => Number(t.sellingPrice));
+      if (activePrices.length > 0) {
+        obj.pricePerMeal = Math.min(...activePrices);
+      } else if (!obj.pricePerMeal || obj.pricePerMeal === 80) {
+        obj.pricePerMeal = 65;
+      }
       return obj;
     });
 
@@ -199,9 +208,19 @@ exports.getMessById = async (req, res) => {
       await mess.save();
     }
 
+    const obj = mess.toObject();
+    const activePrices = (obj.activeThalis || [])
+      .filter((t) => t.isActive !== false && Number(t.sellingPrice) > 0)
+      .map((t) => Number(t.sellingPrice));
+    if (activePrices.length > 0) {
+      obj.pricePerMeal = Math.min(...activePrices);
+    } else if (!obj.pricePerMeal || obj.pricePerMeal === 80) {
+      obj.pricePerMeal = 65;
+    }
+
     return res.status(200).json({
       success: true,
-      data: mess,
+      data: obj,
     });
   } catch (error) {
     return res.status(500).json({
@@ -639,6 +658,12 @@ exports.publishThali = async (req, res) => {
     };
 
     mess.activeThalis.unshift(newThali);
+    const activePrices = mess.activeThalis
+      .filter((t) => t.isActive !== false && Number(t.sellingPrice) > 0)
+      .map((t) => Number(t.sellingPrice));
+    if (activePrices.length > 0) {
+      mess.pricePerMeal = Math.min(...activePrices);
+    }
     await mess.save();
 
     return res.status(201).json({
@@ -663,6 +688,10 @@ exports.deleteThali = async (req, res) => {
 
     const { thaliId } = req.params;
     mess.activeThalis = mess.activeThalis.filter((t) => t.id !== thaliId && String(t._id) !== thaliId);
+    const activePrices = mess.activeThalis
+      .filter((t) => t.isActive !== false && Number(t.sellingPrice) > 0)
+      .map((t) => Number(t.sellingPrice));
+    mess.pricePerMeal = activePrices.length > 0 ? Math.min(...activePrices) : 65;
     await mess.save();
 
     return res.status(200).json({
