@@ -1240,39 +1240,138 @@ export default function OwnerMeals() {
               </div>
             </div>
 
-            {/* 1. Thali Basics (Name & Operational Window) */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
-                  Thali Option Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Royal Paneer Thali, Kolhapuri Chicken Thali, Standard Lunch Thali"
-                  value={thaliName}
-                  onChange={(e) => setThaliName(e.target.value)}
-                  className="w-full p-2.5 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500 font-bold"
-                />
+            {/* 1. Thali Basics (Name, Dietary Type & Operational Window) */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+                <div className="sm:col-span-6">
+                  <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                    Thali Option Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Royal Paneer Thali, Kolhapuri Chicken Thali, Deluxe Lunch"
+                    value={thaliName}
+                    onChange={(e) => setThaliName(e.target.value)}
+                    className="w-full p-2.5 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500 font-bold"
+                  />
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                    Dietary Type
+                  </label>
+                  <select
+                    value={mealCategory}
+                    onChange={(e) => {
+                      const cat = e.target.value;
+                      setMealCategory(cat);
+                      if (benchmarkDetails.isStandalone) {
+                        if (cat === "Non-Veg") setSellingPrice(75);
+                        else if (cat === "Egg") setSellingPrice(70);
+                        else if (cat === "Lite") setSellingPrice(55);
+                        else setSellingPrice(65);
+                      }
+                    }}
+                    className="w-full p-2.5 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500 font-bold cursor-pointer"
+                  >
+                    <option value="Veg">🟢 Pure Veg</option>
+                    <option value="Non-Veg">🔴 Non-Veg</option>
+                    <option value="Egg">🥚 Egg Thali</option>
+                    <option value="Lite">🥗 Lite Veg</option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                    Operational Window
+                  </label>
+                  <select
+                    value={mealSlot}
+                    onChange={(e) => setMealSlot(e.target.value)}
+                    className="w-full p-2.5 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500 font-bold cursor-pointer"
+                  >
+                    <option value="both">Both Lunch & Dinner</option>
+                    <option value="all">All Meal Spreads</option>
+                    {mealSpreads.map((spread) => (
+                      <option key={spread.id} value={spread.id}>
+                        {spread.icon || "🍽️"} {spread.name} Only
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
-                  Operational Window
-                </label>
-                <select
-                  value={mealSlot}
-                  onChange={(e) => setMealSlot(e.target.value)}
-                  className="w-full p-2.5 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-500 font-bold cursor-pointer"
-                >
-                  <option value="all">All Meal Spreads</option>
-                  <option value="both">Both Lunch & Dinner</option>
-                  {mealSpreads.map((spread) => (
-                    <option key={spread.id} value={spread.id}>
-                      {spread.icon || "🍽️"} {spread.name} Only
-                    </option>
-                  ))}
-                </select>
+              {/* 1-Click Dietary Category Quick Pills */}
+              <div className="p-2.5 bg-stone-50 rounded-2xl border border-stone-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span className="text-[10px] font-black uppercase text-stone-500 tracking-wider">
+                  Select Dietary Category:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMealCategory("Veg");
+                      if (benchmarkDetails.isStandalone) setSellingPrice(65);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 border-2 cursor-pointer ${
+                      mealCategory === "Veg"
+                        ? "bg-emerald-50 border-emerald-600 text-emerald-950 shadow-xs ring-2 ring-emerald-500/20"
+                        : "bg-white border-stone-200 text-stone-600 hover:border-emerald-300 hover:bg-emerald-50/40"
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
+                    <span>🟢 Veg</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMealCategory("Non-Veg");
+                      if (benchmarkDetails.isStandalone) setSellingPrice(75);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 border-2 cursor-pointer ${
+                      mealCategory === "Non-Veg"
+                        ? "bg-rose-50 border-rose-600 text-rose-950 shadow-xs ring-2 ring-rose-500/20"
+                        : "bg-white border-stone-200 text-stone-600 hover:border-rose-300 hover:bg-rose-50/40"
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-rose-600 inline-block"></span>
+                    <span>🔴 Non-Veg</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMealCategory("Egg");
+                      if (benchmarkDetails.isStandalone) setSellingPrice(70);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 border-2 cursor-pointer ${
+                      mealCategory === "Egg"
+                        ? "bg-amber-50 border-amber-600 text-amber-950 shadow-xs ring-2 ring-amber-500/20"
+                        : "bg-white border-stone-200 text-stone-600 hover:border-amber-300 hover:bg-amber-50/40"
+                    }`}
+                  >
+                    <span>🥚</span>
+                    <span>Egg Thali</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMealCategory("Lite");
+                      if (benchmarkDetails.isStandalone) setSellingPrice(55);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 border-2 cursor-pointer ${
+                      mealCategory === "Lite"
+                        ? "bg-teal-50 border-teal-600 text-teal-950 shadow-xs ring-2 ring-teal-500/20"
+                        : "bg-white border-stone-200 text-stone-600 hover:border-teal-300 hover:bg-teal-50/40"
+                    }`}
+                  >
+                    <span>🥗</span>
+                    <span>Lite Veg</span>
+                  </button>
+                </div>
               </div>
             </div>
 
