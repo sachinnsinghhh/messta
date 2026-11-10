@@ -190,6 +190,7 @@ exports.initiatePayment = async (req, res) => {
         messName: mess.name,
         userId,
         userEmail: userEmail || "student@messta.in",
+        userPhone: userPhone || "",
         userName: userName || (userEmail ? userEmail.split("@")[0] : "Student Diner"),
         mealType: mealType || "lunch",
         timeSlot: timeSlot || "",

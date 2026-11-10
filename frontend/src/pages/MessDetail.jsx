@@ -233,7 +233,7 @@ export default function MessDetail() {
       userId: currentUser.uid,
       userName: currentUser.displayName || currentUser.email.split("@")[0],
       userEmail: currentUser.email,
-      userPhone: currentUser.phoneNumber || "+91 98765 43210",
+      userPhone: localStorage.getItem("messta_user_phone") || currentUser.phoneNumber || "",
       title: `${plan.planName} (${plan.totalTokens} Tokens) - ${mess?.name}`,
     });
     setPhonePePassModalOpen(true);

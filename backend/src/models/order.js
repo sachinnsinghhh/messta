@@ -21,6 +21,11 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    userPhone: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     userName: {
       type: String,
       default: "Customer",

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import DynamicQRModal from "../components/DynamicQRModal";
+import PhoneVerificationModal from "../components/PhoneVerificationModal";
 import { shareTicketToWhatsApp, downloadOfflineTicketImage } from "../utils/ticketDownloader";
 
 export default function UserProfile() {
@@ -11,6 +12,8 @@ export default function UserProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [qrModal, setQrModal] = useState({ isOpen: false, data: null });
+  const [userPhone, setUserPhone] = useState(() => localStorage.getItem("messta_user_phone") || "");
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
 
   useEffect(() => {
     const fetchUserOrders = async () => {
@@ -57,10 +60,25 @@ export default function UserProfile() {
               {currentUser?.displayName || "Student Diner"}
             </h1>
             <p className="text-xs text-gray-500 font-medium">{currentUser?.email}</p>
-            <div className="flex items-center gap-2 pt-0.5">
+            <div className="flex items-center gap-2 pt-0.5 flex-wrap">
               <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-200">
                 Verified Student Account
               </span>
+
+              {userPhone ? (
+                <span className="text-[10px] font-black uppercase tracking-wider bg-purple-50 text-purple-800 px-2.5 py-0.5 rounded-full border border-purple-200 flex items-center gap-1">
+                  <span>📱 +91 {userPhone}</span>
+                  <span className="text-emerald-600">✓ Linked</span>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowPhoneModal(true)}
+                  className="text-[10px] font-black uppercase tracking-wider bg-orange-100 hover:bg-orange-200 text-orange-800 px-2.5 py-0.5 rounded-full border border-orange-300 transition cursor-pointer flex items-center gap-1 shadow-2xs"
+                >
+                  <span>⚠️ Link WhatsApp Number</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -340,6 +358,13 @@ export default function UserProfile() {
         onClose={() => setQrModal({ isOpen: false, data: null })}
         type="per_plate"
         data={qrModal.data}
+      />
+
+      {/* 100% Free OTP Mobile Verification Modal */}
+      <PhoneVerificationModal
+        isOpen={showPhoneModal}
+        onClose={() => setShowPhoneModal(false)}
+        onVerified={(verifiedNumber) => setUserPhone(verifiedNumber)}
       />
 
     </div>

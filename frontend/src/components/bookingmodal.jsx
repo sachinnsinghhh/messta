@@ -255,7 +255,7 @@ export default function BookingModal({
           userId: currentUser?.uid,
           userName: currentUser?.displayName || currentUser?.email?.split("@")[0] || "Student",
           userEmail: currentUser?.email,
-          userPhone: currentUser?.phoneNumber || "",
+          userPhone: localStorage.getItem("messta_user_phone") || currentUser?.phoneNumber || "",
           title: `${thaliName} (${selectedMeal.toUpperCase()}) - ${mess.name}`,
         });
         setPhonePeModalOpen(true);
