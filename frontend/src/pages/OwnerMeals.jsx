@@ -467,71 +467,6 @@ export default function OwnerMeals() {
     );
   };
 
-  // Quick Preset Templates for Instant Step B Selection
-  const loadPreset = (presetName) => {
-    if (presetName === "paneer") {
-      setThaliName("Paneer Deluxe Thali");
-      setMealCategory("Veg");
-      setMealSlot("both");
-      setDescription("Shahi Paneer butter masala, 3 tawa rotis, dal tadka, jeera rice, gulab jamun, salad & pickle.");
-      const vegPlans = publishedPlans
-        .filter((p) => p.category === "veg" || p.category === "combo")
-        .flatMap((p) => [p._id, p.planName]);
-      setEligibleTiers(["veg", "lite", "combo", "all", ...vegPlans]);
-      setAllowDirectPurchase(true);
-      setAllowMembershipRedemption(true);
-      const matching = publishedPlans.filter((p) => p.category === "veg" || p.category === "combo");
-      if (matching.length > 0) {
-        const lowest = [...matching].sort(
-          (a, b) => (Number(a.price) / (Number(a.totalTokens) || 60)) - (Number(b.price) / (Number(b.totalTokens) || 60))
-        )[0];
-        setSellingPrice(Math.round((Number(lowest.price) / (Number(lowest.totalTokens) || 60)) * 1.30));
-      } else {
-        setSellingPrice(65);
-      }
-    } else if (presetName === "nonveg") {
-      setThaliName("Special Chicken Thali");
-      setMealCategory("Non-Veg");
-      setMealSlot("both");
-      setDescription("Kolhapuri Chicken rassa/sukka, 3 tawa rotis, steamed indrayani rice, roasted papad and fresh onion salad.");
-      const nonVegPlans = publishedPlans
-        .filter((p) => p.category === "non_veg" || p.category === "combo")
-        .flatMap((p) => [p._id, p.planName]);
-      setEligibleTiers(["non_veg", "combo", ...nonVegPlans]);
-      setAllowDirectPurchase(true);
-      setAllowMembershipRedemption(true);
-      const matching = publishedPlans.filter((p) => p.category === "non_veg" || p.category === "combo");
-      if (matching.length > 0) {
-        const lowest = [...matching].sort(
-          (a, b) => (Number(a.price) / (Number(a.totalTokens) || 60)) - (Number(b.price) / (Number(b.totalTokens) || 60))
-        )[0];
-        setSellingPrice(Math.round((Number(lowest.price) / (Number(lowest.totalTokens) || 60)) * 1.30));
-      } else {
-        setSellingPrice(75);
-      }
-    } else if (presetName === "lite") {
-      setThaliName("Lite Daily Thali");
-      setMealCategory("Lite");
-      setMealSlot("both");
-      setDescription("2 Phulkas, dry seasonal sabzi, yellow dal fry, plain steamed rice & fresh kachumber salad.");
-      const litePlans = publishedPlans
-        .filter((p) => p.category === "veg" || p.category === "lite" || p.category === "combo")
-        .flatMap((p) => [p._id, p.planName]);
-      setEligibleTiers(["veg", "lite", "combo", "all", ...litePlans]);
-      setAllowDirectPurchase(true);
-      setAllowMembershipRedemption(true);
-      const matching = publishedPlans.filter((p) => p.category === "lite" || p.category === "veg" || p.category === "combo");
-      if (matching.length > 0) {
-        const lowest = [...matching].sort(
-          (a, b) => (Number(a.price) / (Number(a.totalTokens) || 60)) - (Number(b.price) / (Number(b.totalTokens) || 60))
-        )[0];
-        setSellingPrice(Math.round((Number(lowest.price) / (Number(lowest.totalTokens) || 60)) * 1.30));
-      } else {
-        setSellingPrice(55);
-      }
-    }
-  };
-
   // Publish Thali Live with Tier Mapping and Channels
   const handlePublishThali = async () => {
     if (!thaliName.trim()) {
@@ -691,9 +626,6 @@ export default function OwnerMeals() {
           <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
             Daily Menu & Meal Slots
           </h1>
-          <p className="text-xs text-stone-500">
-            Configure dining hours, control counter rush with slot capacities, and publish today's menu.
-          </p>
         </div>
 
         {/* Outlet Switcher */}
@@ -1190,44 +1122,13 @@ export default function OwnerMeals() {
           <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-3xl border border-gray-200/80 shadow-xs space-y-6">
             
             {/* Header with Quick Presets */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-4">
-              <div>
-                <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
-                  Menu Builder
-                </span>
-                <h2 className="text-xl font-bold text-stone-900 tracking-tight mt-0.5">
-                  Publish Daily Meal / Thali
-                </h2>
-                <p className="text-xs text-stone-500">
-                  Compose today&apos;s meals, set walk-in pricing, and manage membership pass eligibility.
-                </p>
-              </div>
-
-              {/* Quick Presets for Instant Setup */}
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[10px] font-bold text-gray-400 uppercase">Presets:</span>
-                <button
-                  type="button"
-                  onClick={() => loadPreset("paneer")}
-                  className="px-2.5 py-1 bg-orange-50 hover:bg-orange-100 text-orange-700 text-[10px] font-black rounded-lg transition"
-                >
-                  Paneer Deluxe
-                </button>
-                <button
-                  type="button"
-                  onClick={() => loadPreset("nonveg")}
-                  className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 text-[10px] font-black rounded-lg transition"
-                >
-                  Chicken Special
-                </button>
-                <button
-                  type="button"
-                  onClick={() => loadPreset("lite")}
-                  className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[10px] font-black rounded-lg transition"
-                >
-                  Lite Daily
-                </button>
-              </div>
+            <div className="border-b border-gray-100 pb-4">
+              <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
+                Menu Builder
+              </span>
+              <h2 className="text-xl font-bold text-stone-900 tracking-tight mt-0.5">
+                Publish Daily Meal / Thali
+              </h2>
             </div>
 
             {/* 1. Thali Basics (Name, Dietary Type & Operational Window) */}
