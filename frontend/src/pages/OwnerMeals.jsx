@@ -90,7 +90,7 @@ export default function OwnerMeals() {
   const [allowMembershipRedemption, setAllowMembershipRedemption] = useState(true);
 
   // Dynamic Price Formulation: (cost of monthly membership / total tokens) * 1.3
-  const [benchmarkPlanId, setBenchmarkPlanId] = useState("auto");
+  const benchmarkPlanId = "auto";
 
   // ── ADVANCE KITCHEN HEADCOUNT & RATION PREP SHEET STATES ──
   const [headcountData, setHeadcountData] = useState(null);
@@ -430,23 +430,13 @@ export default function OwnerMeals() {
       setLoading(false);
     }
   };
-  // ── STEP B & C OPERATIONS: DYNAMIC PRICING ALGORITHM & CHANNELS ──
-  // Formula: Lowest per-token rate among included plans * 1.30 (or default 65/75 for standalone)
-  const handleCalculatePrice = () => {
-    const { monthlyCost, totalTokens, baseCostPerToken, formulaSellingPrice, planTitle, ownerPayout, extraProfit, platformFee, isStandalone } = benchmarkDetails;
-    setSellingPrice(formulaSellingPrice);
-    if (isStandalone) {
-      setFeedback({
-        text: `⚡ Standalone Thali Price Set: ₹${formulaSellingPrice} (${planTitle}). Net payout: ₹${ownerPayout} (95%), Messta fee: 5% (₹${platformFee}).`,
-        type: "success",
-      });
-    } else {
-      setFeedback({
-        text: `⚡ Lowest Per-Token Plan Applied! Selling price ₹${formulaSellingPrice}: anchored to ${planTitle} (₹${monthlyCost} ÷ ${totalTokens} tokens = ₹${baseCostPerToken}/meal) + 30% advance markup. Net payout: ₹${ownerPayout}/plate (+₹${extraProfit} extra profit over monthly cost!). Messta cut: 5% (₹${platformFee}).`,
-        type: "success",
-      });
+  // ── STEP B & C OPERATIONS: DYNAMIC PRICING ALGORITHM & AUTO SYNC ──
+  // Automatically sync sellingPrice whenever benchmarkDetails.formulaSellingPrice updates
+  useEffect(() => {
+    if (benchmarkDetails.formulaSellingPrice) {
+      setSellingPrice(benchmarkDetails.formulaSellingPrice);
     }
-  };
+  }, [benchmarkDetails.formulaSellingPrice]);
 
   // Published Plan Selection Handlers (Crucial Link)
   const isPlanSelected = (plan) => {
@@ -1548,128 +1538,21 @@ export default function OwnerMeals() {
                 </div>
               </div>
 
-            {/* Price & Dynamic Pricing Assistant */}
-            <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <label className="block text-xs font-bold uppercase text-stone-900 tracking-wider">
-                      Advance Per-Plate Price (₹)
-                    </label>
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
-                      +30% Dynamic Formula
-                    </span>
-                  </div>
-                  {benchmarkDetails.isStandalone ? (
-                    <p className="text-[11px] text-purple-700 mt-0.5 font-semibold">
-                      Standalone Thali (Not included in any membership pass) &bull; Standard Default Price: <strong>₹{benchmarkDetails.formulaSellingPrice}</strong> ({mealCategory})
-                    </p>
-                  ) : (
-                    <p className="text-[11px] text-stone-500 mt-0.5">
-                      Anchored to lowest per-meal rate among included plans: <strong>{benchmarkDetails.planTitle}</strong> (Base: ₹{benchmarkDetails.baseCostPerToken}/meal).
-                    </p>
-                  )}
-
-                  {/* Plan Switcher Pills when mess has multiple plans */}
-                  {publishedPlans.length > 1 && !benchmarkDetails.isStandalone && (
-                    <div className="flex items-center gap-1.5 flex-wrap pt-1.5">
-                      <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider">Anchor Plan:</span>
-                      {/* Auto option (lowest per-token value) */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setBenchmarkPlanId("auto");
-                        }}
-                        className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition flex items-center gap-1 cursor-pointer ${
-                          benchmarkPlanId === "auto"
-                            ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
-                            : "bg-white text-stone-700 border-stone-200 hover:border-emerald-400 hover:bg-emerald-50/50"
-                        }`}
-                      >
-                        <span>⚡ Lowest Rate (Auto)</span>
-                      </button>
-
-                      {publishedPlans.map((plan) => {
-                        const isSelectedForThali = isPlanSelected(plan);
-                        const isCurrent =
-                          benchmarkPlanId === plan._id;
-                        const planBase = plan.totalTokens > 0 ? (plan.price / plan.totalTokens).toFixed(1) : 0;
-                        const planSuggested = Math.round(planBase * 1.3);
-                        return (
-                          <button
-                            key={plan._id}
-                            type="button"
-                            onClick={() => {
-                              setBenchmarkPlanId(plan._id);
-                              setSellingPrice(planSuggested);
-                            }}
-                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition flex items-center gap-1 cursor-pointer ${
-                              isCurrent
-                                ? "bg-orange-600 text-white border-orange-600 shadow-2xs ring-1 ring-orange-500"
-                                : isSelectedForThali
-                                ? "bg-white text-stone-700 border-stone-300 hover:border-orange-400 hover:bg-orange-50/50"
-                                : "bg-stone-100 text-stone-400 border-stone-200 hover:text-stone-600"
-                            }`}
-                            title={isSelectedForThali ? "Included in this thali" : "Not tagged for this thali"}
-                          >
-                            <span>{isCurrent ? "✓" : "⚡"}</span>
-                            <span>{plan.planName} (₹{planBase}/meal → ₹{planSuggested})</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div className="relative w-36">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 font-bold text-sm">₹</span>
-                    <input
-                      type="number"
-                      min="10"
-                      required
-                      value={sellingPrice}
-                      onChange={(e) => setSellingPrice(Number(e.target.value))}
-                      className="w-full pl-7 pr-3 py-2 text-sm bg-white border border-stone-300 rounded-xl font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 shadow-2xs"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleCalculatePrice}
-                    className="px-3 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-1 shadow-xs cursor-pointer active:scale-95"
-                    title="Auto-calculate price from registered monthly plan (+30% markup)"
-                  >
-                    <span>⚡ Auto-Suggest (+30%)</span>
-                  </button>
-                </div>
+            {/* Advance Per-Plate Price (Auto-Calculated Live) */}
+            <div className="p-4 bg-orange-50/70 rounded-2xl border border-orange-200/80 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-black uppercase text-gray-900 tracking-wider block">
+                  Advance Per-Plate Price
+                </span>
+                <span className="text-[11px] text-gray-500 font-medium">
+                  {benchmarkDetails.isStandalone
+                    ? `Standard ${mealCategory} default`
+                    : `Auto-calculated from lowest linked plan (+30%)`}
+                </span>
               </div>
-
-              {/* Dynamic Revenue & Profit Split Preview */}
-              <div className="p-3 bg-white rounded-xl border border-stone-200 text-xs space-y-2">
-                <div className="flex justify-between items-center text-[11px] border-b border-stone-100 pb-1.5">
-                  <span className="text-stone-500">Advance Plate Selling Price:</span>
-                  <span className="font-extrabold text-stone-900 font-mono text-sm">₹{sellingPrice}</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                  <div className="p-2 rounded-lg bg-emerald-50/80 border border-emerald-200">
-                    <span className="text-emerald-900 font-bold block">Your Net Earnings (95%)</span>
-                    <span className="text-emerald-700 font-mono font-black text-sm">
-                      ₹{(sellingPrice * 0.95).toFixed(2)}
-                    </span>
-                    <span className="text-[10px] text-emerald-800 block mt-0.5 font-medium">
-                      +₹{Math.max(0, (sellingPrice * 0.95) - benchmarkDetails.baseCostPerToken).toFixed(2)} extra profit/thali vs monthly rate!
-                    </span>
-                  </div>
-                  <div className="p-2 rounded-lg bg-stone-50 border border-stone-200">
-                    <span className="text-stone-700 font-bold block">Messta Platform Fee (5%)</span>
-                    <span className="text-stone-900 font-mono font-black text-sm">
-                      ₹{(sellingPrice * 0.05).toFixed(2)}
-                    </span>
-                    <span className="text-[10px] text-stone-500 block mt-0.5 font-medium">
-                      Zero payment gateway deductions
-                    </span>
-                  </div>
-                </div>
+              <div className="flex items-baseline gap-1 bg-white px-4 py-2 rounded-xl border border-orange-200 shadow-2xs">
+                <span className="text-2xl font-black text-orange-600 font-mono">₹{sellingPrice}</span>
+                <span className="text-xs text-gray-500 font-bold">/thali</span>
               </div>
             </div>
 
