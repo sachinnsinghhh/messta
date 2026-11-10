@@ -336,8 +336,8 @@ export default function MessDetail() {
         {/* Content Body */}
         <div className="p-6 sm:p-8 space-y-8">
           
-          {/* Header Row: Title, Phone, Price & Membership CTA */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-100 pb-6">
+          {/* Header Row: Title, Phone & Seating */}
+          <div className="border-b border-gray-100 pb-6">
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
@@ -363,59 +363,6 @@ export default function MessDetail() {
                   </span>
                 )}
               </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <a
-                href="#passes"
-                className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-xs transition active:scale-95 flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>🛡️</span>
-                <span>Zero-Waste Monthly Passes ↓</span>
-              </a>
-            </div>
-          </div>
-
-          {/* ═══════════════════════════════════════════════════════════ */}
-          {/* ── TWO CLEAN DINING CHOICES (STUDENT FREEDOM) ── */}
-          {/* ═══════════════════════════════════════════════════════════ */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Choice 1: Advance Single Plate */}
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-orange-50/80 to-amber-50/50 border border-orange-200 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 px-2 py-0.5 rounded-md">
-                  Choice 1: Advance Single Plate
-                </span>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  Save ~35% vs Walk-In
-                </span>
-              </div>
-              <h3 className="font-extrabold text-sm text-gray-900">Pay-As-You-Go Daily Dining</h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Book tomorrow's fresh thali before cut-off time. Zero monthly commitment, pay per plate, 1-click checkout.
-              </p>
-            </div>
-
-            {/* Choice 2: 30-Day Zero-Waste Token Pass */}
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50/90 to-teal-50/60 border border-emerald-300 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
-                  Choice 2: Zero-Waste Monthly Pass
-                </span>
-                <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded border border-purple-200">
-                  +₹150 Token Guarantee
-                </span>
-              </div>
-              <h3 className="font-extrabold text-sm text-emerald-950">Mess Monthly Rate + Flexible Tokens</h3>
-              <p className="text-xs text-emerald-800 leading-relaxed">
-                Pay standard monthly mess rate + flat ₹150. Your tokens never expire when you skip meals or travel home!
-              </p>
-              <a
-                href="#passes"
-                className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 hover:text-emerald-900 cursor-pointer"
-              >
-                <span>Browse Monthly Passes ↓</span>
-              </a>
             </div>
           </div>
 
