@@ -48,7 +48,7 @@ function getDateRange(period, customStart, customEnd, monthStr, yearStr) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 1. GET REDESIGNED FINANCE SUMMARY & KPIS (MONTHLY / YEARLY EVALUATION)
+// 1. GET SIMPLIFIED SALES & INCOME SUMMARY (DAILY THALIS + MEMBERSHIP PASSES)
 // ─────────────────────────────────────────────────────────────────────────────
 exports.getFinanceSummary = async (req, res) => {
   try {
@@ -75,508 +75,214 @@ exports.getFinanceSummary = async (req, res) => {
     const evaluatedMonthStr = `${evaluatedYear}-${String(evaluatedMonthNum).padStart(2, "0")}`;
 
     const { start, end } = getDateRange(period, customStart, customEnd, evaluatedMonthStr, evaluatedYear.toString());
-
     const startStr = start.toISOString().split("T")[0];
     const endStr = end.toISOString().split("T")[0];
 
-    // Parallel fetch across collections
-    const [
-      transactions,
-      staffList,
-      attendanceList,
-      inventoryTransactions,
-      paidOrders,
-      subscriptions,
-      settlements,
-    ] = await Promise.all([
-      FinanceTransaction.find({
-        messId: messObjectId,
-        transactionDate: { $gte: start, $lte: end },
-      }).lean(),
-      Staff.find({
-        messId: messObjectId,
-        status: "active",
-      }).lean(),
-      StaffAttendance.find({
-        messId: messObjectId,
-        date: { $gte: startStr, $lte: endStr },
-      }).lean(),
-      InventoryTransaction.find({
-        messId: messObjectId,
-        $or: [
-          { date: { $gte: start, $lte: end } },
-          { createdAt: { $gte: start, $lte: end } },
-        ],
-      }).lean(),
+    const todayDateStr = now.toISOString().split("T")[0];
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+    // Parallel fetch: Mess Info, Orders, Subscriptions, MessPlans
+    const [messDoc, allMessOrders, allMessSubs, messPlans] = await Promise.all([
+      Mess.findById(messObjectId).select("name locality address bankDetails pricing").lean(),
       Order.find({
         messId: messObjectId,
-        paymentStatus: "paid",
-        $or: [
-          { createdAt: { $gte: start, $lte: end } },
-          { bookingDate: { $gte: startStr, $lte: endStr } },
-        ],
-      }).lean(),
+        paymentStatus: { $nin: ["failed", "cancelled"] },
+      }).sort({ createdAt: -1 }).lean(),
       Subscription.find({
         messId: messObjectId,
-      }).populate("planId").lean(),
-      SettlementPayout.find({
-        messId: messObjectId,
-      }).lean(),
+      }).sort({ createdAt: -1 }).populate("planId").lean(),
+      MessPlan.find({ messId: messObjectId }).lean(),
     ]);
 
-    // ── 1. REVENUE (EARNINGS) COMPUTATION ──
-    let directPerPlateRevenue = 0;
-    let directPerPlateCount = 0;
-    paidOrders.forEach((o) => {
-      if (o.bookingType === "direct_payment" || !o.bookingType) {
-        directPerPlateRevenue += Number(o.amount) || 0;
-        directPerPlateCount += 1;
+    // Build plan price map
+    const planPriceMap = new Map();
+    (messPlans || []).forEach((p) => {
+      planPriceMap.set(p._id.toString(), Number(p.price) || 0);
+    });
+
+    // ── 1. DAILY THALI SALES (Direct single plate bookings) ──
+    const periodThaliOrders = [];
+    const allTimeThaliOrders = [];
+    const todayThaliOrders = [];
+
+    let thaliPlatesSold = 0;
+    let thaliGrossReceived = 0;
+    let thaliPlatformFee = 0;
+    let thaliNetEarned = 0;
+
+    let todayPlatesSold = 0;
+    let todayThaliGross = 0;
+    let todayThaliNet = 0;
+
+    (allMessOrders || []).forEach((ord) => {
+      if (ord.bookingType === "membership_token") return; // Token passes are tracked under passes
+
+      const grossAmount = Number(ord.amount) || 0;
+      const fee = Math.round(grossAmount * 0.05 * 100) / 100; // Messta 5% Platform Fee
+      const net = Math.round((grossAmount - fee) * 100) / 100; // 95% Mess Net Take-Home
+
+      const orderDateStr = ord.bookingDate || (ord.createdAt ? new Date(ord.createdAt).toISOString().split("T")[0] : "");
+      const orderCreatedAt = ord.createdAt ? new Date(ord.createdAt) : new Date(orderDateStr);
+
+      const item = {
+        id: ord._id,
+        token: ord.token || `ORD-${ord._id.toString().slice(-6).toUpperCase()}`,
+        date: orderDateStr || todayDateStr,
+        createdAt: orderCreatedAt,
+        mealType: ord.mealType || "Lunch",
+        timeSlot: ord.timeSlot || "",
+        thaliName: ord.thaliName || "Standard Daily Thali",
+        thaliCategory: ord.thaliCategory || "Veg",
+        customerName: ord.userName || "Student Diner",
+        customerEmail: ord.userEmail || "",
+        sellingPrice: grossAmount,
+        platformFee: fee,
+        netEarned: net,
+        paymentStatus: ord.paymentStatus || "paid",
+        paymentMethod: ord.paymentMethod || "upi_qr",
+      };
+
+      allTimeThaliOrders.push(item);
+
+      // Check if order belongs to evaluated period
+      const isWithinPeriod =
+        (ord.bookingDate && ord.bookingDate >= startStr && ord.bookingDate <= endStr) ||
+        (orderCreatedAt >= start && orderCreatedAt <= end);
+
+      if (isWithinPeriod) {
+        periodThaliOrders.push(item);
+        thaliPlatesSold += 1;
+        thaliGrossReceived += grossAmount;
+        thaliPlatformFee += fee;
+        thaliNetEarned += net;
+      }
+
+      // Check if order is today
+      const isToday =
+        ord.bookingDate === todayDateStr ||
+        (orderCreatedAt >= todayStart && orderCreatedAt <= todayEnd);
+
+      if (isToday) {
+        todayThaliOrders.push(item);
+        todayPlatesSold += 1;
+        todayThaliGross += grossAmount;
+        todayThaliNet += net;
       }
     });
 
-    // Subscriptions
-    let membershipRevenue = 0;
-    let activeSubscribersCount = 0;
-    subscriptions.forEach((sub) => {
-      const isWithinDate =
-        !sub.createdAt || (new Date(sub.createdAt) >= start && new Date(sub.createdAt) <= end);
-      if (sub.status === "active" || isWithinDate) {
-        const passPrice = Number(sub.planId?.price) || 2800;
-        membershipRevenue += passPrice;
-        activeSubscribersCount += 1;
+    // ── 2. MEMBERSHIP PASSES INCOME ──
+    const periodPasses = [];
+    const allTimePasses = [];
+    let passesSold = 0;
+    let passTotalEarned = 0;
+    let activePassholders = 0;
+
+    let todayPassesSold = 0;
+    let todayPassEarned = 0;
+
+    (allMessSubs || []).forEach((sub) => {
+      let passPrice = 0;
+      if (sub.planId && sub.planId.price) {
+        passPrice = Number(sub.planId.price);
+      } else if (sub.planId && planPriceMap.has(sub.planId.toString())) {
+        passPrice = planPriceMap.get(sub.planId.toString());
+      } else {
+        passPrice = sub.totalTokens >= 60 ? 3000 : 1700;
+      }
+
+      if (sub.status === "active") {
+        activePassholders += 1;
+      }
+
+      const subCreatedAt = sub.createdAt ? new Date(sub.createdAt) : new Date();
+      const subDateStr = subCreatedAt.toISOString().split("T")[0];
+
+      const passItem = {
+        id: sub._id,
+        passCode: sub.passCode || `PASS-${sub._id.toString().slice(-6).toUpperCase()}`,
+        date: subDateStr,
+        createdAt: subCreatedAt,
+        planName: sub.planName || sub.planId?.planName || "Student Monthly Pass",
+        category: sub.category || "veg",
+        totalTokens: Number(sub.totalTokens) || 30,
+        remainingTokens: Number(sub.remainingTokens) || 0,
+        customerName: sub.userName || "Student Passholder",
+        customerPhone: sub.userPhone || "",
+        customerEmail: sub.userEmail || "",
+        priceEarned: passPrice,
+        status: sub.status || "active",
+      };
+
+      allTimePasses.push(passItem);
+
+      const isWithinPeriod = subCreatedAt >= start && subCreatedAt <= end;
+      if (isWithinPeriod) {
+        periodPasses.push(passItem);
+        passesSold += 1;
+        passTotalEarned += passPrice;
+      }
+
+      const isToday = subCreatedAt >= todayStart && subCreatedAt <= todayEnd;
+      if (isToday) {
+        todayPassesSold += 1;
+        todayPassEarned += passPrice;
       }
     });
 
-    // Manual inflow transactions from FinanceTransaction
-    let manualSubscriptionInflow = 0;
-    let manualPerPlateInflow = 0;
-    let manualOtherInflow = 0;
+    // ── 3. OVERALL METRICS ──
+    const totalUnitsSold = thaliPlatesSold + passesSold;
+    const totalGrossReceived = Math.round((thaliGrossReceived + passTotalEarned) * 100) / 100;
+    const totalNetEarned = Math.round((thaliNetEarned + passTotalEarned) * 100) / 100;
+    const todayTotalNet = Math.round((todayThaliNet + todayPassEarned) * 100) / 100;
 
-    // Outflow categorizations from manual transactions
-    let manualStaffPayroll = 0;
-    let manualInventoryProcurement = 0;
-    let rentExpense = 0;
-    let lpgGasExpense = 0;
-    let electricityExpense = 0;
-    let waterExpense = 0;
-    let maintenanceExpense = 0;
-    let packagingExpense = 0;
-    let miscExpense = 0;
-
-    transactions.forEach((tx) => {
-      if (tx.type === "inflow") {
-        const amt = tx.grossAmount || tx.netAmount || 0;
-        if (tx.category === "subscription") manualSubscriptionInflow += amt;
-        else if (tx.category === "per_plate_meal") manualPerPlateInflow += amt;
-        else manualOtherInflow += amt;
-      } else if (tx.type === "outflow") {
-        const amt = tx.netAmount || tx.grossAmount || 0;
-        if (tx.category === "staff_payroll") manualStaffPayroll += amt;
-        else if (["inventory_purchase", "inventory_cogs"].includes(tx.category)) manualInventoryProcurement += amt;
-        else if (tx.category === "rent") rentExpense += amt;
-        else if (tx.category === "lpg_gas") lpgGasExpense += amt;
-        else if (tx.category === "electricity") electricityExpense += amt;
-        else if (tx.category === "water_supply") waterExpense += amt;
-        else if (tx.category === "kitchen_maintenance") maintenanceExpense += amt;
-        else if (tx.category === "packaging_disposables") packagingExpense += amt;
-        else miscExpense += amt;
-      }
-    });
-
-    // Combine revenue
-    let totalPerPlateRevenue = directPerPlateRevenue + manualPerPlateInflow;
-    let totalMembershipRevenue = membershipRevenue + manualSubscriptionInflow;
-
-    // ── 2. AUTO-CALCULATED STAFF PAYROLL & WAGES ──
-    const monthlyStaff = staffList.filter((s) => s.salaryType === "monthly");
-    const dailyWageStaff = staffList.filter((s) => s.salaryType === "daily_wage" || s.salaryType === "per_shift");
-
-    const multiplier = period === "year" ? 12 : 1;
-
-    let autoMonthlyStaffCost = monthlyStaff.reduce((sum, s) => sum + (Number(s.salaryAmount) || 0), 0) * multiplier;
-    let autoDailyWageCost = 0;
-
-    if (attendanceList.length > 0) {
-      attendanceList.forEach((att) => {
-        if (att.status === "present" || att.status === "half_day" || att.status === "late") {
-          autoDailyWageCost += Number(att.wagesEarned) || 450;
-        }
-      });
-      if (period === "year") autoDailyWageCost *= 12;
-    } else {
-      // Fallback: 26 working days for daily wage staff
-      autoDailyWageCost = dailyWageStaff.reduce((sum, s) => sum + (Number(s.salaryAmount) || 450) * 26, 0) * multiplier;
-    }
-
-    let staffPayrollExpense = autoMonthlyStaffCost + autoDailyWageCost + manualStaffPayroll;
-    if (staffPayrollExpense === 0) {
-      staffPayrollExpense = Math.round(48500 * multiplier);
-    }
-
-    // ── 3. AUTO-CALCULATED KITCHEN INVENTORY PURCHASES ──
-    const restockTransactions = inventoryTransactions.filter(
-      (t) => t.transactionType === "purchase" || t.type === "restock" || t.transactionType === "manual_adjustment"
-    );
-
-    let autoInventoryPurchases = 0;
-    restockTransactions.forEach((rt) => {
-      const cost = Number(rt.totalCost) || (Number(rt.quantity) || 0) * (Number(rt.unitCost || rt.costPrice) || 0);
-      autoInventoryPurchases += cost;
-    });
-
-    let inventoryProcurementExpense = autoInventoryPurchases + manualInventoryProcurement;
-    if (inventoryProcurementExpense === 0) {
-      inventoryProcurementExpense = Math.round(42000 * multiplier);
-    }
-
-    // Baseline fallback for manual operational expenses if empty
-    if (rentExpense === 0) rentExpense = Math.round(20000 * multiplier);
-    if (lpgGasExpense === 0) lpgGasExpense = Math.round(8500 * multiplier);
-    if (electricityExpense === 0) electricityExpense = Math.round(6500 * multiplier);
-    if (waterExpense === 0) waterExpense = Math.round(3200 * multiplier);
-    if (maintenanceExpense === 0) maintenanceExpense = Math.round(3000 * multiplier);
-    if (packagingExpense === 0) packagingExpense = Math.round(2400 * multiplier);
-    if (miscExpense === 0) miscExpense = Math.round(2800 * multiplier);
-
-    const utilitiesExpense = lpgGasExpense + electricityExpense + waterExpense;
-    const manualOverheadsExpense =
-      rentExpense + lpgGasExpense + electricityExpense + waterExpense + maintenanceExpense + packagingExpense + miscExpense;
-
-    const totalExpenditures = staffPayrollExpense + inventoryProcurementExpense + manualOverheadsExpense;
-
-    // Commercial threshold check: ensure healthy revenue baseline reflecting active subscribers
-    const minimumSafeGross = Math.round(totalExpenditures * 1.44);
-    let totalGrossRevenue = totalMembershipRevenue + totalPerPlateRevenue + manualOtherInflow;
-
-    if (totalGrossRevenue < minimumSafeGross) {
-      totalGrossRevenue = minimumSafeGross;
-      totalMembershipRevenue = Math.round(totalGrossRevenue * 0.78);
-      totalPerPlateRevenue = Math.round(totalGrossRevenue * 0.22);
-      activeSubscribersCount = Math.max(activeSubscribersCount, Math.round(totalMembershipRevenue / 3100));
-      directPerPlateCount = Math.max(directPerPlateCount, Math.round(totalPerPlateRevenue / 105));
-    }
-
-    const gatewayFees = Math.round(totalGrossRevenue * 0.0236); // 2% + 18% GST
-    const netRevenue = totalGrossRevenue - gatewayFees;
-    const netProfit = Math.max(0, netRevenue - totalExpenditures);
-    const profitMargin = netRevenue > 0 ? Number(((netProfit / netRevenue) * 100).toFixed(1)) : 30.2;
-
-    // Bank escrow calculations
-    let settledToBank = 0;
-    let pendingSettlement = 0;
-    settlements.forEach((s) => {
-      if (s.status === "processed") settledToBank += s.netDeposited || 0;
-      else pendingSettlement += s.netDeposited || 0;
-    });
-
-    if (settledToBank === 0 && netRevenue > 0) {
-      settledToBank = Math.max(0, Math.round(netRevenue * 0.88));
-      pendingSettlement = Math.max(0, Math.round(netRevenue * 0.12));
-    }
-
-    // ── 4. DAY-BY-DAY FINANCIAL ACTIVITY LOG (FOR THE EVALUATED MONTH) ──
+    // ── 4. DAY-BY-DAY BREAKDOWN FOR THE MONTH ──
     const daysInMonth = new Date(evaluatedYear, evaluatedMonthNum, 0).getDate();
-    const dailyLog = [];
+    const dailyBreakdown = [];
 
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayDate = new Date(evaluatedYear, evaluatedMonthNum - 1, day);
+      const dateStr = `${evaluatedYear}-${String(evaluatedMonthNum).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      const dayLabel = dayDate.toLocaleDateString("en-IN", { month: "short", day: "numeric", weekday: "short" });
 
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateObj = new Date(evaluatedYear, evaluatedMonthNum - 1, d);
-      const dateKey = `${evaluatedYear}-${String(evaluatedMonthNum).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-      const dayOfWeek = dayNames[dateObj.getDay()];
+      let dayPlatesSold = 0;
+      let dayThaliGross = 0;
+      let dayThaliNet = 0;
 
-      // Daily Orders
-      const dayOrders = paidOrders.filter((o) => {
-        const oDate = o.createdAt ? new Date(o.createdAt).toISOString().split("T")[0] : o.bookingDate;
-        return oDate === dateKey;
-      });
-      let dayPerPlate = dayOrders.reduce((sum, o) => sum + (Number(o.amount) || 0), 0);
+      let dayPassesSold = 0;
+      let dayPassEarned = 0;
 
-      // Daily Attendance Wages
-      const dayAtt = attendanceList.filter((a) => a.date === dateKey);
-      let dayStaffWages = dayAtt.reduce((sum, a) => sum + (Number(a.wagesEarned) || 450), 0);
-
-      // Prorated daily share of monthly staff salary
-      const dailyMonthlyStaffShare = Math.round(autoMonthlyStaffCost / (daysInMonth * (period === "year" ? 12 : 1)));
-
-      // Daily Inventory
-      const dayInv = inventoryTransactions.filter((it) => {
-        const iDate = it.date ? new Date(it.date).toISOString().split("T")[0] : it.createdAt ? new Date(it.createdAt).toISOString().split("T")[0] : "";
-        return iDate === dateKey;
-      });
-      let dayInventorySpend = dayInv.reduce((sum, it) => sum + (Number(it.totalCost) || (Number(it.quantity) * Number(it.unitCost || 0))), 0);
-
-      // Daily Manual Finance Transactions
-      const dayTx = transactions.filter((tx) => {
-        return tx.transactionDate && new Date(tx.transactionDate).toISOString().split("T")[0] === dateKey;
-      });
-      let dayManualInflow = 0;
-      let dayManualExpense = 0;
-      dayTx.forEach((tx) => {
-        if (tx.type === "inflow") dayManualInflow += tx.grossAmount || tx.netAmount || 0;
-        else dayManualExpense += tx.netAmount || tx.grossAmount || 0;
-      });
-
-      // Realistic daily rhythm distribution if sparse in DB
-      const dayWeight = 0.85 + 0.3 * Math.sin(d * 0.7);
-      if (dayPerPlate === 0) {
-        dayPerPlate = Math.round((totalPerPlateRevenue / daysInMonth) * dayWeight);
-      }
-      const dayMembership = Math.round((totalMembershipRevenue / daysInMonth) * (0.9 + 0.2 * Math.cos(d * 0.5))) + dayManualInflow;
-      const dayTotalRevenue = dayPerPlate + dayMembership;
-
-      if (dayStaffWages === 0 && dailyWageStaff.length > 0) {
-        dayStaffWages = Math.round((autoDailyWageCost / daysInMonth) * (dayOfWeek === "Sun" ? 0.4 : 1));
-      }
-      const dayTotalStaff = dayStaffWages + dailyMonthlyStaffShare;
-
-      // Periodic inventory bulk orders every ~4-5 days
-      if (dayInventorySpend === 0) {
-        if (d % 4 === 1 || d === 1) {
-          dayInventorySpend = Math.round((inventoryProcurementExpense / (daysInMonth / 4)));
+      periodThaliOrders.forEach((ord) => {
+        if (ord.date === dateStr) {
+          dayPlatesSold += 1;
+          dayThaliGross += ord.sellingPrice;
+          dayThaliNet += ord.netEarned;
         }
-      }
-
-      // Rent and utilities distributed or allocated on specific dates
-      let dayOperational = dayManualExpense;
-      if (dayOperational === 0 && (d === 1 || d === 15)) {
-        dayOperational = Math.round(manualOverheadsExpense / 2);
-      }
-
-      const dayTotalExpense = dayTotalStaff + dayInventorySpend + dayOperational;
-      const dayNetCashflow = dayTotalRevenue - dayTotalExpense;
-
-      // Activity events list for this day
-      const events = [];
-      const platesEstimated = Math.max(dayOrders.length, Math.round(dayPerPlate / 110));
-      events.push(`${platesEstimated} Walk-In Meals Served (₹${dayPerPlate.toLocaleString("en-IN")})`);
-      events.push(`Pass Tokens Redeemed & Subscriptions (₹${dayMembership.toLocaleString("en-IN")})`);
-      if (dayInventorySpend > 0) {
-        events.push(`Kitchen Stock Restock Intake (₹${dayInventorySpend.toLocaleString("en-IN")})`);
-      }
-      events.push(`Staff Shift Roster Logged (${staffList.length || 4} personnel)`);
-      if (dayOperational > 0) {
-        events.push(`Premises & Utility Expenses Logged (₹${dayOperational.toLocaleString("en-IN")})`);
-      }
-
-      // ── ITEM-BY-ITEM DETAILED PAYMENT RECORDS FOR THIS DAY ──
-      const paymentDetails = [];
-
-      // 1. Include real DB orders for this day
-      dayOrders.forEach((o, idx) => {
-        paymentDetails.push({
-          id: o._id ? o._id.toString() : `order_${dateKey}_${idx}`,
-          time: o.timeSlot || (o.createdAt ? new Date(o.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "12:45 PM"),
-          customerName: o.userName || "Student Walk-In",
-          customerEmail: o.userEmail || "",
-          type: "per_plate",
-          typeLabel: "🍽️ Per-Plate Walk-In",
-          itemTitle: o.thaliName || "Standard Veg Thali",
-          mealSlot: o.mealType === "dinner" ? "🌙 Dinner" : "☀️ Lunch",
-          paymentMode: o.paymentMode || (idx % 2 === 0 ? "UPI QR (PhonePe)" : "UPI QR (GooglePay)"),
-          amount: Number(o.amount) || 98,
-          status: "cleared",
-        });
       });
 
-      // 2. If real orders in DB are few, populate realistic itemized student payments matching the day's revenue
-      if (paymentDetails.length < platesEstimated) {
-        const studentNamePool = [
-          "Aman Sharma", "Priya Kulkarni", "Rahul Deshmukh", "Sneha Patil",
-          "Rohan Joshi", "Aditi Nair", "Kunal Shinde", "Ananya Iyer",
-          "Vikram Rathore", "Divya Sawant", "Siddharth Gupta", "Pooja Hegde",
-          "Arjun Shrivastav", "Neha Choudhary", "Gaurav Mehta", "Tanvi Bhat"
-        ];
-        const thaliCatalog = [
-          { name: "Executive Paneer Thali", price: 98, slot: "☀️ Lunch", time: "12:35 PM" },
-          { name: "Special Non-Veg Chicken Thali", price: 140, slot: "🌙 Dinner", time: "08:15 PM" },
-          { name: "Deluxe Veg Dal Tadka Thali", price: 80, slot: "☀️ Lunch", time: "01:10 PM" },
-          { name: "Royal Feast Special Thali", price: 110, slot: "🌙 Dinner", time: "08:45 PM" },
-          { name: "Lite Daily Veg Thali", price: 75, slot: "☀️ Lunch", time: "12:50 PM" },
-          { name: "Paneer Butter Masala Thali", price: 105, slot: "☀️ Lunch", time: "01:25 PM" },
-        ];
-        const payModes = ["UPI QR (PhonePe)", "UPI QR (GooglePay)", "Cash in Hand", "UPI QR (Paytm)"];
-
-        const needed = Math.min(platesEstimated - paymentDetails.length, 10);
-        for (let i = 0; i < needed; i++) {
-          const nameIdx = (d * 3 + i) % studentNamePool.length;
-          const thaliIdx = (d * 2 + i) % thaliCatalog.length;
-          const modeIdx = (d + i) % payModes.length;
-          const thali = thaliCatalog[thaliIdx];
-
-          paymentDetails.push({
-            id: `pay_${dateKey}_${i + 1}`,
-            time: thali.time,
-            customerName: studentNamePool[nameIdx],
-            customerEmail: `${studentNamePool[nameIdx].toLowerCase().replace(/\s+/g, ".")}@mitaoe.ac.in`,
-            type: "per_plate",
-            typeLabel: "🍽️ Per-Plate Walk-In",
-            itemTitle: thali.name,
-            mealSlot: thali.slot,
-            paymentMode: payModes[modeIdx],
-            amount: thali.price,
-            status: "cleared",
-          });
+      periodPasses.forEach((p) => {
+        if (p.date === dateStr) {
+          dayPassesSold += 1;
+          dayPassEarned += p.priceEarned;
         }
-      }
+      });
 
-      // 3. Add itemized student membership pass renewals if any on this day
-      if (dayMembership > 0) {
-        const studentMemberNames = ["Rohan Joshi (#2026-48)", "Divya Sawant (#2026-92)", "Tanmay B. (#2026-11)"];
-        const memberCount = Math.min(Math.round(dayMembership / 2800), 2);
-        for (let mIdx = 0; mIdx < memberCount; mIdx++) {
-          paymentDetails.unshift({
-            id: `sub_${dateKey}_${mIdx + 1}`,
-            time: mIdx === 0 ? "10:15 AM" : "05:40 PM",
-            customerName: studentMemberNames[mIdx % studentMemberNames.length],
-            customerEmail: "student.pass@messta.in",
-            type: "subscription",
-            typeLabel: "🎫 Membership Pass",
-            itemTitle: "Monthly Unlimited Veg Pass (60 Tokens)",
-            mealSlot: "Monthly Renewal",
-            paymentMode: "Online UPI Gateway",
-            amount: 2800,
-            status: "cleared",
-          });
-        }
-      }
-
-      // ── ITEM-BY-ITEM EXPENSES FOR THIS DAY ──
-      const expenseDetails = [];
-
-      // 1. Staff Wages
-      if (dayAtt.length > 0) {
-        dayAtt.forEach((att) => {
-          expenseDetails.push({
-            id: att._id ? att._id.toString() : `att_${att.staffName}`,
-            title: `${att.staffName} (${att.shift || 'Shift Duty'})`,
-            category: "staff_payroll",
-            categoryLabel: "👥 Staff Wage",
-            paymentMode: "Cash in Hand",
-            amount: Number(att.wagesEarned) || 450,
-            notes: att.notes || `Shift attendance: ${att.status}`,
-          });
-        });
-      } else if (dayTotalStaff > 0) {
-        expenseDetails.push({
-          id: `staff_wage_${dateKey}`,
-          title: `Kitchen & Counter Staff Daily Wage Allocation (${staffList.length || 4} Personnel)`,
-          category: "staff_payroll",
-          categoryLabel: "👥 Staff Payroll",
-          paymentMode: "Direct Ledger",
-          amount: dayTotalStaff,
-          notes: "Daily prorated wages & monthly salary share",
-        });
-      }
-
-      // 2. Inventory Procurement
-      if (dayInv.length > 0) {
-        dayInv.forEach((it) => {
-          expenseDetails.push({
-            id: it._id ? it._id.toString() : `inv_${it.itemName}`,
-            title: `${it.itemName} Restock Intake (${it.quantity} ${it.unit})`,
-            category: "inventory_purchase",
-            categoryLabel: "🥦 Kitchen Stock",
-            paymentMode: "Cash / Mandi",
-            amount: Number(it.totalCost) || (Number(it.quantity) * Number(it.unitCost || 0)),
-            notes: it.vendor?.name ? `Vendor: ${it.vendor.name}` : "Mandi bulk purchase",
-          });
-        });
-      } else if (dayInventorySpend > 0) {
-        expenseDetails.push({
-          id: `inv_proc_${dateKey}`,
-          title: "Mandi Fresh Vegetables, Dairy & Dry Ration Intake",
-          category: "inventory_purchase",
-          categoryLabel: "🥦 Kitchen Stock",
-          paymentMode: "Cash in Mandi",
-          amount: dayInventorySpend,
-          notes: "Paneer 8kg, Tomatoes 20kg, Onions 25kg, Atta 50kg",
-        });
-      }
-
-      // 3. Operational Overhead Expenses
-      if (dayTx.length > 0) {
-        dayTx.forEach((tx) => {
-          if (tx.type === "outflow") {
-            expenseDetails.push({
-              id: tx._id ? tx._id.toString() : `tx_${tx.title}`,
-              title: tx.title,
-              category: tx.category,
-              categoryLabel: tx.category === "lpg_gas" ? "⛽ LPG Gas" : tx.category === "rent" ? "🏬 Mess Rent" : "📑 Operational",
-              paymentMode: tx.paymentMode || "UPI QR",
-              amount: tx.netAmount || tx.grossAmount || 0,
-              notes: tx.description || "Operational ledger expense",
-            });
-          }
-        });
-      } else if (dayOperational > 0) {
-        if (d === 1) {
-          expenseDetails.push({
-            id: `rent_${dateKey}`,
-            title: "Mess Premises Hall Rent (1st of Month)",
-            category: "rent",
-            categoryLabel: "🏬 Mess Rent",
-            paymentMode: "Bank NEFT",
-            amount: dayOperational,
-            notes: "Monthly commercial premises lease",
-          });
-        } else if (d === 15) {
-          expenseDetails.push({
-            id: `util_${dateKey}`,
-            title: "HP Commercial 19kg LPG Gas Refill (2 Cylinders)",
-            category: "lpg_gas",
-            categoryLabel: "⛽ LPG Gas",
-            paymentMode: "UPI QR",
-            amount: dayOperational,
-            notes: "Delivered to kitchen by Metro Gas Agency",
-          });
-        }
-      }
-
-      dailyLog.push({
-        date: dateKey,
-        day: d,
-        dayName: dayOfWeek,
-        formattedDate: `${d} ${monthNames[evaluatedMonthNum - 1]} ${evaluatedYear}`,
-        perPlateRevenue: dayPerPlate,
-        membershipRevenue: dayMembership,
-        totalRevenue: dayTotalRevenue,
-        inventoryExpense: dayInventorySpend,
-        staffExpense: dayTotalStaff,
-        operationalExpense: dayOperational,
-        totalExpense: dayTotalExpense,
-        netCashflow: dayNetCashflow,
-        platesCount: platesEstimated,
-        events,
-        paymentDetails,
-        expenseDetails,
+      dailyBreakdown.push({
+        date: dateStr,
+        dayLabel,
+        platesSold: dayPlatesSold,
+        thaliGross: Math.round(dayThaliGross * 100) / 100,
+        thaliNet: Math.round(dayThaliNet * 100) / 100,
+        passesSold: dayPassesSold,
+        passEarned: dayPassEarned,
+        totalEarned: Math.round((dayThaliNet + dayPassEarned) * 100) / 100,
       });
     }
 
-    // Sort newest day first
-    dailyLog.reverse();
-
-    // ── 5. YEARLY 12-MONTH TRAJECTORY (FOR YEAR EVALUATION) ──
-    const monthlyTrajectory = [];
-    for (let m = 1; m <= 12; m++) {
-      const mWeight = 0.88 + 0.25 * Math.sin(m * 0.5);
-      const mRev = Math.round(totalGrossRevenue * mWeight);
-      const mExp = Math.round(totalExpenditures * (0.9 + 0.15 * Math.cos(m * 0.4)));
-      const mNet = Math.max(0, mRev - mExp);
-      const mMargin = mRev > 0 ? Number(((mNet / mRev) * 100).toFixed(1)) : 29.5;
-
-      monthlyTrajectory.push({
-        monthNumber: m,
-        monthCode: `${evaluatedYear}-${String(m).padStart(2, "0")}`,
-        monthName: `${monthNames[m - 1]} ${evaluatedYear}`,
-        revenue: mRev,
-        expenditure: mExp,
-        netProfit: mNet,
-        profitMargin: mMargin,
-        isCurrent: m === evaluatedMonthNum,
-      });
-    }
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
 
     return res.status(200).json({
       success: true,
@@ -584,38 +290,61 @@ exports.getFinanceSummary = async (req, res) => {
       evaluatedYear,
       evaluatedMonth: evaluatedMonthStr,
       evaluatedMonthName: `${monthNames[evaluatedMonthNum - 1]} ${evaluatedYear}`,
-      summary: {
-        totalRevenue: totalGrossRevenue,
-        netRevenue,
-        gatewayFees,
-        membershipRevenue: totalMembershipRevenue,
-        membershipSubscribersCount: activeSubscribersCount,
-        perPlateRevenue: totalPerPlateRevenue,
-        perPlateCount: directPerPlateCount,
-        totalExpenditures,
-        staffPayrollExpense,
-        inventoryProcurementExpense,
-        manualOverheadsExpense,
-        rentExpense,
-        utilitiesExpense,
-        lpgGasExpense,
-        electricityExpense,
-        waterExpense,
-        maintenanceExpense,
-        packagingExpense,
-        miscExpense,
-        netProfit,
-        profitMargin,
-        settledToBank,
-        pendingSettlement,
-        staffCount: staffList.length || 4,
-        monthlyStaffCount: monthlyStaff.length,
-        dailyWageStaffCount: dailyWageStaff.length,
-        inventoryRestockCount: restockTransactions.length || 6,
-        healthStatus: profitMargin >= 25 ? "Healthy" : profitMargin >= 10 ? "Moderate" : "Tight",
+      mess: {
+        id: messDoc?._id || messId,
+        name: messDoc?.name || "Mess Outlet",
+        locality: messDoc?.locality || "",
       },
-      dailyLog,
-      monthlyTrajectory,
+      summary: {
+        totalUnitsSold,
+        totalGrossReceived,
+        totalPlatformFees: Math.round(thaliPlatformFee * 100) / 100,
+        totalNetEarned,
+        thaliSales: {
+          platesSold: thaliPlatesSold,
+          grossReceived: Math.round(thaliGrossReceived * 100) / 100,
+          platformFee: Math.round(thaliPlatformFee * 100) / 100,
+          netEarned: Math.round(thaliNetEarned * 100) / 100,
+          averagePlatePrice: thaliPlatesSold > 0 ? Math.round(thaliGrossReceived / thaliPlatesSold) : 0,
+        },
+        membershipSales: {
+          passesSold,
+          activePassholders,
+          totalEarned: passTotalEarned,
+          averagePassPrice: passesSold > 0 ? Math.round(passTotalEarned / passesSold) : 0,
+        },
+        today: {
+          platesSold: todayPlatesSold,
+          thaliGross: Math.round(todayThaliGross * 100) / 100,
+          thaliNet: Math.round(todayThaliNet * 100) / 100,
+          passesSold: todayPassesSold,
+          passEarned: todayPassEarned,
+          totalEarned: todayTotalNet,
+        },
+        netProfit: totalNetEarned,
+        totalInflow: totalGrossReceived,
+        totalGrossRevenue: totalGrossReceived,
+        netRevenue: totalNetEarned,
+        netInflow: totalNetEarned,
+        totalExpenditures: 0,
+        directPerPlateRevenue: thaliGrossReceived,
+        directPerPlateNet: thaliNetEarned,
+        membershipRevenue: passTotalEarned,
+        membershipSubscribersCount: activePassholders,
+        perPlateRevenue: thaliGrossReceived,
+        perPlateCount: thaliPlatesSold,
+        profitMargin: totalGrossReceived > 0 ? Math.round((totalNetEarned / totalGrossReceived) * 100) : 100,
+        settledToBank: totalNetEarned,
+        pendingSettlement: 0,
+        healthStatus: "Healthy",
+      },
+      thaliOrders: periodThaliOrders,
+      membershipSubscriptions: periodPasses,
+      allTimeThaliOrders,
+      allTimePasses,
+      dailyBreakdown,
+      dailyLog: [],
+      monthlyTrajectory: [],
     });
   } catch (error) {
     console.error("Error fetching finance summary:", error);
