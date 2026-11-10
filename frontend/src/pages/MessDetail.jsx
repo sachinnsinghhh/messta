@@ -52,6 +52,63 @@ export default function MessDetail() {
   // Student's active pass status for smart indicator preview
   const [studentPass, setStudentPass] = useState(null);
 
+  // Published Membership Plans for this mess outlet
+  const [messPlans, setMessPlans] = useState([]);
+  const [plansLoading, setPlansLoading] = useState(false);
+
+  // Central Payment & UPI States for purchasing membership pass
+  const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
+  const [membershipUtr, setMembershipUtr] = useState("");
+  const [copiedField, setCopiedField] = useState("");
+  const [submittingPayment, setSubmittingPayment] = useState(false);
+  const [paymentConfig, setPaymentConfig] = useState({
+    centralUpiPhone: "9876543210",
+    centralUpiId: "messta.central@hdfcbank",
+    centralQrImageUrl: "",
+    businessName: "Messta Digital Food Escrow",
+  });
+
+  // Fetch Public Payment Config
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/wallet/public-payment-config`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) {
+          setPaymentConfig({
+            centralUpiPhone: d.centralUpiPhone || "9876543210",
+            centralUpiId: d.centralUpiId || "messta.central@hdfcbank",
+            centralQrImageUrl: d.centralQrImageUrl || "",
+            businessName: d.businessName || "Messta Digital Food Escrow",
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Fetch published membership plans for this mess
+  useEffect(() => {
+    if (!id) return;
+    let ignore = false;
+    async function fetchPlans() {
+      try {
+        setPlansLoading(true);
+        const res = await fetch(`${API_BASE_URL}/api/subscriptions/plans/${id}`);
+        const data = await res.json();
+        if (!ignore && data.success) {
+          setMessPlans(data.data || []);
+        }
+      } catch {
+        // ignore
+      } finally {
+        if (!ignore) setPlansLoading(false);
+      }
+    }
+    fetchPlans();
+    return () => {
+      ignore = true;
+    };
+  }, [id]);
+
   // Fetch Mess details
   useEffect(() => {
     let ignore = false;
@@ -152,6 +209,57 @@ export default function MessDetail() {
     }
     setSelectedThali(thali);
     setIsModalOpen(true);
+  };
+
+  // Handle Pass Purchase Modal Trigger
+  const handleSubscribePlan = (plan) => {
+    if (!currentUser) {
+      navigate("/login", { state: { from: location } });
+      return;
+    }
+    setSelectedPlanForPayment(plan);
+    setMembershipUtr("");
+  };
+
+  // Confirm Pass UPI Payment & Activate Pass
+  const handleConfirmMembershipPayment = async () => {
+    if (!selectedPlanForPayment || !currentUser) return;
+    setSubmittingPayment(true);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/subscriptions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: currentUser.uid,
+          userName: currentUser.displayName || currentUser.email.split("@")[0],
+          userEmail: currentUser.email,
+          userPhone: currentUser.phoneNumber || "+91 98765 43210",
+          messId: id,
+          planId: selectedPlanForPayment._id,
+          planName: selectedPlanForPayment.planName,
+          category: selectedPlanForPayment.category,
+          frequency: selectedPlanForPayment.frequency,
+          mealsPerDay: selectedPlanForPayment.mealsPerDay || 2,
+          totalTokens: selectedPlanForPayment.totalTokens,
+          price: Number(selectedPlanForPayment.price) + 150,
+          utrNumber: membershipUtr,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setStudentPass(data.data);
+        setSelectedPlanForPayment(null);
+        alert(`🎉 Congratulations! Your pass '${selectedPlanForPayment.planName}' is now active with ${selectedPlanForPayment.totalTokens} tokens. View it anytime in the Student Pass vault!`);
+      } else {
+        alert(data.message || "Failed to activate pass.");
+      }
+    } catch {
+      alert("Server error activating pass.");
+    } finally {
+      setSubmittingPayment(false);
+    }
   };
 
   const reloadMess = async () => {
@@ -258,13 +366,13 @@ export default function MessDetail() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Link
-                to={`/membership?messId=${mess._id || mess.id}`}
-                className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-xs transition active:scale-95 flex items-center gap-1.5"
+              <a
+                href="#passes"
+                className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-xs transition active:scale-95 flex items-center gap-1.5 cursor-pointer"
               >
                 <span>🛡️</span>
-                <span>Zero-Waste Monthly Passes</span>
-              </Link>
+                <span>Zero-Waste Monthly Passes ↓</span>
+              </a>
             </div>
           </div>
 
@@ -302,12 +410,12 @@ export default function MessDetail() {
               <p className="text-xs text-emerald-800 leading-relaxed">
                 Pay standard monthly mess rate + flat ₹150. Your tokens never expire when you skip meals or travel home!
               </p>
-              <Link
-                to={`/membership?messId=${mess._id || mess.id}`}
-                className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 hover:text-emerald-900"
+              <a
+                href="#passes"
+                className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 hover:text-emerald-900 cursor-pointer"
               >
-                <span>Browse Monthly Passes →</span>
-              </Link>
+                <span>Browse Monthly Passes ↓</span>
+              </a>
             </div>
           </div>
 
@@ -327,9 +435,17 @@ export default function MessDetail() {
                   </span>
                 </div>
               </div>
-              <span className="text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full border border-emerald-300">
-                Token Pass Enrolled
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full border border-emerald-300">
+                  Token Pass Enrolled
+                </span>
+                <Link
+                  to={`/membership?messId=${mess._id || mess.id}`}
+                  className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-bold uppercase rounded-lg transition flex items-center gap-1 shadow-2xs"
+                >
+                  <span>📱 Pass Vault</span>
+                </Link>
+              </div>
             </div>
           )}
 
@@ -636,6 +752,113 @@ export default function MessDetail() {
 
           </div>
 
+          {/* ═══════════════════════════════════════════════════════════ */}
+          {/* ── PUBLISHED MEMBERSHIP PASSES & DINING PLANS ── */}
+          {/* ═══════════════════════════════════════════════════════════ */}
+          <div id="passes" className="p-6 sm:p-7 rounded-3xl bg-white border border-gray-200/80 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-4">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-1 rounded-md">
+                  Membership Passes
+                </span>
+                <h3 className="text-xl font-black text-gray-900 mt-1">
+                  Choose Your Dining Plan
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Published monthly token passes for <strong className="text-gray-800">{mess.name}</strong>.
+                </p>
+              </div>
+
+              {studentPass && (
+                <Link
+                  to={`/membership?messId=${mess._id || mess.id}`}
+                  className="text-xs font-bold text-orange-600 hover:underline flex items-center gap-1"
+                >
+                  <span>View Pass in Student Vault 📱</span>
+                </Link>
+              )}
+            </div>
+
+            {plansLoading ? (
+              <p className="text-xs text-gray-400 py-8 text-center">Loading passes...</p>
+            ) : messPlans.length === 0 ? (
+              <div className="text-center py-8 space-y-2">
+                <span className="text-3xl">🍲</span>
+                <p className="text-sm font-bold text-gray-700">No Membership Plans Published Yet</p>
+                <p className="text-xs text-gray-400 max-w-sm mx-auto">
+                  The owner has not published any monthly token passes yet. You can still book single-meal advance slots above!
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {messPlans.map((p) => {
+                  const isCurrentActive = studentPass?.planId === p._id && studentPass?.status === "active";
+
+                  return (
+                    <div
+                      key={p._id}
+                      className="p-5 rounded-3xl border border-gray-200 bg-gray-50/50 hover:bg-white hover:border-orange-300 hover:shadow-sm transition-all flex flex-col justify-between space-y-4"
+                    >
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[10px] font-black uppercase px-2.5 py-0.5 bg-orange-100 text-orange-700 rounded-md">
+                                {p.category}
+                              </span>
+                              <span className="text-[9px] font-bold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-md border border-emerald-300">
+                                🛡️ Zero-Waste Token Pass
+                              </span>
+                            </div>
+                            <h4 className="font-black text-base text-gray-900 mt-1">{p.planName}</h4>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xl font-black text-orange-600 block">₹{Number(p.price) + 150}</span>
+                            <span className="text-[9px] text-gray-400 font-semibold block">₹{p.price} mess + ₹150 pass fee</span>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-gray-500 leading-relaxed font-medium">
+                          {p.description || "Comprehensive token package for college students with zero-waste pause protection."}
+                        </p>
+
+                        <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-200/80 text-[10px] text-emerald-900 font-semibold flex items-center gap-1.5">
+                          <span>✨</span>
+                          <span>Never waste money on missed days: tokens never expire!</span>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 text-[10px] font-extrabold pt-1">
+                          <span className="px-2 py-0.5 bg-white border border-gray-200 rounded-md text-gray-700">
+                            {p.frequency}
+                          </span>
+                          <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-md">
+                            {p.totalTokens} Tokens
+                          </span>
+                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md">
+                            ₹{((Number(p.price) + 150) / p.totalTokens).toFixed(0)} / meal
+                          </span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSubscribePlan(p)}
+                        disabled={submittingPayment || isCurrentActive}
+                        className={`w-full py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition shadow-xs cursor-pointer ${
+                          isCurrentActive
+                            ? "bg-emerald-100 text-emerald-800 cursor-default"
+                            : "bg-orange-600 hover:bg-orange-700 text-white active:scale-95"
+                        }`}
+                      >
+                        {isCurrentActive ? "Active Plan Enrolled ✓" : "Purchase Pass & Join"}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
         </div>
 
       {/* ── STEP 3: CHECKOUT MODAL ── */}
@@ -647,6 +870,138 @@ export default function MessDetail() {
           onClose={() => setIsModalOpen(false)}
           onBookingSuccess={reloadMess}
         />
+      )}
+
+      {/* ── CENTRAL UPI QR PAYMENT MODAL FOR MEMBERSHIP PASS ── */}
+      {selectedPlanForPayment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-gray-100 space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div>
+                <span className="text-[10px] font-black uppercase text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
+                  Universal UPI QR Payment
+                </span>
+                <h3 className="font-black text-gray-900 text-base mt-0.5">
+                  Activate Membership Pass
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedPlanForPayment(null)}
+                className="text-gray-400 hover:text-gray-600 text-xs font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Price Box */}
+            <div className="p-4 bg-purple-50/70 rounded-2xl border border-purple-200 text-center space-y-2">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Zero-Waste Pass Total</span>
+              <div className="text-3xl font-black text-purple-900 font-mono">
+                ₹{Number(selectedPlanForPayment.price) + 150}
+              </div>
+              <p className="text-[11px] text-gray-600 font-bold">
+                {selectedPlanForPayment.planName} • {selectedPlanForPayment.totalTokens} Tokens ({selectedPlanForPayment.frequency})
+              </p>
+              <div className="pt-2 border-t border-purple-200/60 text-[10px] text-gray-600 flex justify-between">
+                <span>Mess Monthly Rate: <strong>₹{selectedPlanForPayment.price}</strong></span>
+                <span>Messta Token Guarantee: <strong>₹150</strong></span>
+              </div>
+            </div>
+
+            {/* Central QR Code Display */}
+            <div className="bg-white p-4 rounded-2xl border-2 border-dashed border-gray-200 text-center space-y-2">
+              <span className="text-[11px] font-extrabold text-gray-700 block">
+                Scan Universal Messta UPI QR
+              </span>
+              <div className="flex justify-center">
+                <img
+                  src={
+                    paymentConfig.centralQrImageUrl ||
+                    `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3D${encodeURIComponent(paymentConfig.centralUpiId)}%26pn%3DMessta%2520Escrow%26am%3D${Number(selectedPlanForPayment.price) + 150}%26cu%3DINR%26tn%3DMembership_${selectedPlanForPayment.planName.replace(/\s+/g, "_")}`
+                  }
+                  alt="Messta Central UPI QR"
+                  className="w-44 h-44 rounded-xl border border-gray-200 p-2 bg-white shadow-xs"
+                />
+              </div>
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                GPay • PhonePe • Paytm • BHIM
+              </div>
+            </div>
+
+            {/* UPI Phone Number & ID with Copy Buttons */}
+            <div className="space-y-2 text-xs">
+              <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-gray-400 font-bold uppercase block">UPI Mobile Number</span>
+                  <strong className="text-gray-900 font-mono text-sm">{paymentConfig.centralUpiPhone}</strong>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(paymentConfig.centralUpiPhone);
+                    setCopiedField("phone");
+                    setTimeout(() => setCopiedField(""), 2000);
+                  }}
+                  className="px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 font-bold text-[11px] rounded-lg border border-gray-200 transition cursor-pointer"
+                >
+                  {copiedField === "phone" ? "Copied! ✓" : "Copy Phone 📋"}
+                </button>
+              </div>
+
+              <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-gray-400 font-bold uppercase block">Central UPI ID (VPA)</span>
+                  <strong className="text-gray-900 font-mono text-xs">{paymentConfig.centralUpiId}</strong>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(paymentConfig.centralUpiId);
+                    setCopiedField("upi");
+                    setTimeout(() => setCopiedField(""), 2000);
+                  }}
+                  className="px-2.5 py-1 bg-white hover:bg-gray-100 text-gray-700 font-bold text-[11px] rounded-lg border border-gray-200 transition cursor-pointer"
+                >
+                  {copiedField === "upi" ? "Copied! ✓" : "Copy UPI 📋"}
+                </button>
+              </div>
+            </div>
+
+            {/* UTR Reference input */}
+            <div>
+              <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                UPI Reference / UTR Number (Optional)
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. 428901928312"
+                value={membershipUtr}
+                onChange={(e) => setMembershipUtr(e.target.value)}
+                className="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs font-mono text-gray-900 focus:bg-white focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="button"
+              onClick={handleConfirmMembershipPayment}
+              disabled={submittingPayment}
+              className="w-full py-3.5 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+            >
+              {submittingPayment ? (
+                <>
+                  <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                  <span>Activating Membership Pass...</span>
+                </>
+              ) : (
+                <>
+                  <span>✅ I Have Paid ₹{Number(selectedPlanForPayment.price) + 150} — Activate Pass</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       )}
 
     </div>

@@ -505,7 +505,8 @@ export default function BookingModal({
                     <div className="p-2 bg-white/80 rounded-xl border border-amber-200/80 text-[10px] text-stone-600 flex items-center justify-between">
                       <span>💡 Prefer monthly dining?</span>
                       <a
-                        href={`/membership?messId=${mess._id || mess.id}`}
+                        href={`/mess/${mess._id || mess.id}#passes`}
+                        onClick={onClose}
                         className="font-black text-orange-600 hover:underline"
                       >
                         30-Day Zero-Waste Pass (+₹150) →
