@@ -1,0 +1,24 @@
+{
+  "name": "Messta - Digital Campus Dining",
+  "short_name": "Messta",
+  "description": "Book advance mess thalis, membership passes, and dynamic counter QR tickets.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ea580c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/messta-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/messta-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

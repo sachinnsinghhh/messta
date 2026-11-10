@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import { shareTicketToWhatsApp, downloadOfflineTicketImage } from "../utils/ticketDownloader";
 
 /**
  * DynamicQRModal: Unified Dynamic QR Display for:
@@ -191,6 +192,47 @@ export default function DynamicQRModal({
                 ID: {String(data.subscriptionId || data.orderId || "").slice(-6).toUpperCase()}
               </span>
             </div>
+          </div>
+
+          {/* Quick Offline Actions: WhatsApp & Save to Phone */}
+          <div className="w-full flex items-center justify-center gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() =>
+                shareTicketToWhatsApp({
+                  messName: data.messName,
+                  thaliName: data.thaliName,
+                  mealType: data.mealType,
+                  timeSlot: data.timeSlot,
+                  bookingDate: data.bookingDate,
+                  token: displayToken,
+                  amount: data.amount,
+                })
+              }
+              className="flex-1 py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-2xs"
+            >
+              <span>💬</span>
+              <span>WhatsApp</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                downloadOfflineTicketImage({
+                  messName: data.messName,
+                  thaliName: data.thaliName,
+                  mealType: data.mealType,
+                  timeSlot: data.timeSlot,
+                  bookingDate: data.bookingDate,
+                  token: displayToken,
+                  amount: data.amount,
+                })
+              }
+              className="flex-1 py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-2xs"
+            >
+              <span>💾</span>
+              <span>Save Pass</span>
+            </button>
           </div>
 
         </div>

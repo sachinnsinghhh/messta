@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import DynamicQRModal from "../components/DynamicQRModal";
+import { shareTicketToWhatsApp, downloadOfflineTicketImage } from "../utils/ticketDownloader";
 
 export default function UserProfile() {
   const { currentUser } = useAuth();
@@ -202,11 +203,54 @@ export default function UserProfile() {
                               },
                             })
                           }
-                          className="px-4 py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold uppercase tracking-wider rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 mx-auto active:scale-95 cursor-pointer"
+                          className="px-4 py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold uppercase tracking-wider rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 mx-auto active:scale-95 cursor-pointer w-full"
                         >
                           <span>📱</span>
                           <span>Show QR Ticket</span>
                         </button>
+
+                        {/* Quick Offline Actions: WhatsApp & Save to Phone */}
+                        <div className="flex items-center justify-center gap-2 pt-1 border-t border-orange-200/50">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              shareTicketToWhatsApp({
+                                messName: token.messName,
+                                thaliName: token.thaliName,
+                                mealType: token.mealType,
+                                timeSlot: effectiveTimeSlot,
+                                bookingDate: token.bookingDate,
+                                token: token.token,
+                                amount: token.amount,
+                              })
+                            }
+                            className="flex-1 py-1.5 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+                            title="Share ticket to your WhatsApp chat"
+                          >
+                            <span>💬</span>
+                            <span>WhatsApp</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              downloadOfflineTicketImage({
+                                messName: token.messName,
+                                thaliName: token.thaliName,
+                                mealType: token.mealType,
+                                timeSlot: effectiveTimeSlot,
+                                bookingDate: token.bookingDate,
+                                token: token.token,
+                                amount: token.amount,
+                              })
+                            }
+                            className="flex-1 py-1.5 px-2 bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+                            title="Save offline meal pass to your phone gallery"
+                          >
+                            <span>💾</span>
+                            <span>Save Pass</span>
+                          </button>
+                        </div>
                       </div>
 
                       <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
