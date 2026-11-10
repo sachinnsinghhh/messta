@@ -2,6 +2,7 @@ import { API_BASE_URL } from "../config/api";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/useAuth";
 import DynamicQRModal from "./DynamicQRModal";
+import PhonePeUpiModal from "./PhonePeUpiModal";
 
 export default function BookingModal({
   mess,
@@ -29,6 +30,8 @@ export default function BookingModal({
   const [errorMsg, setErrorMsg] = useState("");
   const [confirmedBooking, setConfirmedBooking] = useState(null);
   const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [phonePeModalOpen, setPhonePeModalOpen] = useState(false);
+  const [phonePeBookingData, setPhonePeBookingData] = useState(null);
 
   // Helper to dynamically load Razorpay Checkout SDK
   const loadRazorpayScript = () => {
@@ -199,76 +202,26 @@ export default function BookingModal({
         return;
       }
 
-      // Scenario 2: Direct Online Payment -> Seamless Zomato/Blinkit Gateway Flow
+      // Scenario 2: Direct Online Payment -> Automated PhonePe UPI Intent Flow
       if (data.bookingType === "direct_payment") {
-        const loaded = await loadRazorpayScript();
-        if (!loaded) {
-          throw new Error("Unable to load secure payment gateway. Please check your internet connection.");
-        }
-
-        const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_placeholder",
-          amount: data.amount * 100,
-          currency: "INR",
-          name: "Messta Dining",
-          description: `${thaliName} (${selectedMeal.toUpperCase()}) - ${mess.name}`,
-          order_id: data.orderId && !data.orderId.startsWith("order_mock_") ? data.orderId : undefined,
-          prefill: {
-            name: currentUser?.displayName || currentUser?.email?.split("@")[0] || "Student",
-            email: currentUser?.email || "",
-          },
-          theme: { color: "#ea580c" },
-          handler: async (response) => {
-            try {
-              setActionLoading(true);
-              const verifyRes = await fetch(`${API_BASE_URL}/api/orders/verify-payment`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  razorpay_order_id: response.razorpay_order_id || data.orderId,
-                  razorpay_payment_id: response.razorpay_payment_id || `pay_${Date.now()}`,
-                  razorpay_signature: response.razorpay_signature || "rzp_gateway_verified",
-                  dbOrderId: data.dbOrderId,
-                  paymentMethod: "razorpay",
-                }),
-              });
-
-              const vData = await verifyRes.json();
-              if (vData.success) {
-                setConfirmedBooking({
-                  bookingType: "per_plate",
-                  token: data.token,
-                  orderId: data.dbOrderId,
-                  messName: mess.name,
-                  mealType: `${selectedMeal.toUpperCase()} (${slotWindow})`,
-                  thaliName,
-                  bookingDate: targetDate,
-                  amount: data.amount,
-                });
-                if (onBookingSuccess) onBookingSuccess();
-              } else {
-                setErrorMsg(vData.message || "Payment verification failed.");
-              }
-            } catch (err) {
-              setErrorMsg(err.message || "Server error verifying payment.");
-            } finally {
-              setActionLoading(false);
-            }
-          },
-          modal: {
-            ondismiss: () => {
-              setActionLoading(false);
-            },
-          },
-        };
-
-        try {
-          const rzp = new window.Razorpay(options);
-          rzp.open();
-        } catch {
-          setActionLoading(false);
-          setErrorMsg("Could not open payment window. Please check your browser pop-up permissions.");
-        }
+        setPhonePeBookingData({
+          bookingType: "per_plate",
+          messId: mess._id || mess.id,
+          mealType: selectedMeal,
+          timeSlot: slotWindow,
+          thaliName,
+          thaliCategory: selectedThali?.category || "Veg",
+          bookingDate: targetDate,
+          amount: data.amount || thaliPrice,
+          userId: currentUser?.uid,
+          userName: currentUser?.displayName || currentUser?.email?.split("@")[0] || "Student",
+          userEmail: currentUser?.email,
+          userPhone: currentUser?.phoneNumber || "",
+          title: `${thaliName} (${selectedMeal.toUpperCase()}) - ${mess.name}`,
+        });
+        setPhonePeModalOpen(true);
+        setActionLoading(false);
+        return;
       }
     } catch (err) {
       setErrorMsg(err.message || "Server error completing reservation.");
@@ -588,6 +541,28 @@ export default function BookingModal({
           onClose={() => setQrModalOpen(false)}
           type={confirmedBooking.bookingType}
           data={confirmedBooking}
+        />
+      )}
+
+      {/* Automated PhonePe UPI Intent Modal */}
+      {phonePeModalOpen && (
+        <PhonePeUpiModal
+          isOpen={phonePeModalOpen}
+          onClose={() => setPhonePeModalOpen(false)}
+          bookingDetails={phonePeBookingData}
+          onPaymentSuccess={(confirmed) => {
+            setConfirmedBooking({
+              bookingType: "per_plate",
+              token: confirmed.token,
+              messName: mess.name,
+              mealType: `${selectedMeal.toUpperCase()} (${slotWindow})`,
+              thaliName,
+              bookingDate: targetDate,
+              amount: confirmed.amount || thaliPrice,
+            });
+            setPhonePeModalOpen(false);
+            if (onBookingSuccess) onBookingSuccess();
+          }}
         />
       )}
     </>

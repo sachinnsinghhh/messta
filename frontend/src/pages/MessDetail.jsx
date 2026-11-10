@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import BookingModal from "../components/bookingmodal";
+import PhonePeUpiModal from "../components/PhonePeUpiModal";
 
 const DEFAULT_SPREADS = [
   {
@@ -58,6 +59,8 @@ export default function MessDetail() {
 
   // Central Payment & UPI States for purchasing membership pass
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
+  const [phonePePassModalOpen, setPhonePePassModalOpen] = useState(false);
+  const [phonePePassData, setPhonePePassData] = useState(null);
   const [membershipUtr, setMembershipUtr] = useState("");
   const [copiedField, setCopiedField] = useState("");
   const [submittingPayment, setSubmittingPayment] = useState(false);
@@ -211,14 +214,29 @@ export default function MessDetail() {
     setIsModalOpen(true);
   };
 
-  // Handle Pass Purchase Modal Trigger
+  // Handle Pass Purchase Modal Trigger (Automated PhonePe UPI Flow)
   const handleSubscribePlan = (plan) => {
     if (!currentUser) {
       navigate("/login", { state: { from: location } });
       return;
     }
-    setSelectedPlanForPayment(plan);
-    setMembershipUtr("");
+    setPhonePePassData({
+      bookingType: "membership_pass",
+      messId: id,
+      planId: plan._id,
+      planName: plan.planName,
+      category: plan.category,
+      frequency: plan.frequency,
+      mealsPerDay: plan.mealsPerDay || 2,
+      totalTokens: plan.totalTokens,
+      amount: Number(plan.price) + 150,
+      userId: currentUser.uid,
+      userName: currentUser.displayName || currentUser.email.split("@")[0],
+      userEmail: currentUser.email,
+      userPhone: currentUser.phoneNumber || "+91 98765 43210",
+      title: `${plan.planName} (${plan.totalTokens} Tokens) - ${mess?.name}`,
+    });
+    setPhonePePassModalOpen(true);
   };
 
   // Confirm Pass UPI Payment & Activate Pass
@@ -811,6 +829,20 @@ export default function MessDetail() {
           selectedThali={selectedThali}
           onClose={() => setIsModalOpen(false)}
           onBookingSuccess={reloadMess}
+        />
+      )}
+
+      {/* ── AUTOMATED PHONEPE UPI GATEWAY MODAL FOR PASSES ── */}
+      {phonePePassModalOpen && (
+        <PhonePeUpiModal
+          isOpen={phonePePassModalOpen}
+          onClose={() => setPhonePePassModalOpen(false)}
+          bookingDetails={phonePePassData}
+          onPaymentSuccess={() => {
+            setPhonePePassModalOpen(false);
+            reloadMess();
+            alert(`🎉 Congratulations! Your pass '${phonePePassData?.planName}' is now active with ${phonePePassData?.totalTokens} tokens. View it anytime in the Student Pass vault!`);
+          }}
         />
       )}
 

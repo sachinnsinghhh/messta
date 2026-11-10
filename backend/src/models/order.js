@@ -72,7 +72,7 @@ const orderSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["token_pass", "razorpay", "upi_qr", "cash"],
+      enum: ["token_pass", "razorpay", "upi_qr", "cash", "phonepe_upi"],
       default: "token_pass",
     },
     utrNumber: {

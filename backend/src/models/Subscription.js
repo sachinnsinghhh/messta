@@ -42,10 +42,17 @@ const subscriptionSchema = new mongoose.Schema(
     // Status & Community Membership
     status: {
       type: String,
-      enum: ["active", "exhausted", "paused", "cancelled"],
+      enum: ["active", "pending_payment", "exhausted", "paused", "cancelled"],
       default: "active",
       index: true,
     },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "failed"],
+      default: "paid",
+    },
+    amountPaid: { type: Number, default: 0 },
+    merchantTransactionId: { type: String, default: null, index: true },
     isCommunityMember: { type: Boolean, default: true },
 
     // Daily Slot Bookings Log (Tracks when tokens are redeemed & served at counter)
