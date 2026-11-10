@@ -135,26 +135,6 @@ export default function Navbar() {
                   >
                     FSSAI Verifications
                   </Link>
-                  <Link
-                    to="/owner"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      isActive("/owner") || location.pathname.startsWith("/owner/")
-                        ? "bg-orange-600 text-white shadow-xs"
-                        : "text-gray-600 hover:text-orange-700 hover:bg-orange-50"
-                    }`}
-                  >
-                    Partner Portal
-                  </Link>
-                  <Link
-                    to="/mess"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      isActive("/mess")
-                        ? "bg-purple-100 text-purple-900 font-semibold"
-                        : "text-gray-600 hover:text-purple-700 hover:bg-purple-50"
-                    }`}
-                  >
-                    All Outlets
-                  </Link>
                 </>
               ) : (
                 <>
@@ -311,20 +291,6 @@ export default function Navbar() {
                 className="text-sm font-medium text-gray-700 py-1.5"
               >
                 FSSAI Verifications
-              </Link>
-              <Link
-                to="/owner"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-medium text-orange-700 py-1.5"
-              >
-                Partner Portal
-              </Link>
-              <Link
-                to="/mess"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-medium text-gray-700 py-1.5"
-              >
-                All Outlets
               </Link>
             </div>
           ) : (
