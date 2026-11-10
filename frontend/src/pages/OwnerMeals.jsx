@@ -1540,16 +1540,9 @@ export default function OwnerMeals() {
 
             {/* Advance Per-Plate Price (Auto-Calculated Live) */}
             <div className="p-4 bg-orange-50/70 rounded-2xl border border-orange-200/80 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-black uppercase text-gray-900 tracking-wider block">
-                  Advance Per-Plate Price
-                </span>
-                <span className="text-[11px] text-gray-500 font-medium">
-                  {benchmarkDetails.isStandalone
-                    ? `Standard ${mealCategory} default`
-                    : `Auto-calculated from lowest linked plan (+30%)`}
-                </span>
-              </div>
+              <span className="text-xs font-black uppercase text-gray-900 tracking-wider">
+                Advance Per-Plate Price
+              </span>
               <div className="flex items-baseline gap-1 bg-white px-4 py-2 rounded-xl border border-orange-200 shadow-2xs">
                 <span className="text-2xl font-black text-orange-600 font-mono">₹{sellingPrice}</span>
                 <span className="text-xs text-gray-500 font-bold">/thali</span>
