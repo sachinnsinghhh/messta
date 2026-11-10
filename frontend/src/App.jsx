@@ -12,6 +12,7 @@ import OwnerMemberships from "./pages/OwnerMemberships";
 import OwnerFinance from "./pages/OwnerFinance";
 import AdminVerification from "./pages/AdminVerification";
 import SuperAdminFinance from "./pages/SuperAdminFinance";
+import PaymentStatus from "./pages/PaymentStatus";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/useAuth";
@@ -60,6 +61,9 @@ export default function App() {
 
             {/* Login & Portal Identity Selection Screen */}
             <Route path="/login" element={<Login />} />
+
+            {/* PhonePe UPI Redirect / Payment Status Page */}
+            <Route path="/payment-status" element={<PaymentStatus />} />
 
             {/* ── STUDENT FRAMEWORK ROUTES ── */}
             <Route
