@@ -22,6 +22,11 @@ export default function BookingModal({
   const tomorrowObj = new Date();
   tomorrowObj.setDate(tomorrowObj.getDate() + 1);
   const tomorrowStr = formatDateString(tomorrowObj);
+  const formattedTomorrow = tomorrowObj.toLocaleDateString("en-IN", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
 
   const targetDate = tomorrowStr; // Strictly Tomorrow-Only Advance Booking
   const [activeSub, setActiveSub] = useState(null);
@@ -92,6 +97,40 @@ export default function BookingModal({
     selectedTimeSlot?.timeWindow ||
     mess?.mealSpreads?.find((s) => s.id === selectedMeal)?.timing ||
     (selectedMeal === "lunch" ? "11:30 AM – 02:30 PM" : "07:00 PM – 10:30 PM");
+
+  // Meal Spread Details & Closing Window Calculations
+  const currentSpread = mess?.mealSpreads?.find((s) => s.id === selectedMeal);
+  const spreadName = currentSpread?.name || (selectedMeal === "lunch" ? "Lunch Spread" : "Dinner Spread");
+  const diningTiming = selectedTimeSlot?.timeWindow || currentSpread?.timing || slotWindow;
+
+  const advanceConfig = mess?.advanceBookingConfig || {};
+  const lunchCutOffTime = advanceConfig.lunchCutOffTime || "22:00";
+  const dinnerCutOffTime = advanceConfig.dinnerCutOffTime || "14:00";
+
+  const formatTime12h = (time24) => {
+    if (!time24) return "10:00 PM";
+    const [h, m] = String(time24).split(":").map(Number);
+    const period = h >= 12 ? "PM" : "AM";
+    const hours12 = h % 12 || 12;
+    const minutes = isNaN(m) ? "00" : m < 10 ? `0${m}` : m;
+    return `${hours12}:${minutes} ${period}`;
+  };
+
+  const closingDeadlineStr =
+    selectedMeal === "lunch"
+      ? `${formatTime12h(lunchCutOffTime)} Tonight`
+      : advanceConfig.dinnerCutOffDay === "previous_night"
+      ? `${formatTime12h(dinnerCutOffTime)} Tonight`
+      : `${formatTime12h(dinnerCutOffTime)} Tomorrow Afternoon`;
+
+  const thaliComposition =
+    selectedThali?.description ||
+    (Array.isArray(selectedThali?.items)
+      ? selectedThali.items
+          .map((i) => (typeof i === "object" ? i.name : i))
+          .filter(Boolean)
+          .join(" • ")
+      : "");
 
   let isTokenMatch = false;
   let matchBadge = "";
@@ -326,88 +365,82 @@ export default function BookingModal({
                 </div>
               )}
 
-              {/* Selected Slot & Thali Summary */}
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-3 text-xs">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[10px] text-gray-400 font-bold uppercase block">
-                      {mess.name}
+              {/* ── 1. MEAL SPREAD & DINING SCHEDULE CARD ── */}
+              <div className="bg-gradient-to-br from-stone-50 via-orange-50/20 to-amber-50/30 rounded-2xl border border-stone-200 p-4 space-y-3">
+                {/* Header: Outlet, Spread badge & Price */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 px-2 py-0.5 rounded-md">
+                        {spreadName}
+                      </span>
+                      <span className="text-[10px] font-bold text-stone-500">
+                        at {mess.name}
+                      </span>
+                    </div>
+                    <h4 className="text-base font-black text-stone-900 tracking-tight">
+                      {thaliName}
+                    </h4>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-2xl font-black text-stone-900 block font-mono">
+                      ₹{thaliPrice}
                     </span>
-                    <h4 className="font-black text-gray-900 text-sm">{thaliName}</h4>
-                    <span className="text-[10px] font-black uppercase text-orange-600 bg-orange-100 px-2 py-0.5 rounded">
-                      {selectedThali?.category || "Veg"} • {selectedMeal.toUpperCase()}
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded border border-emerald-200">
+                      {selectedThali?.category || "Veg"}
                     </span>
                   </div>
-                  <span className="text-xl font-black text-gray-900">₹{thaliPrice}</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-gray-200">
-                  <div>
-                    <span className="text-gray-400 font-bold block uppercase text-[9px]">Dining Window</span>
-                    <span className="font-extrabold text-gray-800">{slotWindow}</span>
+                {/* Dining Timing & Service Window */}
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-stone-200/70 text-xs">
+                  <div className="bg-white/90 p-2.5 rounded-xl border border-stone-200/60">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 block">
+                      📅 Reserved For
+                    </span>
+                    <span className="font-black text-stone-900 text-xs block mt-0.5">
+                      Tomorrow ({formattedTomorrow})
+                    </span>
                   </div>
-                  <div>
-                    <span className="text-gray-400 font-bold block uppercase text-[9px]">Dietary Tier</span>
-                    <span className="font-bold text-gray-800">{selectedThali?.category || "Standard"}</span>
+                  <div className="bg-white/90 p-2.5 rounded-xl border border-stone-200/60">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 block">
+                      🍽️ Serving Hours
+                    </span>
+                    <span className="font-extrabold text-stone-900 text-xs block mt-0.5">
+                      {diningTiming}
+                    </span>
                   </div>
                 </div>
+
+                {/* Thali Menu Composition / Included Dishes */}
+                {thaliComposition && (
+                  <div className="bg-white/90 p-2.5 rounded-xl border border-stone-200/60 space-y-1">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 block">
+                      🥘 Included In This Spread
+                    </span>
+                    <p className="text-[11px] text-stone-700 font-medium leading-relaxed">
+                      {thaliComposition}
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {/* Advance Booking Window & Cut-off Notice */}
-              <div className="space-y-2">
+              {/* ── 2. BOOKING DEADLINE & CLOSING WINDOW ── */}
+              <div className="p-3 bg-gradient-to-r from-purple-50 via-indigo-50/60 to-purple-50 rounded-2xl border border-purple-200/80 text-xs space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="block text-[10px] font-black text-gray-500 uppercase tracking-wider">
-                    Advance Reservation Window
-                  </label>
-                  <span className="text-[10px] font-black text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">
-                    Strict 1-Day Advance Policy
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-purple-900">
+                      Booking Window Open
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-extrabold text-purple-700 bg-white px-2.5 py-0.5 rounded-full border border-purple-200 shadow-2xs">
+                    Closes: {closingDeadlineStr}
                   </span>
                 </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  {/* Today: Closed */}
-                  <div className="p-2.5 rounded-xl border border-dashed border-gray-200 bg-gray-100/70 text-gray-400 text-left cursor-not-allowed">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold line-through">Today ({todayStr})</span>
-                      <span className="text-[9px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">
-                        Closed
-                      </span>
-                    </div>
-                    <span className="text-[9px] text-gray-400 block mt-0.5 leading-tight">
-                      Kitchen rations locked yesterday
-                    </span>
-                  </div>
-
-                  {/* Tomorrow: Open */}
-                  <div className="p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/80 text-emerald-950 text-left shadow-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-black">Tomorrow ({tomorrowStr})</span>
-                      <span className="text-[9px] font-black text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">
-                        Open ✓
-                      </span>
-                    </div>
-                    <span className="text-[9px] text-emerald-700 font-bold block mt-0.5 leading-tight">
-                      Guaranteed kitchen prep seat
-                    </span>
-                  </div>
-                </div>
-
-                {/* Real-Time Cut-Off Alert Banner */}
-                <div className="p-2.5 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 text-purple-950 flex items-center justify-between text-[11px]">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base">⏰</span>
-                    <div>
-                      <strong className="font-extrabold text-purple-900 block text-[11px]">
-                        {selectedMeal === "lunch" ? "Lunch Cut-Off: 10:00 PM Tonight" : "Dinner Cut-Off: 2:00 PM Tomorrow"}
-                      </strong>
-                      <span className="text-[10px] text-purple-700">
-                        {selectedMeal === "lunch"
-                          ? "Must book before 10:00 PM tonight so vegetables and rations are bought."
-                          : "Must book before 2:00 PM tomorrow so evening courses are prepared."}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                <p className="text-[11px] text-purple-900/80 leading-relaxed pt-0.5">
+                  Kitchen locks meal prep count at <strong>{closingDeadlineStr}</strong> to source fresh rations with zero food waste.
+                </p>
               </div>
 
               {/* ── SMART DECISION ENGINE BANNER (SCENARIO 1 vs SCENARIO 2) ── */}
