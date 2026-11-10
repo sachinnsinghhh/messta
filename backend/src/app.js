@@ -9,6 +9,7 @@ const staffRoutes = require("./routes/staffroutes");
 const financeRoutes = require("./routes/financeroutes");
 const walletRoutes = require("./routes/walletroutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
@@ -33,5 +34,6 @@ app.use("/api/staff", staffRoutes);
 app.use("/api/finance", financeRoutes);
 app.use("/api/wallet", walletRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 module.exports = app;

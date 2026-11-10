@@ -5,6 +5,11 @@ import { useAuth } from "../context/useAuth";
 import DynamicQRModal from "../components/DynamicQRModal";
 import PhoneVerificationModal from "../components/PhoneVerificationModal";
 import { shareTicketToWhatsApp, downloadOfflineTicketImage } from "../utils/ticketDownloader";
+import {
+  isPushNotificationSupported,
+  registerPushSubscription,
+  sendTestPushNotification,
+} from "../utils/pushManager";
 
 export default function UserProfile() {
   const { currentUser } = useAuth();
@@ -14,6 +19,43 @@ export default function UserProfile() {
   const [qrModal, setQrModal] = useState({ isOpen: false, data: null });
   const [userPhone, setUserPhone] = useState(() => localStorage.getItem("messta_user_phone") || "");
   const [showPhoneModal, setShowPhoneModal] = useState(false);
+
+  const [pushStatus, setPushStatus] = useState(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      return Notification.permission;
+    }
+    return "unsupported";
+  });
+  const [pushTesting, setPushTesting] = useState(false);
+  const [pushMsg, setPushMsg] = useState("");
+
+  const handleEnablePush = async () => {
+    if (!currentUser?.uid) return;
+    setPushTesting(true);
+    const res = await registerPushSubscription(currentUser.uid, currentUser.email, "user");
+    if (res.success) {
+      setPushStatus("granted");
+      setPushMsg("✓ Lockscreen alerts enabled!");
+      setTimeout(() => setPushMsg(""), 3500);
+    } else {
+      setPushMsg(res.message || "Could not enable push.");
+      setTimeout(() => setPushMsg(""), 3500);
+    }
+    setPushTesting(false);
+  };
+
+  const handleTestPush = async () => {
+    if (!currentUser?.uid) return;
+    setPushTesting(true);
+    const res = await sendTestPushNotification(currentUser.uid);
+    if (res.success) {
+      setPushMsg("✓ Sent! Check your lockscreen / notifications.");
+    } else {
+      setPushMsg(res.message || "Failed to trigger test alert.");
+    }
+    setTimeout(() => setPushMsg(""), 4000);
+    setPushTesting(false);
+  };
 
   useEffect(() => {
     const fetchUserOrders = async () => {
@@ -78,6 +120,41 @@ export default function UserProfile() {
                 >
                   <span>⚠️ Link WhatsApp Number</span>
                 </button>
+              )}
+
+              {/* Push Notification Alert Badge & Test Action */}
+              {isPushNotificationSupported() && (
+                <>
+                  {pushStatus === "granted" ? (
+                    <div className="flex items-center gap-1.5 bg-blue-50 text-blue-800 px-2.5 py-0.5 rounded-full border border-blue-200 text-[10px] font-black uppercase tracking-wider">
+                      <span>🔔 Alerts: Active ✓</span>
+                      <button
+                        type="button"
+                        disabled={pushTesting}
+                        onClick={handleTestPush}
+                        className="underline hover:text-blue-950 font-bold ml-1 cursor-pointer disabled:opacity-50"
+                        title="Click to dispatch a live test notification to this device"
+                      >
+                        {pushTesting ? "Testing..." : "Test Push"}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={pushTesting}
+                      onClick={handleEnablePush}
+                      className="text-[10px] font-black uppercase tracking-wider bg-amber-50 hover:bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full border border-amber-300 transition cursor-pointer flex items-center gap-1"
+                    >
+                      <span>🔔 {pushTesting ? "Enabling..." : "Enable Lockscreen Alerts"}</span>
+                    </button>
+                  )}
+                </>
+              )}
+
+              {pushMsg && (
+                <span className="text-[10px] font-bold text-stone-700 bg-stone-100 px-2 py-0.5 rounded-md animate-pulse">
+                  {pushMsg}
+                </span>
               )}
             </div>
           </div>

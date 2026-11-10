@@ -6,6 +6,7 @@ const Mess = require("../models/mess");
 const MessPlan = require("../models/MessPlan");
 const AdminProfile = require("../models/AdminProfile");
 const { creditPartnerWallet } = require("./walletcontroller");
+const { sendInstantBookingPush } = require("./notificationController");
 
 // Helper to generate a 4-character pickup token (e.g., MESSTA-7A8B)
 const generateToken = () => {
@@ -53,6 +54,14 @@ const finalizePaymentSuccess = async ({ merchantTransactionId, paymentId, utrNum
     order.verifiedBy = "PhonePe PG (Auto Webhook)";
     await order.save();
 
+    // Trigger instant lockscreen push notification to student
+    sendInstantBookingPush({
+      userId: order.userId,
+      messName: order.messName,
+      mealType: order.mealType,
+      token: order.token,
+    }).catch(() => {});
+
     // Decrement available slots on mess
     const slotKey = order.mealType === "lunch" ? "availableSlots.lunch" : "availableSlots.dinner";
     await Mess.findByIdAndUpdate(order.messId, { $inc: { [slotKey]: -1 } }).catch(() => {});
@@ -95,6 +104,14 @@ const finalizePaymentSuccess = async ({ merchantTransactionId, paymentId, utrNum
     sub.paymentStatus = "paid";
     sub.status = "active";
     await sub.save();
+
+    // Trigger instant lockscreen push notification to student
+    sendInstantBookingPush({
+      userId: sub.userId,
+      messName: sub.userName || "Your Mess",
+      mealType: sub.planName || "Monthly Pass",
+      token: sub.passCode,
+    }).catch(() => {});
 
     // Escrow ledger automatic split (100% of Base Mess Plan to Mess Partner, ₹150 Flat Guarantee Fee to Messta)
     try {
