@@ -765,8 +765,14 @@ exports.getMasterAdminOverview = async (req, res) => {
 
     const { period = "month" } = req.query;
 
-    // Fetch all entities from database
-    let messes = await Mess.find().lean();
+    const [messes, orders, subscriptions, payouts, messPlans] = await Promise.all([
+      Mess.find().lean().catch(() => []),
+      Order.find({ paymentStatus: { $nin: ["failed", "cancelled"] } }).lean().catch(() => []),
+      Subscription.find().populate("planId").lean().catch(() => []),
+      SettlementPayout.find().lean().catch(() => []),
+      MessPlan.find().lean().catch(() => []),
+    ]);
+
     if (!messes || messes.length === 0) {
       return res.status(200).json({
         success: true,
@@ -778,11 +784,13 @@ exports.getMasterAdminOverview = async (req, res) => {
           membershipCommissionTotal: 0,
           totalMealsServedToday: 0,
           totalMealsServedAllTime: 0,
-          totalExpendituresAcrossMess: 0,
+          totalPayableToOwners: 0,
+          totalSettledToMessBanks: 0,
           pendingSettlementLiability: 0,
           partnerMessesCount: 0,
           activeSubscriptionsCount: 0,
-          systemHealthScore: 100,
+          totalThalisSold: 0,
+          totalPassesSold: 0,
         },
         partnerMesses: [],
         regionalHubs: [],
@@ -790,114 +798,97 @@ exports.getMasterAdminOverview = async (req, res) => {
       });
     }
 
-    const [orders, subscriptions, transactions, payouts] = await Promise.all([
-      Order.find().lean().catch(() => []),
-      Subscription.find().lean().catch(() => []),
-      FinanceTransaction.find().lean().catch(() => []),
-      SettlementPayout.find().lean().catch(() => []),
-    ]);
+    // Build plan price map
+    const planPriceMap = new Map();
+    (messPlans || []).forEach((p) => {
+      planPriceMap.set(p._id.toString(), Number(p.price) || 0);
+    });
+
+    const todayDateStr = new Date().toISOString().split("T")[0];
 
     let macroGMV = 0;
-    let macroCommission = 0;
-    let macroPerPlateComm = 0;
-    let macroMembershipComm = 0;
+    let macroPlatformCommission = 0;
+    let macroThaliCommission = 0;
+    let macroPassCommission = 0;
     let macroMealsToday = 0;
     let macroMealsAllTime = 0;
-    let macroTotalExpenditures = 0;
+    let macroTotalPayableToOwners = 0;
+    let macroTotalSettled = 0;
     let macroPendingSettlement = 0;
+    let macroTotalThalisSold = 0;
+    let macroTotalPassesSold = 0;
 
-    const partnerMesses = messes.map((m, index) => {
+    const partnerMesses = messes.map((m) => {
       const messIdStr = (m._id || m.id).toString();
 
-      // Filter recorded items
+      // Mess specific orders & passes
       const messOrders = orders.filter((o) => o.messId && o.messId.toString() === messIdStr);
       const messSubs = subscriptions.filter((s) => s.messId && s.messId.toString() === messIdStr);
-      const messTxs = transactions.filter((t) => t.messId && t.messId.toString() === messIdStr);
       const messPayouts = payouts.filter((p) => p.messId && p.messId.toString() === messIdStr);
 
-      const capacity = m.seatingCapacity || 40;
-      const price = m.pricePerMeal || 80;
+      // 1. Daily Thali Sales (Single plates)
+      const directThaliOrders = messOrders.filter((o) => o.bookingType !== "membership_token");
+      const thalisSold = directThaliOrders.length;
+      const thaliGross = directThaliOrders.reduce((sum, o) => sum + (Number(o.amount) || 0), 0);
+      const thaliCommission = Math.round(thaliGross * 0.05 * 100) / 100; // 5% Messta platform fee
+      const thaliOwnerPayout = Math.round((thaliGross - thaliCommission) * 100) / 100; // 95% net to mess
 
-      // Real recorded financial figures from database
-      const activeMembers = messSubs.filter((s) => s.status === "active").length;
-      const membershipRevenue = messSubs.reduce(
-        (sum, s) => sum + (Number(s.amountPaid) || Number(s.price) || 0),
-        0
-      );
+      // 2. Membership Pass Sales
+      const passesSold = messSubs.length;
+      let passGrossCollected = 0;
+      let passOwnerPayout = 0;
+      let passCommission = 0;
+      let activePassholders = 0;
 
-      const totalPlatesRedeemed = messOrders.filter(
-        (o) => o.tokenStatus === "redeemed" || o.status === "redeemed"
-      ).length;
+      messSubs.forEach((sub) => {
+        if (sub.status === "active") activePassholders += 1;
+        let baseMessRate = 0;
+        if (sub.planId && sub.planId.price) {
+          baseMessRate = Number(sub.planId.price);
+        } else if (sub.planId && planPriceMap.has(sub.planId.toString())) {
+          baseMessRate = planPriceMap.get(sub.planId.toString());
+        } else {
+          baseMessRate = Number(sub.price) || (sub.totalTokens >= 60 ? 3000 : 1700);
+        }
 
-      const perPlateRevenue = messOrders.reduce(
-        (sum, o) => sum + (Number(o.amount) || Number(o.totalPrice) || 0),
-        0
-      );
+        const studentTotalPaid = baseMessRate + 150; // Base mess rate + ₹150 flat Zero-Waste guarantee fee
+        passGrossCollected += studentTotalPaid;
+        passOwnerPayout += baseMessRate; // 100% of base mess rate retained by mess
+        passCommission += 150; // ₹150 flat fee retained by Messta
+      });
 
-      const grossRevenue = membershipRevenue + perPlateRevenue;
+      // Mess Totals
+      const messGMV = Math.round((thaliGross + passGrossCollected) * 100) / 100;
+      const messPlatformCommission = Math.round((thaliCommission + passCommission) * 100) / 100;
+      const messNetDueToOwner = Math.round((thaliOwnerPayout + passOwnerPayout) * 100) / 100;
+
+      // Settlements
+      const settledAmount = messPayouts
+        .filter((p) => p.status === "processed")
+        .reduce((sum, p) => sum + (Number(p.netDeposited) || Number(p.grossAmount) || 0), 0);
+
+      const pendingPayout = Math.max(0, Math.round((messNetDueToOwner - settledAmount) * 100) / 100);
+
+      // Today's velocity
       const todayOrders = messOrders.filter((o) => {
         const d = o.bookingDate || (o.createdAt ? new Date(o.createdAt).toISOString().split("T")[0] : "");
-        return d === new Date().toISOString().split("T")[0];
+        return d === todayDateStr;
       });
-      const todayRevenue = todayOrders.reduce((sum, o) => sum + (Number(o.amount) || 0), 0);
-
-      // Operating expenses recorded in finance
-      const recordedExpenses = messTxs
-        .filter((t) => t.type === "outflow")
-        .reduce((sum, t) => sum + (t.netAmount || t.grossAmount || 0), 0);
-
-      const inventoryCOGS = messTxs
-        .filter((t) => t.type === "outflow" && t.category === "inventory_purchase")
-        .reduce((sum, t) => sum + (t.netAmount || 0), 0);
-      const staffPayroll = messTxs
-        .filter((t) => t.type === "outflow" && t.category === "staff_salary")
-        .reduce((sum, t) => sum + (t.netAmount || 0), 0);
-      const utilitiesRent = recordedExpenses - (inventoryCOGS + staffPayroll);
-      const operatingExpenses = recordedExpenses;
-
-      const netProfit = Math.max(0, grossRevenue - operatingExpenses);
-      const profitMargin = grossRevenue > 0 ? Number(((netProfit / grossRevenue) * 100).toFixed(1)) : 0;
-
-      // Exact Messta Commission Rules:
-      // 1. Advance Per-Plate: (Plate Price × 0.05) i.e. 5% platform fee
-      const perPlateCommission = Math.round(perPlateRevenue * 0.05 * 100) / 100;
-
-      // 2. Zero-Waste Membership: Flat ₹150 Token Guarantee Fee per pass
-      const membershipCommission = messSubs.length * 150;
-
-      const platformCommission = perPlateCommission + membershipCommission;
-
-      // Settlement
-      const recordedSettled = messPayouts
-        .filter((p) => p.status === "processed")
-        .reduce((sum, p) => sum + (p.netDeposited || p.grossAmount || 0), 0);
-
-      const netDueToOwner = Math.max(0, grossRevenue - platformCommission);
-      const settledAmount = recordedSettled;
-      const pendingPayout = Math.max(0, netDueToOwner - settledAmount);
-
-      // Meals today
       const mealsToday = todayOrders.length;
+      const totalMealsAllTime = messOrders.length;
 
-      // Anomaly detection
-      let anomalyAlert = { status: "normal", code: "HEALTHY", message: "Normal operational velocity" };
-      if (index === 2) {
-        anomalyAlert = {
-          status: "warning",
-          code: "SCAN_VELOCITY_SPIKE",
-          message: "⚠️ 42 QR redemptions logged within 3 minutes during lunch rush.",
-        };
-      }
-
-      // Roll up to macro sums
-      macroGMV += grossRevenue;
-      macroCommission += platformCommission;
-      macroPerPlateComm += perPlateCommission;
-      macroMembershipComm += membershipCommission;
+      // Roll up to platform macro metrics
+      macroGMV += messGMV;
+      macroPlatformCommission += messPlatformCommission;
+      macroThaliCommission += thaliCommission;
+      macroPassCommission += passCommission;
       macroMealsToday += mealsToday;
-      macroMealsAllTime += totalPlatesRedeemed;
-      macroTotalExpenditures += operatingExpenses;
+      macroMealsAllTime += totalMealsAllTime;
+      macroTotalPayableToOwners += messNetDueToOwner;
+      macroTotalSettled += settledAmount;
       macroPendingSettlement += pendingPayout;
+      macroTotalThalisSold += thalisSold;
+      macroTotalPassesSold += passesSold;
 
       return {
         messId: messIdStr,
@@ -910,54 +901,46 @@ exports.getMasterAdminOverview = async (req, res) => {
         verificationStatus: m.verificationStatus || "verified",
         isOpen: m.isOpen !== false,
         imageUrl: m.imageUrl || "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600",
-        pricePerMeal: price,
-        seatingCapacity: capacity,
+        pricePerMeal: m.pricePerMeal || 75,
+        seatingCapacity: m.seatingCapacity || 40,
 
-        // Earnings & Revenue
-        grossRevenue,
-        membershipRevenue,
-        perPlateRevenue,
-        todayRevenue,
-        monthRevenue: grossRevenue,
-
-        // Operating Costs & Margins
-        operatingExpenses,
-        inventoryCOGS,
-        staffPayroll,
-        utilitiesRent,
-        netProfit,
-        profitMargin,
-
-        // Volume & Traffic
-        totalTokensServed: totalPlatesRedeemed,
+        // Sales & Volume
+        thalisSold,
+        passesSold,
+        activeMembershipsCount: activePassholders,
         mealsToday,
-        activeMembershipsCount: activeMembers,
+        totalTokensServed: totalMealsAllTime,
 
-        // Messta Platform Revenue (Your Earnings)
-        platformCommission,
-        perPlateCommission,
-        membershipCommission,
-        totalMembershipTokens,
-        commissionTier: "Tokens × ₹1 + 4% Plate",
-        netDueToOwner,
+        // Gross GMV & Revenue breakdown
+        grossRevenue: messGMV,
+        thaliRevenue: thaliGross,
+        membershipRevenue: passGrossCollected,
 
-        // Payout & Settlement
+        // Messta Commission (Admin Earnings)
+        platformCommission: messPlatformCommission,
+        perPlateCommission: thaliCommission,
+        membershipCommission: passCommission,
+        commissionTier: "5% on Thalis + ₹150 Flat per Pass",
+
+        // Mess Owner Net Earnings
+        netDueToOwner: messNetDueToOwner,
+        thaliNetOwner: thaliOwnerPayout,
+        passNetOwner: passOwnerPayout,
+
+        // Payouts & Settlements
         settledAmount,
         pendingPayout,
         bankDetails: {
           accountHolderName: m.bankDetails?.accountHolderName || m.name,
           bankName: m.bankDetails?.bankName || "HDFC Bank",
           accountNumber: m.bankDetails?.accountNumber ? `••••${m.bankDetails.accountNumber.slice(-4)}` : "••••4821",
+          rawAccountNumber: m.bankDetails?.accountNumber || "",
           ifscCode: m.bankDetails?.ifscCode || "HDFC0001029",
           upiId: m.bankDetails?.upiId || `${m.name.toLowerCase().replace(/[^a-z0-9]/g, "")}@hdfcbank`,
         },
-
-        // Security / Anomaly
-        anomalyAlert,
       };
     });
 
-    // Sort by gross revenue descending
     partnerMesses.sort((a, b) => b.grossRevenue - a.grossRevenue);
 
     // Regional Locality Hubs
@@ -983,36 +966,25 @@ exports.getMasterAdminOverview = async (req, res) => {
 
     const regionalHubs = Object.values(localityMap).sort((a, b) => b.totalGMV - a.totalGMV);
 
-    // Generate recent billing statements
-    const billingStatements = partnerMesses.slice(0, 5).map((p, idx) => ({
-      statementId: `INV-2026-W${42 - idx}-${p.messId.slice(-4)}`,
-      messName: p.name,
-      locality: p.locality,
-      billingCycle: "Current Weekly Cycle",
-      platesProcessed: Math.round(p.totalTokensServed / 4),
-      grossTurnover: Math.round(p.grossRevenue / 4),
-      platformFeeDeducted: Math.round(p.platformCommission / 4),
-      netDisbursed: Math.round((p.grossRevenue - p.platformCommission) / 4),
-      status: idx === 0 ? "Pending Payout" : "Settled to Bank",
-    }));
-
     return res.status(200).json({
       success: true,
       period,
       macroMetrics: {
-        totalGMV: macroGMV,
-        netPlatformRevenue: macroCommission,
-        perPlateCommissionTotal: macroPerPlateComm,
-        membershipCommissionTotal: macroMembershipComm,
-        activePartnerCount: messes.length,
+        totalGMV: Math.round(macroGMV * 100) / 100,
+        netPlatformRevenue: Math.round(macroPlatformCommission * 100) / 100,
+        perPlateCommissionTotal: Math.round(macroThaliCommission * 100) / 100,
+        membershipCommissionTotal: Math.round(macroPassCommission * 100) / 100,
+        totalPayableToOwners: Math.round(macroTotalPayableToOwners * 100) / 100,
+        totalSettledToMessBanks: Math.round(macroTotalSettled * 100) / 100,
+        pendingSettlementLiability: Math.round(macroPendingSettlement * 100) / 100,
+        partnerMessesCount: messes.length,
         networkMealsToday: macroMealsToday,
         networkMealsAllTime: macroMealsAllTime,
-        totalMessExpenditures: macroTotalExpenditures,
-        totalPendingSettlement: macroPendingSettlement,
+        totalThalisSold: macroTotalThalisSold,
+        totalPassesSold: macroTotalPassesSold,
       },
       partnerMesses,
       regionalHubs,
-      billingStatements,
     });
   } catch (error) {
     console.error("Error generating master admin financial overview:", error);
