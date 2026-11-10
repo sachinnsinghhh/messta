@@ -1395,81 +1395,8 @@ export default function OwnerMeals() {
               />
             </div>
 
-            {/* 3. Publishing Channels (Option to publish in membership plans and/or separate thali) */}
-            <div className="p-4 bg-gray-50/80 rounded-2xl border border-gray-200 space-y-3">
-              <div>
-                <label className="block text-xs font-black uppercase text-gray-900 tracking-wider">
-                  Publishing Channels & Accessibility
-                </label>
-                <p className="text-[11px] text-gray-500">
-                  Choose where and how students can buy or redeem this meal.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Channel A: Standalone / Walk-In Purchase */}
-                <label
-                  className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-start gap-3 select-none ${
-                    allowDirectPurchase
-                      ? "bg-white border-orange-500 shadow-xs ring-2 ring-orange-500/20"
-                      : "bg-white/60 border-gray-200 opacity-70"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={allowDirectPurchase}
-                    onChange={(e) => setAllowDirectPurchase(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded text-orange-600 focus:ring-orange-500 border-gray-300"
-                  />
-                  <div className="space-y-0.5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-extrabold text-xs text-gray-900">
-                        🛍️ Separate Thali (Walk-In)
-                      </span>
-                      <span className="text-[10px] font-black text-orange-600 bg-orange-100 px-1.5 py-0.5 rounded">
-                        ₹{sellingPrice}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-gray-500 leading-tight">
-                      Available for any non-member student to order directly via UPI QR or at counter.
-                    </p>
-                  </div>
-                </label>
-
-                {/* Channel B: Membership Plan Meal */}
-                <label
-                  className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-start gap-3 select-none ${
-                    allowMembershipRedemption
-                      ? "bg-white border-emerald-500 shadow-xs ring-2 ring-emerald-500/20"
-                      : "bg-white/60 border-gray-200 opacity-70"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={allowMembershipRedemption}
-                    onChange={(e) => setAllowMembershipRedemption(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500 border-gray-300"
-                  />
-                  <div className="space-y-0.5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-extrabold text-xs text-gray-900">
-                        🎟️ In Membership Plans
-                      </span>
-                      <span className="text-[10px] font-black text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
-                        1 Token
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-gray-500 leading-tight">
-                      Subscribers can redeem this thali natively using 1 Membership Token (₹0 extra).
-                    </p>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {/* 4. Step C: Eligible Membership Plans Mapping (Visible when Membership Channel is Active) */}
-            {allowMembershipRedemption && (
-              <div className="p-5 bg-gradient-to-br from-orange-50/80 via-amber-50/50 to-orange-50/30 rounded-3xl border-2 border-orange-200/90 shadow-xs space-y-4 animate-in fade-in duration-150">
+            {/* 3. Membership Mapping: Eligible Membership Plans & Passes */}
+            <div className="p-5 bg-gradient-to-br from-orange-50/80 via-amber-50/50 to-orange-50/30 rounded-3xl border-2 border-orange-200/90 shadow-xs space-y-4 animate-in fade-in duration-150">
                 
                 {/* Header Bar */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-orange-200/60 pb-3">
@@ -1620,7 +1547,6 @@ export default function OwnerMeals() {
                   )}
                 </div>
               </div>
-            )}
 
             {/* Price & Dynamic Pricing Assistant */}
             <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
