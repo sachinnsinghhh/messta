@@ -130,69 +130,94 @@ export default function UserProfile() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {activeTokens.map((token) => (
-                  <div
-                    key={token._id}
-                    className="bg-white rounded-3xl border-2 border-orange-200 p-6 shadow-xs relative overflow-hidden flex flex-col justify-between space-y-4"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-black text-gray-900 text-lg">
-                          {token.messName}
-                        </h3>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          Slot: <strong className="text-orange-600 uppercase font-bold">{token.mealType}</strong> • Date: <strong className="text-gray-700">{token.bookingDate}</strong>
-                        </p>
+                {activeTokens.map((token) => {
+                  const effectiveTimeSlot =
+                    token.timeSlot ||
+                    (token.mealType?.toLowerCase() === "lunch"
+                      ? "11:30 AM – 02:30 PM"
+                      : "07:00 PM – 10:30 PM");
+
+                  return (
+                    <div
+                      key={token._id}
+                      className="bg-white rounded-3xl border-2 border-orange-200 p-6 shadow-xs relative overflow-hidden flex flex-col justify-between space-y-4"
+                    >
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">
+                            {token.messName}
+                          </span>
+                          <h3 className="font-black text-gray-900 text-lg leading-tight">
+                            {token.thaliName || "Standard Daily Thali"}
+                          </h3>
+
+                          {/* Meal Spread & Time Slot */}
+                          <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                            <span className="text-[10px] font-black uppercase text-orange-700 bg-orange-100 px-2 py-0.5 rounded-md">
+                              {token.mealType} Spread
+                            </span>
+                            <span className="text-xs font-black text-stone-800 bg-stone-100 px-2 py-0.5 rounded-md flex items-center gap-1 border border-stone-200/60">
+                              <span>⏰</span>
+                              <span>{effectiveTimeSlot}</span>
+                            </span>
+                          </div>
+
+                          <p className="text-[11px] text-gray-500 pt-0.5">
+                            📅 Reserved Date: <strong className="text-gray-800">{token.bookingDate}</strong>
+                          </p>
+                        </div>
+
+                        <span className="text-[9px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 shrink-0">
+                          Paid & Ready
+                        </span>
                       </div>
 
-                      <span className="text-[9px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">
-                        Paid & Ready
-                      </span>
-                    </div>
+                      {/* Counter Token Box with Dynamic QR Trigger */}
+                      <div className="p-4 bg-orange-50/80 border border-dashed border-orange-300 rounded-2xl text-center space-y-2.5">
+                        <span className="text-[10px] uppercase font-black text-orange-600 tracking-wider block">
+                          Counter Token Code
+                        </span>
+                        <span className="text-3xl font-mono font-black tracking-widest text-gray-900 block">
+                          {token.token}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setQrModal({
+                              isOpen: true,
+                              data: {
+                                token: token.token,
+                                orderId: token._id,
+                                messId: token.messId,
+                                messName: token.messName,
+                                userId: token.userId,
+                                userName: token.userName,
+                                mealType: token.mealType,
+                                timeSlot: effectiveTimeSlot,
+                                thaliName: token.thaliName || "Standard Daily Thali",
+                                bookingDate: token.bookingDate,
+                                amount: token.amount,
+                                tokenStatus: token.tokenStatus,
+                                paymentStatus: token.paymentStatus,
+                              },
+                            })
+                          }
+                          className="px-4 py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold uppercase tracking-wider rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 mx-auto active:scale-95 cursor-pointer"
+                        >
+                          <span>📱</span>
+                          <span>Show QR Ticket</span>
+                        </button>
+                      </div>
 
-                    {/* Counter Token Box with Dynamic QR Trigger */}
-                    <div className="p-4 bg-orange-50/80 border border-dashed border-orange-300 rounded-2xl text-center space-y-2.5">
-                      <span className="text-[10px] uppercase font-black text-orange-600 tracking-wider block">
-                        Counter Token Code
-                      </span>
-                      <span className="text-3xl font-mono font-black tracking-widest text-gray-900 block">
-                        {token.token}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setQrModal({
-                            isOpen: true,
-                            data: {
-                              token: token.token,
-                              orderId: token._id,
-                              messId: token.messId,
-                              messName: token.messName,
-                              userId: token.userId,
-                              userName: token.userName,
-                              mealType: token.mealType,
-                              bookingDate: token.bookingDate,
-                              amount: token.amount,
-                              tokenStatus: token.tokenStatus,
-                              paymentStatus: token.paymentStatus,
-                            },
-                          })
-                        }
-                        className="px-4 py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold uppercase tracking-wider rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 mx-auto active:scale-95"
-                      >
-                        <span>📱</span>
-                        <span>Show QR Ticket</span>
-                      </button>
+                      <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+                        <span>Total Amount: <strong>₹{token.amount}</strong></span>
+                        <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px]">
+                          ● Verified Slot
+                        </span>
+                      </div>
                     </div>
-
-                    <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
-                      <span>Total Amount: <strong>₹{token.amount}</strong></span>
-                      <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px]">
-                        ● Verified Slot
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -227,9 +252,19 @@ export default function UserProfile() {
                     <tbody className="divide-y divide-gray-100">
                       {pastOrders.map((ord) => (
                         <tr key={ord._id} className="hover:bg-gray-50/50">
-                          <td className="py-3.5 px-4 font-bold text-gray-900">{ord.messName}</td>
-                          <td className="py-3.5 px-4 uppercase text-orange-600 font-bold">{ord.mealType}</td>
-                          <td className="py-3.5 px-4">{ord.bookingDate}</td>
+                          <td className="py-3.5 px-4 font-bold text-gray-900">
+                            {ord.messName}
+                            {ord.thaliName && (
+                              <span className="block text-[10px] text-gray-400 font-medium">{ord.thaliName}</span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="font-black uppercase text-orange-600 block">{ord.mealType}</span>
+                            <span className="text-[10px] text-gray-600 font-semibold block mt-0.5">
+                              ⏰ {ord.timeSlot || (ord.mealType?.toLowerCase() === "lunch" ? "11:30 AM – 02:30 PM" : "07:00 PM – 10:30 PM")}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 font-medium">{ord.bookingDate}</td>
                           <td className="py-3.5 px-4 font-bold text-gray-900">₹{ord.amount}</td>
                           <td className="py-3.5 px-4 font-mono font-bold text-gray-800">{ord.token}</td>
                           <td className="py-3.5 px-4 text-right">

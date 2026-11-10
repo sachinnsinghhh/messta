@@ -100,7 +100,7 @@ export default function DynamicQRModal({
             <p className="text-xs text-white/80">
               {isMembership 
                 ? `${data.category || "Veg"} • ${data.frequency || "Daily Slots"}` 
-                : `Slot: ${data.mealType || "Standard"} • ${data.bookingDate || "Today"}`}
+                : `${(data.mealType || "Lunch").toUpperCase()} Spread • ⏰ ${data.timeSlot || "11:30 AM – 02:30 PM"} • 📅 ${data.bookingDate || "Today"}`}
             </p>
           </div>
 

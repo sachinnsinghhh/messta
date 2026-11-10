@@ -303,11 +303,19 @@ export default function BookingModal({
                   {confirmedBooking.token}
                 </span>
 
-                <div className="pt-2 border-t border-orange-200/60 text-xs text-gray-700 space-y-0.5">
+                <div className="pt-2 border-t border-orange-200/60 text-xs text-gray-700 space-y-1">
                   <p className="font-extrabold text-gray-900">{confirmedBooking.thaliName}</p>
-                  <p className="text-[11px] text-gray-600">
-                    Slot: <strong className="text-orange-600 uppercase">{confirmedBooking.mealType}</strong> • Date: <strong>{confirmedBooking.bookingDate}</strong>
-                  </p>
+                  <div className="flex items-center justify-center gap-2 flex-wrap text-[11px] pt-0.5">
+                    <span className="font-black text-orange-700 uppercase bg-orange-100 px-2 py-0.5 rounded">
+                      {confirmedBooking.mealType} Spread
+                    </span>
+                    <span className="font-bold text-stone-800 bg-stone-100 px-2 py-0.5 rounded flex items-center gap-1 border border-stone-200">
+                      ⏰ {confirmedBooking.timeSlot || slotWindow}
+                    </span>
+                    <span className="text-stone-600 font-medium">
+                      📅 {confirmedBooking.bookingDate}
+                    </span>
+                  </div>
                   {confirmedBooking.remainingTokens !== undefined && (
                     <p className="text-[10px] text-emerald-700 font-bold pt-1">
                       Token Balance: {confirmedBooking.remainingTokens} remaining
@@ -537,7 +545,8 @@ export default function BookingModal({
               bookingType: "per_plate",
               token: confirmed.token,
               messName: mess.name,
-              mealType: `${selectedMeal.toUpperCase()} (${slotWindow})`,
+              mealType: selectedMeal.toUpperCase(),
+              timeSlot: slotWindow,
               thaliName,
               bookingDate: targetDate,
               amount: confirmed.amount || thaliPrice,
