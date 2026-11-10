@@ -10,8 +10,8 @@ export default function OwnerFinance() {
   const [evalPeriod, setEvalPeriod] = useState("month");
   const [selectedMonth, setSelectedMonth] = useState(() => new Date().toISOString().slice(0, 7)); // e.g. "2026-11"
 
-  // Active Tab: "thalis" | "passes" | "daily"
-  const [activeTab, setActiveTab] = useState("thalis");
+  // Active Tab: default to "daily" so the user immediately sees the Day-by-Day breakdown
+  const [activeTab, setActiveTab] = useState("daily"); // "daily" | "thalis" | "passes"
 
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -91,7 +91,8 @@ export default function OwnerFinance() {
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const matchToken = order.token?.toLowerCase().includes(q);
-        const matchCustomer = order.customerName?.toLowerCase().includes(q) || order.customerEmail?.toLowerCase().includes(q);
+        const matchCustomer =
+          order.customerName?.toLowerCase().includes(q) || order.customerEmail?.toLowerCase().includes(q);
         const matchThali = order.thaliName?.toLowerCase().includes(q);
         if (!matchToken && !matchCustomer && !matchThali) return false;
       }
@@ -239,94 +240,78 @@ export default function OwnerFinance() {
         </div>
       </div>
 
-      {/* ── TOP 4 SALES & EARNINGS STAT CARDS ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ── TOP STAT CARDS: THALI SOLD & MONEY RECEIVED | PASS SOLD & MONEY RECEIVED | TOTAL NET EARNING ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-        {/* Card 1: Total Take-Home Earned */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-xs relative overflow-hidden flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs text-stone-500 font-semibold mb-2">
-            <span>TOTAL TAKE-HOME</span>
-            <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
-              Net Earnings
+        {/* Card 1: Thali Sold & Money Received */}
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs relative overflow-hidden flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs text-stone-500 font-bold uppercase tracking-wider mb-2">
+            <span>Thali Sold & Money Received</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200 text-[11px] font-bold">
+              Daily Thalis
+            </span>
+          </div>
+          <div>
+            <div className="text-3xl font-black text-stone-900 tracking-tight">
+              {summary?.thaliSales?.platesSold || 0} <span className="text-lg font-bold text-stone-500">thalis sold</span>
+            </div>
+            <div className="mt-2 text-sm font-semibold text-stone-600 flex items-baseline gap-1.5">
+              <span>Money Received:</span>
+              <span className="text-xl font-black text-emerald-600">
+                ₹{Number(summary?.thaliSales?.netEarned || 0).toLocaleString("en-IN")}
+              </span>
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-medium">
+            <span>Gross: ₹{Number(summary?.thaliSales?.grossReceived || 0).toLocaleString("en-IN")}</span>
+            <span>95% net payout (5% Messta fee)</span>
+          </div>
+        </div>
+
+        {/* Card 2: Pass Sold & Money Received */}
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs relative overflow-hidden flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs text-stone-500 font-bold uppercase tracking-wider mb-2">
+            <span>Pass Sold & Money Received</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-bold">
+              Membership Passes
+            </span>
+          </div>
+          <div>
+            <div className="text-3xl font-black text-stone-900 tracking-tight">
+              {summary?.membershipSales?.passesSold || 0} <span className="text-lg font-bold text-stone-500">passes sold</span>
+            </div>
+            <div className="mt-2 text-sm font-semibold text-stone-600 flex items-baseline gap-1.5">
+              <span>Money Received:</span>
+              <span className="text-xl font-black text-emerald-600">
+                ₹{Number(summary?.membershipSales?.totalEarned || 0).toLocaleString("en-IN")}
+              </span>
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-medium">
+            <span>Active passholders: {summary?.membershipSales?.activePassholders || 0} students</span>
+            <span>100% mess rate retained</span>
+          </div>
+        </div>
+
+        {/* Card 3: Total Net Earning */}
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs relative overflow-hidden flex flex-col justify-between">
+          <div className="flex items-center justify-between text-xs text-stone-500 font-bold uppercase tracking-wider mb-2">
+            <span>Total Net Earning</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
+              Net Take-Home
             </span>
           </div>
           <div>
             <div className="text-3xl font-black text-emerald-600 tracking-tight">
               ₹{Number(summary?.totalNetEarned || 0).toLocaleString("en-IN")}
             </div>
-            <div className="text-xs text-stone-500 mt-1 font-medium">
-              Gross Received: <span className="font-bold text-stone-800">₹{Number(summary?.totalGrossReceived || 0).toLocaleString("en-IN")}</span>
+            <div className="mt-2 text-xs font-medium text-stone-500">
+              Total sales: <span className="font-bold text-stone-800">{summary?.totalUnitsSold || 0} units</span> (thalis + passes)
             </div>
           </div>
-          <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
-            <span>Total Units Sold:</span>
-            <span className="font-bold text-stone-800">{summary?.totalUnitsSold || 0} (plates + passes)</span>
-          </div>
-        </div>
-
-        {/* Card 2: Daily Thali Sales */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-xs relative overflow-hidden flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs text-stone-500 font-semibold mb-2">
-            <span>DAILY THALI SALES</span>
-            <span className="px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200 text-[11px] font-bold">
-              95% Payout
-            </span>
-          </div>
-          <div>
-            <div className="text-3xl font-black text-stone-900 tracking-tight">
-              {summary?.thaliSales?.platesSold || 0} <span className="text-base font-bold text-stone-500">plates</span>
-            </div>
-            <div className="text-xs text-stone-500 mt-1 font-medium">
-              Received: <span className="font-bold text-stone-800">₹{Number(summary?.thaliSales?.grossReceived || 0).toLocaleString("en-IN")}</span>
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
-            <span>Net Earned:</span>
-            <span className="font-bold text-emerald-600">₹{Number(summary?.thaliSales?.netEarned || 0).toLocaleString("en-IN")}</span>
-          </div>
-        </div>
-
-        {/* Card 3: Membership Pass Income */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-xs relative overflow-hidden flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs text-stone-500 font-semibold mb-2">
-            <span>MEMBERSHIP PASSES</span>
-            <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-bold">
-              100% Retained
-            </span>
-          </div>
-          <div>
-            <div className="text-3xl font-black text-stone-900 tracking-tight">
-              {summary?.membershipSales?.passesSold || 0} <span className="text-base font-bold text-stone-500">passes</span>
-            </div>
-            <div className="text-xs text-stone-500 mt-1 font-medium">
-              Income Earned: <span className="font-bold text-emerald-600">₹{Number(summary?.membershipSales?.totalEarned || 0).toLocaleString("en-IN")}</span>
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
-            <span>Active Passholders:</span>
-            <span className="font-bold text-stone-800">{summary?.membershipSales?.activePassholders || 0} students</span>
-          </div>
-        </div>
-
-        {/* Card 4: Today's Live Sales */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-xs relative overflow-hidden flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs text-stone-500 font-semibold mb-2">
-            <span>TODAY'S LIVE SALES</span>
-            <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold">
-              Today
-            </span>
-          </div>
-          <div>
-            <div className="text-3xl font-black text-stone-900 tracking-tight">
-              ₹{Number(summary?.today?.totalEarned || 0).toLocaleString("en-IN")}
-            </div>
-            <div className="text-xs text-stone-500 mt-1 font-medium">
-              Plates: <span className="font-bold text-stone-800">{summary?.today?.platesSold || 0} sold</span> (₹{summary?.today?.thaliNet || 0})
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
-            <span>Passes Today:</span>
-            <span className="font-bold text-stone-800">{summary?.today?.passesSold || 0} passes (₹{summary?.today?.passEarned || 0})</span>
+          <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-medium">
+            <span>Gross collected: ₹{Number(summary?.totalGrossReceived || 0).toLocaleString("en-IN")}</span>
+            <span className="font-bold text-emerald-600">Total Take-Home</span>
           </div>
         </div>
 
@@ -338,6 +323,23 @@ export default function OwnerFinance() {
         {/* Navigation Tabs Header */}
         <div className="p-4 border-b border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-stone-50/50">
           <div className="flex items-center gap-1.5 overflow-x-auto">
+            <button
+              type="button"
+              onClick={() => { setActiveTab("daily"); setSearchQuery(""); }}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap ${
+                activeTab === "daily"
+                  ? "bg-white text-orange-600 shadow-xs border border-stone-200"
+                  : "text-stone-600 hover:text-stone-900 hover:bg-stone-100/70"
+              }`}
+            >
+              <span>📅 Day-by-Day Breakdown</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                activeTab === "daily" ? "bg-orange-100 text-orange-700" : "bg-stone-200 text-stone-700"
+              }`}>
+                {dailyBreakdown.length}d
+              </span>
+            </button>
+
             <button
               type="button"
               onClick={() => { setActiveTab("thalis"); setSearchQuery(""); }}
@@ -369,23 +371,6 @@ export default function OwnerFinance() {
                 activeTab === "passes" ? "bg-orange-100 text-orange-700" : "bg-stone-200 text-stone-700"
               }`}>
                 {filteredPasses.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveTab("daily"); setSearchQuery(""); }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap ${
-                activeTab === "daily"
-                  ? "bg-white text-orange-600 shadow-xs border border-stone-200"
-                  : "text-stone-600 hover:text-stone-900 hover:bg-stone-100/70"
-              }`}
-            >
-              <span>📅 Day-by-Day Breakdown</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                activeTab === "daily" ? "bg-orange-100 text-orange-700" : "bg-stone-200 text-stone-700"
-              }`}>
-                {dailyBreakdown.length}d
               </span>
             </button>
           </div>
@@ -441,7 +426,66 @@ export default function OwnerFinance() {
           </div>
         </div>
 
-        {/* ── TAB 1: DAILY THALI ORDERS TABLE ── */}
+        {/* ── TAB 1: DAY-BY-DAY BREAKDOWN TABLE (BLUE CIRCLE COLUMNS) ── */}
+        {activeTab === "daily" && (
+          <div className="overflow-x-auto">
+            {dailyBreakdown.length === 0 ? (
+              <div className="py-16 text-center text-stone-400">
+                <div className="text-4xl mb-3">📅</div>
+                <div className="text-sm font-bold text-stone-700">No Daily Breakdown Available</div>
+              </div>
+            ) : (
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-stone-50 border-b border-stone-200 text-[11px] font-bold text-stone-500 uppercase tracking-wider">
+                    <th className="py-3.5 px-4">Date & Day</th>
+                    <th className="py-3.5 px-4 text-center">Thali Sold</th>
+                    <th className="py-3.5 px-4 text-right">Income from Thali</th>
+                    <th className="py-3.5 px-4 text-center">Passes Sold</th>
+                    <th className="py-3.5 px-4 text-right">Income from Passes</th>
+                    <th className="py-3.5 px-4 text-right">Total Earning</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100 font-medium text-stone-800">
+                  {dailyBreakdown.map((row) => {
+                    const isToday = row.date === todayDateStr;
+                    return (
+                      <tr key={row.date} className={`transition ${isToday ? "bg-amber-50/50 font-bold" : "hover:bg-stone-50/80"}`}>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-stone-900">{row.dayLabel}</span>
+                            {isToday && (
+                              <span className="px-1.5 py-0.2 rounded bg-amber-200 text-amber-800 text-[9px] font-black uppercase">
+                                Today
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 text-center font-bold text-stone-800">
+                          {row.platesSold > 0 ? `${row.platesSold}` : <span className="text-stone-300 font-normal">—</span>}
+                        </td>
+                        <td className="py-3.5 px-4 text-right font-bold text-emerald-600">
+                          {row.thaliNet > 0 ? `₹${Number(row.thaliNet).toLocaleString("en-IN")}` : <span className="text-stone-300 font-normal">—</span>}
+                        </td>
+                        <td className="py-3.5 px-4 text-center font-bold text-stone-800">
+                          {row.passesSold > 0 ? `${row.passesSold}` : <span className="text-stone-300 font-normal">—</span>}
+                        </td>
+                        <td className="py-3.5 px-4 text-right font-bold text-blue-600">
+                          {row.passEarned > 0 ? `₹${Number(row.passEarned).toLocaleString("en-IN")}` : <span className="text-stone-300 font-normal">—</span>}
+                        </td>
+                        <td className="py-3.5 px-4 text-right font-black text-emerald-700 text-sm">
+                          {row.totalEarned > 0 ? `₹${Number(row.totalEarned).toLocaleString("en-IN")}` : <span className="text-stone-300 font-normal">₹0</span>}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+
+        {/* ── TAB 2: DAILY THALI ORDERS TABLE ── */}
         {activeTab === "thalis" && (
           <div className="overflow-x-auto">
             {filteredThaliOrders.length === 0 ? (
@@ -515,7 +559,7 @@ export default function OwnerFinance() {
           </div>
         )}
 
-        {/* ── TAB 2: MEMBERSHIP PASSES TABLE ── */}
+        {/* ── TAB 3: MEMBERSHIP PASSES TABLE ── */}
         {activeTab === "passes" && (
           <div className="overflow-x-auto">
             {filteredPasses.length === 0 ? (
@@ -577,69 +621,6 @@ export default function OwnerFinance() {
                       </td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
-
-        {/* ── TAB 3: DAY-BY-DAY TRAJECTORY TABLE ── */}
-        {activeTab === "daily" && (
-          <div className="overflow-x-auto">
-            {dailyBreakdown.length === 0 ? (
-              <div className="py-16 text-center text-stone-400">
-                <div className="text-4xl mb-3">📅</div>
-                <div className="text-sm font-bold text-stone-700">No Daily Breakdown Available</div>
-              </div>
-            ) : (
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="bg-stone-50 border-b border-stone-200 text-[11px] font-bold text-stone-500 uppercase tracking-wider">
-                    <th className="py-3 px-4">Date & Day</th>
-                    <th className="py-3 px-4 text-center">Plates Sold</th>
-                    <th className="py-3 px-4 text-right">Thali Received</th>
-                    <th className="py-3 px-4 text-right">Thali Net (95%)</th>
-                    <th className="py-3 px-4 text-center">Passes Sold</th>
-                    <th className="py-3 px-4 text-right">Pass Revenue</th>
-                    <th className="py-3 px-4 text-right">Total Net Earned</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-stone-100 font-medium text-stone-800">
-                  {dailyBreakdown.map((row) => {
-                    const isToday = row.date === todayDateStr;
-                    return (
-                      <tr key={row.date} className={`transition ${isToday ? "bg-amber-50/50 font-bold" : "hover:bg-stone-50/80"}`}>
-                        <td className="py-3 px-4 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-stone-900">{row.dayLabel}</span>
-                            {isToday && (
-                              <span className="px-1.5 py-0.2 rounded bg-amber-200 text-amber-800 text-[9px] font-black uppercase">
-                                Today
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-center font-bold text-stone-800">
-                          {row.platesSold > 0 ? row.platesSold : <span className="text-stone-300 font-normal">—</span>}
-                        </td>
-                        <td className="py-3 px-4 text-right font-medium text-stone-600">
-                          {row.thaliGross > 0 ? `₹${row.thaliGross}` : <span className="text-stone-300 font-normal">—</span>}
-                        </td>
-                        <td className="py-3 px-4 text-right font-bold text-emerald-600">
-                          {row.thaliNet > 0 ? `₹${row.thaliNet}` : <span className="text-stone-300 font-normal">—</span>}
-                        </td>
-                        <td className="py-3 px-4 text-center font-bold text-stone-800">
-                          {row.passesSold > 0 ? row.passesSold : <span className="text-stone-300 font-normal">—</span>}
-                        </td>
-                        <td className="py-3 px-4 text-right font-bold text-blue-600">
-                          {row.passEarned > 0 ? `₹${row.passEarned.toLocaleString("en-IN")}` : <span className="text-stone-300 font-normal">—</span>}
-                        </td>
-                        <td className="py-3 px-4 text-right font-black text-emerald-700 text-sm">
-                          {row.totalEarned > 0 ? `₹${row.totalEarned.toLocaleString("en-IN")}` : <span className="text-stone-300 font-normal">₹0</span>}
-                        </td>
-                      </tr>
-                    );
-                  })}
                 </tbody>
               </table>
             )}
