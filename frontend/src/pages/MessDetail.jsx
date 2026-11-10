@@ -765,14 +765,9 @@ export default function MessDetail() {
                           </div>
                         </div>
 
-                        <p className="text-xs text-gray-500 leading-relaxed font-medium">
-                          {p.description || "Comprehensive token package for college students with zero-waste pause protection."}
+                        <p className="text-xs font-bold text-gray-800 leading-relaxed">
+                          Never waste money on missed days: tokens never expire!!
                         </p>
-
-                        <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-200/80 text-[10px] text-emerald-900 font-semibold flex items-center gap-1.5">
-                          <span>✨</span>
-                          <span>Never waste money on missed days: tokens never expire!</span>
-                        </div>
 
                         <div className="flex flex-wrap gap-2 text-[10px] font-extrabold pt-1">
                           <span className="px-2 py-0.5 bg-white border border-gray-200 rounded-md text-gray-700">
