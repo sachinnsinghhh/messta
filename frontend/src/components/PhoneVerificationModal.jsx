@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { auth } from "../firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
-export default function PhoneVerificationModal({ isOpen, onClose, onVerified }) {
+export default function PhoneVerificationModal({ isOpen, onClose, onVerified, role = "user" }) {
   const [phone, setPhone] = useState("");
   const [step, setStep] = useState("enter_phone"); // "enter_phone" | "enter_otp" | "success"
   const [otp, setOtp] = useState("");
@@ -103,6 +103,9 @@ export default function PhoneVerificationModal({ isOpen, onClose, onVerified }) 
       const cleanPhone = phone.replace(/[^0-9]/g, "");
       localStorage.setItem("messta_user_phone", cleanPhone);
       localStorage.setItem("messta_phone_verified", "true");
+      if (role === "owner" || role === "admin") {
+        localStorage.setItem("messta_owner_phone", cleanPhone);
+      }
 
       setStep("success");
       setTimeout(() => {
@@ -130,7 +133,7 @@ export default function PhoneVerificationModal({ isOpen, onClose, onVerified }) 
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <span className="text-[10px] font-black uppercase tracking-wider text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">
-              Student Mobile Verification
+              {role === "owner" || role === "admin" ? "Mess Partner Verification" : "Student Mobile Verification"}
             </span>
           </div>
           <button
@@ -151,10 +154,12 @@ export default function PhoneVerificationModal({ isOpen, onClose, onVerified }) 
 
             <div className="space-y-1">
               <h3 className="text-lg font-black text-stone-900 tracking-tight">
-                Link Your WhatsApp Number
+                {role === "owner" || role === "admin" ? "Link Mess Partner Mobile" : "Link Your WhatsApp Number"}
               </h3>
               <p className="text-xs text-stone-500 leading-relaxed">
-                Receive pickup tokens, meal ready alerts, and offline counter passes directly.
+                {role === "owner" || role === "admin"
+                  ? "Receive daily 10:00 PM kitchen closing summaries, bank payout confirmations, and counter desk alerts."
+                  : "Receive pickup tokens, meal ready alerts, and offline counter passes directly."}
               </p>
             </div>
 
