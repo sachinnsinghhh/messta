@@ -440,58 +440,7 @@ export default function BookingModal({
                     <span className="font-black text-emerald-700 text-base">₹0 (1 Token Deducted)</span>
                   </div>
                 </div>
-              ) : (
-                /* Scenario 2: Direct Online Payment (Zomato/Blinkit Style) */
-                <div className="space-y-3">
-                  <div className="p-3.5 bg-amber-50/70 rounded-2xl border border-amber-200 space-y-1.5 animate-in fade-in duration-200 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-black uppercase text-amber-900 tracking-wider">
-                        Advance Single Plate
-                      </span>
-                      <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
-                        Save ~35% vs Walk-In
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-amber-800 leading-relaxed">
-                      {mismatchReason}
-                    </p>
-                    <div className="p-2 bg-white/80 rounded-xl border border-amber-200/80 text-[10px] text-stone-600 flex items-center justify-between">
-                      <span>💡 Prefer monthly dining?</span>
-                      <a
-                        href={`/mess/${mess._id || mess.id}#passes`}
-                        onClick={onClose}
-                        className="font-black text-orange-600 hover:underline"
-                      >
-                        30-Day Zero-Waste Pass (+₹150) →
-                      </a>
-                    </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-amber-200">
-                      <span className="font-bold text-stone-700">Total Payable:</span>
-                      <span className="font-black text-orange-600 text-lg font-mono">₹{thaliPrice}</span>
-                    </div>
-                  </div>
-
-                  {/* Zomato / Blinkit Payment Trust Badge */}
-                  <div className="p-3 rounded-2xl bg-gradient-to-r from-stone-50 to-orange-50/40 border border-stone-200 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-base shrink-0">
-                        ⚡
-                      </div>
-                      <div>
-                        <span className="font-bold text-stone-900 block text-[11px]">
-                          1-Click Instant UPI & Online Payment
-                        </span>
-                        <span className="text-[10px] text-stone-500">
-                          Google Pay &bull; PhonePe &bull; Paytm &bull; UPI QR &bull; Cards &bull; NetBanking
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full shrink-0">
-                      Zero Waiting
-                    </span>
-                  </div>
-                </div>
-              )}
+              ) : null}
 
               {/* Primary Action Button (Zomato/Blinkit style 1-click CTA) */}
               <button
