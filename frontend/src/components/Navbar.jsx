@@ -29,11 +29,13 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <Link
               to={activeRole === "admin" ? "/admin/finance" : activeRole === "owner" ? "/owner" : "/"}
-              className="flex items-center gap-2 group btn-bouncy"
+              className="flex items-center gap-2.5 group btn-bouncy"
             >
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-orange-500 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
-                <span className="text-lg">🍽️</span>
-              </div>
+              <img
+                src={messtaIcon}
+                alt="Messta Logo"
+                className="w-9 h-9 object-contain drop-shadow-xs group-hover:scale-105 transition-transform"
+              />
               <span className="text-xl font-black tracking-tight text-gray-900 group-hover:text-orange-600 transition-colors">
                 Messta
               </span>
