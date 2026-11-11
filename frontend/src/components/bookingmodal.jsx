@@ -434,20 +434,20 @@ export default function BookingModal({
               </div>
 
               {/* ── 2. BOOKING DEADLINE & CLOSING WINDOW ── */}
-              <div className="p-3 bg-gradient-to-r from-purple-50 via-indigo-50/60 to-purple-50 rounded-2xl border border-purple-200/80 text-xs space-y-1">
+              <div className="p-3.5 bg-gradient-to-r from-amber-50 via-orange-50/70 to-amber-50 rounded-2xl border-2 border-amber-300/80 text-xs space-y-1.5 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-purple-900">
-                      Booking Window Open
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-950">
+                      🟢 Booking Window Open
                     </span>
                   </div>
-                  <span className="text-[10px] font-extrabold text-purple-700 bg-white px-2.5 py-0.5 rounded-full border border-purple-200 shadow-2xs">
-                    Closes: {closingDeadlineStr}
+                  <span className="text-[10px] font-black text-orange-800 bg-white px-2.5 py-0.5 rounded-full border border-orange-200 shadow-2xs">
+                    ⏰ Closes: {closingDeadlineStr}
                   </span>
                 </div>
-                <p className="text-[11px] text-purple-900/80 leading-relaxed pt-0.5">
-                  Kitchen locks meal prep count at <strong>{closingDeadlineStr}</strong> to source fresh rations with zero food waste.
+                <p className="text-[11px] text-amber-900 leading-relaxed font-medium">
+                  Kitchen locks grocery procurement at <strong>{closingDeadlineStr}</strong> to prepare fresh rations with zero food waste.
                 </p>
               </div>
 
@@ -458,13 +458,13 @@ export default function BookingModal({
                 </div>
               ) : isTokenMatch ? (
                 /* Scenario 1: Token Match! */
-                <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-300 space-y-2 animate-in fade-in duration-200">
+                <div className="p-4 bg-emerald-50 rounded-2xl border-2 border-emerald-300 space-y-2 animate-in fade-in duration-200 shadow-2xs">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase text-emerald-800 tracking-wider flex items-center gap-1">
                       <span>🎉</span>
                       <span>Membership Token Match</span>
                     </span>
-                    <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-mono font-black bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-lg border border-emerald-200">
                       {activeSub?.remainingTokens} Tokens Left
                     </span>
                   </div>
@@ -483,23 +483,23 @@ export default function BookingModal({
                 </div>
               ) : null}
 
-              {/* Primary Action Button (Zomato/Blinkit style 1-click CTA) */}
+              {/* Primary Action Button (Swiggy/Zomato style 1-click CTA) */}
               <button
                 type="button"
                 onClick={handleCheckout}
                 disabled={actionLoading || (!allowDirect && !isTokenMatch)}
-                className={`w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50 cursor-pointer ${
+                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2 btn-bouncy disabled:opacity-50 cursor-pointer ${
                   isTokenMatch
-                    ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20"
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-600/30"
                     : !allowDirect
                     ? "bg-gray-400 text-white cursor-not-allowed"
-                    : "bg-orange-600 hover:bg-orange-700 text-white shadow-orange-600/20"
+                    : "bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-orange-500/30"
                 }`}
               >
                 {actionLoading ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    <span>Opening Secure Payment...</span>
+                    <span>Opening 1-Tap Payment...</span>
                   </>
                 ) : isTokenMatch ? (
                   <>
@@ -513,8 +513,8 @@ export default function BookingModal({
                   </>
                 ) : (
                   <>
-                    <span>💳</span>
-                    <span>Pay ₹{thaliPrice} & Confirm Seat</span>
+                    <span>⚡</span>
+                    <span>1-Tap UPI • Pay ₹{thaliPrice} & Lock Seat</span>
                   </>
                 )}
               </button>

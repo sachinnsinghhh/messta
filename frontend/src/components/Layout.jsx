@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation, Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import PwaInstallPrompt from "./PwaInstallPrompt";
@@ -9,6 +10,7 @@ import { useAuth } from "../context/useAuth";
 export default function Layout({ children }) {
   const { currentUser, activeRole } = useAuth();
   const [showPhonePrompt, setShowPhonePrompt] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     if (!currentUser) {
@@ -56,6 +58,24 @@ export default function Layout({ children }) {
           }
         }}
       />
+
+      {/* Floating Quick Action Pass Pill for Students on Mobile/Desktop */}
+      {currentUser &&
+        activeRole !== "owner" &&
+        activeRole !== "admin" &&
+        location.pathname !== "/profile" && (
+          <div className="fixed bottom-5 right-5 z-40 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <Link
+              to="/profile"
+              className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 hover:from-orange-500 hover:to-amber-400 text-white font-black text-xs px-4 py-2.5 rounded-full shadow-2xl shadow-orange-500/30 flex items-center gap-2 border-2 border-white/20 btn-bouncy"
+              title="View your active counter passes & dynamic QR tickets"
+            >
+              <span className="text-sm">🎟️</span>
+              <span className="tracking-tight">My Meal Passes</span>
+              <span className="bg-white/20 px-1.5 py-0.2 rounded-full text-[10px]">→</span>
+            </Link>
+          </div>
+        )}
     </div>
   );
 }

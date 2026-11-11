@@ -1490,14 +1490,14 @@ export default function OwnerDashboard() {
                     scannedResult.data.paymentStatus === "pending_verification"
                   }
                   onClick={() => handleRedeemToken(scannedResult.data.token)}
-                  className={`w-full py-2.5 font-medium text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
+                  className={`w-full py-3.5 font-black text-xs uppercase tracking-wider rounded-2xl transition shadow-md flex items-center justify-center gap-2 btn-bouncy ${
                     scannedResult.data.tokenStatus === "locked" || scannedResult.data.paymentStatus === "pending_verification"
-                      ? "bg-amber-100 text-amber-800 border border-amber-300 cursor-not-allowed"
-                      : "bg-emerald-600 hover:bg-emerald-700 disabled:bg-stone-200 disabled:text-stone-400 text-white"
+                      ? "bg-amber-100 text-amber-800 border-2 border-amber-300 cursor-not-allowed"
+                      : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:bg-stone-200 disabled:text-stone-400 text-white shadow-emerald-600/25 cursor-pointer"
                   }`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                   <span>
                     {scannedResult.data.tokenStatus === "locked" || scannedResult.data.paymentStatus === "pending_verification"
@@ -1505,8 +1505,8 @@ export default function OwnerDashboard() {
                       : scannedResult.data.tokenStatus === "served" || scannedResult.data.tokenStatus === "redeemed"
                       ? "Meal Already Served"
                       : scannedResult.tokenType === "membership" || scannedResult.type === "subscription"
-                      ? "Deduct 1 Token & Mark Served"
-                      : "Mark Ticket as Redeemed"}
+                      ? "🍽️ Deduct 1 Token & Mark Served"
+                      : "🍽️ Hand Over Meal & Redeem Ticket"}
                   </span>
                 </button>
               </div>

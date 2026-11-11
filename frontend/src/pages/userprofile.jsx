@@ -236,46 +236,77 @@ export default function UserProfile() {
                   return (
                     <div
                       key={token._id}
-                      className="bg-white rounded-3xl border-2 border-orange-200 p-6 shadow-xs relative overflow-hidden flex flex-col justify-between space-y-4"
+                      className="group relative bg-white rounded-3xl border-2 border-orange-200 p-6 shadow-md hover:shadow-xl hover:border-orange-300 transition-all duration-300 overflow-hidden flex flex-col justify-between space-y-4 card-playful"
                     >
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="space-y-1">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">
-                            {token.messName}
-                          </span>
-                          <h3 className="font-black text-gray-900 text-lg leading-tight">
-                            {token.thaliName || "Standard Daily Thali"}
-                          </h3>
+                      {/* Perforated ticket punch notches on sides */}
+                      <div className="ticket-notch-left bg-gray-50/90 border-r-2 border-orange-200 shadow-inner"></div>
+                      <div className="ticket-notch-right bg-gray-50/90 border-l-2 border-orange-200 shadow-inner"></div>
 
-                          {/* Meal Spread & Time Slot */}
-                          <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                            <span className="text-[10px] font-black uppercase text-orange-700 bg-orange-100 px-2 py-0.5 rounded-md">
-                              {token.mealType} Spread
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 px-2.5 py-0.5 rounded-lg border border-orange-200/60 shadow-2xs">
+                              🍛 {token.mealType?.toUpperCase()} SPREAD
                             </span>
-                            <span className="text-xs font-black text-stone-800 bg-stone-100 px-2 py-0.5 rounded-md flex items-center gap-1 border border-stone-200/60">
-                              <span>⏰</span>
-                              <span>{effectiveTimeSlot}</span>
+                            <span className="text-[10px] font-bold text-stone-400">
+                              #{token.token}
                             </span>
                           </div>
 
-                          <p className="text-[11px] text-gray-500 pt-0.5">
-                            📅 Reserved Date: <strong className="text-gray-800">{token.bookingDate}</strong>
+                          <h3 className="font-black text-gray-900 text-lg leading-tight group-hover:text-orange-600 transition-colors">
+                            {token.thaliName || "Standard Daily Thali"}
+                          </h3>
+
+                          <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                            <span className="text-xs font-black text-stone-800 bg-amber-50 px-2.5 py-0.5 rounded-lg flex items-center gap-1 border border-amber-200/70 shadow-2xs">
+                              <span>⏰</span>
+                              <span>{effectiveTimeSlot}</span>
+                            </span>
+                            <span className="text-xs text-stone-600 font-bold bg-stone-50 px-2.5 py-0.5 rounded-lg border border-stone-200/60">
+                              📍 {token.messName}
+                            </span>
+                          </div>
+
+                          <p className="text-[11px] text-stone-500 font-medium pt-0.5 flex items-center gap-1">
+                            <span>📅 Reserved Date:</span>
+                            <strong className="text-stone-800 font-bold">{token.bookingDate}</strong>
                           </p>
                         </div>
 
-                        <span className="text-[9px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 shrink-0">
-                          Paid & Ready
+                        <span className="text-[10px] font-black uppercase px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs shrink-0 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          <span>Ready</span>
                         </span>
                       </div>
 
+                      {/* Perforated ticket perforation line */}
+                      <div className="relative py-1">
+                        <div className="border-t-2 border-dashed border-orange-200/80 w-full"></div>
+                      </div>
+
                       {/* Counter Token Box with Dynamic QR Trigger */}
-                      <div className="p-4 bg-orange-50/80 border border-dashed border-orange-300 rounded-2xl text-center space-y-2.5">
+                      <div className="p-4 bg-gradient-to-br from-orange-50/80 via-amber-50/50 to-orange-50/60 border border-orange-200 rounded-2xl text-center space-y-3 shadow-2xs">
                         <span className="text-[10px] uppercase font-black text-orange-600 tracking-wider block">
-                          Counter Token Code
+                          Counter Pickup Token
                         </span>
-                        <span className="text-3xl font-mono font-black tracking-widest text-gray-900 block">
-                          {token.token}
-                        </span>
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="text-3xl sm:text-4xl font-mono font-black tracking-widest text-gray-900 block drop-shadow-2xs">
+                            {token.token}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard?.writeText(token.token);
+                              setPushMsg("✓ Token copied to clipboard!");
+                              setTimeout(() => setPushMsg(""), 2500);
+                            }}
+                            className="p-1.5 rounded-xl bg-white/80 hover:bg-white text-stone-600 border border-orange-200 text-xs transition btn-bouncy cursor-pointer"
+                            title="Copy Token"
+                          >
+                            📋
+                          </button>
+                        </div>
+
                         <button
                           type="button"
                           onClick={() =>
@@ -298,14 +329,14 @@ export default function UserProfile() {
                               },
                             })
                           }
-                          className="px-4 py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold uppercase tracking-wider rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 mx-auto active:scale-95 cursor-pointer w-full"
+                          className="w-full py-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white text-xs font-black uppercase tracking-wider rounded-xl transition shadow-md shadow-orange-500/20 flex items-center justify-center gap-2 btn-bouncy cursor-pointer"
                         >
                           <span>📱</span>
-                          <span>Show QR Ticket</span>
+                          <span>Show Dynamic QR Pass</span>
                         </button>
 
                         {/* Quick Offline Actions: WhatsApp & Save to Phone */}
-                        <div className="flex items-center justify-center gap-2 pt-1 border-t border-orange-200/50">
+                        <div className="flex items-center justify-center gap-2 pt-1 border-t border-orange-200/60">
                           <button
                             type="button"
                             onClick={() =>
@@ -319,7 +350,7 @@ export default function UserProfile() {
                                 amount: token.amount,
                               })
                             }
-                            className="flex-1 py-1.5 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+                            className="flex-1 py-2 px-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition btn-bouncy cursor-pointer shadow-2xs"
                             title="Share ticket to your WhatsApp chat"
                           >
                             <span>💬</span>
@@ -339,7 +370,7 @@ export default function UserProfile() {
                                 amount: token.amount,
                               })
                             }
-                            className="flex-1 py-1.5 px-2 bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+                            className="flex-1 py-2 px-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition btn-bouncy cursor-pointer shadow-2xs"
                             title="Save offline meal pass to your phone gallery"
                           >
                             <span>💾</span>

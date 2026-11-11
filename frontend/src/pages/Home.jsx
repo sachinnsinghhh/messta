@@ -477,7 +477,7 @@ export default function Home() {
                   type="button"
                   onClick={handleRequestLocation}
                   disabled={locationStatus === "requesting"}
-                  className="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 hover:from-orange-500 hover:to-amber-500 text-white font-black text-xs rounded-2xl shadow-lg shadow-orange-500/25 transition flex items-center justify-center gap-2 disabled:opacity-50 btn-bouncy cursor-pointer"
                 >
                   {locationStatus === "requesting" ? (
                     <>

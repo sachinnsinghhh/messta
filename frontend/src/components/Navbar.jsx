@@ -21,7 +21,7 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b-2 border-orange-100/80 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
@@ -29,33 +29,31 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <Link
               to={activeRole === "admin" ? "/admin/finance" : activeRole === "owner" ? "/owner" : "/"}
-              className="flex items-center gap-2.5 group"
+              className="flex items-center gap-2 group btn-bouncy"
             >
-              <img
-                src={messtaIcon}
-                alt="Messta Logo"
-                className="w-8 h-8 object-contain group-hover:scale-105 transition-transform drop-shadow-xs"
-              />
-              <span className="text-xl font-extrabold tracking-tight text-gray-900 group-hover:text-orange-600 transition-colors">
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-orange-500 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
+                <span className="text-lg">🍽️</span>
+              </div>
+              <span className="text-xl font-black tracking-tight text-gray-900 group-hover:text-orange-600 transition-colors">
                 Messta
               </span>
             </Link>
 
             {currentUser && (
               <span
-                className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${
+                className={`text-[11px] font-black px-2.5 py-0.5 rounded-full border shadow-2xs ${
                   activeRole === "admin"
-                    ? "bg-purple-50 text-purple-800 border-purple-200 font-semibold"
+                    ? "bg-purple-50 text-purple-800 border-purple-200"
                     : activeRole === "owner"
-                    ? "bg-amber-50 text-amber-800 border-amber-200"
+                    ? "bg-amber-50 text-amber-900 border-amber-300"
                     : "bg-orange-50 text-orange-800 border-orange-200"
                 }`}
               >
                 {activeRole === "admin"
                   ? "Admin Console"
                   : activeRole === "owner"
-                  ? "Partner Portal"
-                  : "Student Portal"}
+                  ? "Partner Kitchen"
+                  : "Student Campus"}
               </span>
             )}
           </div>
@@ -140,37 +138,37 @@ export default function Navbar() {
                 <>
                   <Link
                     to="/"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      isActive("/") ? "bg-orange-50 text-orange-700 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all btn-bouncy ${
+                      isActive("/") ? "bg-orange-600 text-white shadow-sm shadow-orange-500/25" : "text-stone-700 hover:text-orange-600 hover:bg-orange-50"
                     }`}
                   >
-                    Home
+                    Home 🏠
                   </Link>
                   <Link
                     to="/mess"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      isActive("/mess") ? "bg-orange-50 text-orange-700 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all btn-bouncy ${
+                      isActive("/mess") ? "bg-orange-600 text-white shadow-sm shadow-orange-500/25" : "text-stone-700 hover:text-orange-600 hover:bg-orange-50"
                     }`}
                   >
-                    Find Mess
+                    Find Mess 🍛
                   </Link>
                   <Link
                     to="/membership"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all btn-bouncy ${
                       isActive("/membership")
-                        ? "bg-orange-600 text-white shadow-xs"
+                        ? "bg-orange-600 text-white shadow-sm shadow-orange-500/25"
                         : "text-orange-600 hover:bg-orange-50"
                     }`}
                   >
-                    Student Pass
+                    🎟️ Student Pass
                   </Link>
                   <Link
                     to="/profile"
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      isActive("/profile") ? "bg-orange-50 text-orange-700 font-semibold" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all btn-bouncy ${
+                      isActive("/profile") ? "bg-orange-600 text-white shadow-sm shadow-orange-500/25" : "text-stone-700 hover:text-orange-600 hover:bg-orange-50"
                     }`}
                   >
-                    My Bookings
+                    My Bookings 📋
                   </Link>
                 </>
               )}
