@@ -77,34 +77,34 @@ export default function DynamicQRModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl border border-gray-200 animate-in zoom-in-95 duration-200 flex flex-col">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-stone-900 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border border-stone-800 animate-in zoom-in-95 duration-200 flex flex-col text-stone-100">
         
-        {/* Modal Header */}
-        <div className="p-5 text-white bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 flex justify-between items-start shadow-sm">
+        {/* Modal Header (Linear / Apple Minimalist) */}
+        <div className="p-5 text-white bg-stone-950 border-b border-stone-800 flex justify-between items-start">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-              <span className="text-[10px] font-black uppercase tracking-wider text-orange-100 bg-black/20 px-2 py-0.5 rounded-full">
-                {isMembership ? "Multi-Use Token Pass" : "Single-Use Meal Ticket"}
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">
+                {isMembership ? "MULTI-USE PASS" : "COUNTER MEAL PASS"}
               </span>
             </div>
-            <h3 className="text-xl font-black tracking-tight leading-tight">
+            <h3 className="text-base font-semibold tracking-tight text-white">
               {isMembership 
                 ? (data.planName || "Student Membership Pass") 
                 : (data.messName || "Counter Meal Booking")}
             </h3>
-            <p className="text-xs text-orange-100 font-medium mt-0.5">
+            <p className="text-xs text-stone-400 font-mono mt-0.5">
               {isMembership 
                 ? `${data.category || "Veg"} • ${data.frequency || "Daily Slots"}` 
-                : `${(data.mealType || "Lunch").toUpperCase()} Spread • ⏰ ${data.timeSlot || "11:30 AM – 02:30 PM"} • 📅 ${data.bookingDate || "Today"}`}
+                : `${(data.mealType || "Lunch").toUpperCase()} • ${data.timeSlot || "11:30 AM – 02:30 PM"}`}
             </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center text-sm font-bold transition btn-bouncy cursor-pointer"
+            className="w-7 h-7 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 flex items-center justify-center text-xs font-mono transition cursor-pointer"
             aria-label="Close Modal"
           >
             ✕
@@ -112,10 +112,10 @@ export default function DynamicQRModal({
         </div>
 
         {/* QR Core Container */}
-        <div className="p-6 flex flex-col items-center space-y-4 bg-orange-50/30">
+        <div className="p-6 flex flex-col items-center space-y-4 bg-stone-950/60">
           
           {/* Dynamic QR Canvas */}
-          <div className="p-4 bg-white rounded-3xl shadow-lg border-2 border-orange-200/90 relative group animate-qr-glow">
+          <div className="p-4 bg-white rounded-xl shadow-inner border border-stone-800 relative group amber-glow">
             <QRCodeSVG
               value={qrPayload}
               size={180}
@@ -125,48 +125,48 @@ export default function DynamicQRModal({
             />
             
             {/* Freshness Watermark Tag */}
-            <div className="mt-3 pt-2 border-t border-orange-100 flex items-center justify-between text-[10px] font-bold">
-              <span className="flex items-center gap-1 text-emerald-700">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                Fresh QR
+            <div className="mt-3 pt-2 border-t border-stone-200 flex items-center justify-between text-[10px] font-mono">
+              <span className="flex items-center gap-1.5 text-stone-800 font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                ACTIVE
               </span>
-              <span className="text-orange-600 bg-orange-100/80 px-2 py-0.5 rounded-md font-mono">
-                Expires in {timeFormatted}
+              <span className="text-stone-600 font-mono">
+                ROTATES IN {timeFormatted}
               </span>
             </div>
           </div>
 
           {/* Large Token Code Display */}
           <div className="w-full text-center space-y-1">
-            <span className="text-[10px] uppercase font-black text-stone-400 tracking-wider block">
-              Redemption Token Code
+            <span className="text-[10px] uppercase font-mono tracking-widest text-stone-500 block">
+              TOKEN IDENTIFIER
             </span>
             <div className="flex items-center justify-center gap-2">
-              <span className="font-mono text-2xl sm:text-3xl font-black text-gray-900 tracking-widest bg-white px-5 py-2 rounded-2xl border-2 border-orange-200 shadow-sm">
+              <span className="font-mono text-2xl font-medium text-amber-400 tracking-widest bg-black/60 px-5 py-1.5 rounded-lg border border-stone-800 shadow-inner">
                 {displayToken}
               </span>
               <button
                 type="button"
                 onClick={handleCopy}
-                className="p-2.5 rounded-2xl border-2 border-orange-200 bg-white hover:bg-orange-50 text-xs font-bold text-gray-700 transition btn-bouncy cursor-pointer shadow-sm"
+                className="p-2 rounded-lg border border-stone-800 bg-stone-900 hover:bg-stone-800 text-stone-300 font-mono text-xs transition cursor-pointer btn-minimal"
                 title="Copy Code"
               >
-                {copied ? "✓ Copied" : "📋"}
+                {copied ? "COPIED" : "COPY"}
               </button>
             </div>
           </div>
 
           {/* Context Details based on Pass Type */}
-          <div className="w-full bg-white rounded-2xl p-3.5 border border-gray-200/80 text-xs space-y-2">
+          <div className="w-full bg-stone-900 rounded-xl p-3.5 border border-stone-800 text-xs space-y-2 font-mono">
             {isMembership ? (
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Diner</span>
-                  <span className="font-bold text-gray-800">{data.userName || "Student"}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-stone-500 block">DINER</span>
+                  <span className="font-semibold text-stone-200">{data.userName || "Student"}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Token Balance</span>
-                  <span className="font-extrabold text-orange-600">
+                  <span className="text-[10px] uppercase tracking-wider text-stone-500 block">BALANCE</span>
+                  <span className="font-bold text-amber-400">
                     {data.remainingTokens ?? "Active"} {data.totalTokens ? `/ ${data.totalTokens}` : ""}
                   </span>
                 </div>
@@ -174,20 +174,20 @@ export default function DynamicQRModal({
             ) : (
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Diner</span>
-                  <span className="font-bold text-gray-800">{data.userName || data.customerName || "Student"}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-stone-500 block">DINER</span>
+                  <span className="font-semibold text-stone-200">{data.userName || data.customerName || "Student"}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Payment</span>
-                  <span className="font-extrabold text-emerald-700">₹{data.amount || 0} • Paid</span>
+                  <span className="text-[10px] uppercase tracking-wider text-stone-500 block">STATUS</span>
+                  <span className="font-bold text-emerald-400">₹{data.amount || 0} • PAID</span>
                 </div>
               </div>
             )}
 
-            <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
-              <span>📍 {data.messName || "Messta Partner Mess"}</span>
-              <span className="font-mono text-[10px] text-gray-400 font-semibold">
-                ID: {String(data.subscriptionId || data.orderId || "").slice(-6).toUpperCase()}
+            <div className="pt-2 border-t border-stone-800 flex items-center justify-between text-[11px] text-stone-400">
+              <span className="truncate max-w-[200px]">OUTLET: {data.messName || "Messta Partner"}</span>
+              <span className="font-mono text-[10px] text-stone-500">
+                #{String(data.subscriptionId || data.orderId || "").slice(-6).toUpperCase()}
               </span>
             </div>
           </div>
@@ -207,10 +207,9 @@ export default function DynamicQRModal({
                   amount: data.amount,
                 })
               }
-              className="flex-1 py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition btn-bouncy cursor-pointer shadow-2xs"
+              className="flex-1 py-2 px-3 bg-stone-800 hover:bg-stone-750 text-stone-200 border border-stone-700 rounded-lg text-xs font-mono flex items-center justify-center gap-1.5 transition btn-minimal cursor-pointer"
             >
-              <span>💬</span>
-              <span>WhatsApp</span>
+              WhatsApp
             </button>
 
             <button
@@ -226,33 +225,25 @@ export default function DynamicQRModal({
                   amount: data.amount,
                 })
               }
-              className="flex-1 py-2.5 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition btn-bouncy cursor-pointer shadow-2xs"
+              className="flex-1 py-2 px-3 bg-amber-500 hover:bg-amber-400 text-black font-semibold font-mono rounded-lg text-xs flex items-center justify-center gap-1.5 transition btn-minimal cursor-pointer shadow-sm"
             >
-              <span>💾</span>
-              <span>Save Pass</span>
+              Save Image
             </button>
           </div>
 
         </div>
 
         {/* Modal Footer Controls */}
-        <div className="p-4 bg-white border-t border-gray-100 flex items-center justify-between gap-3">
+        <div className="p-3 bg-stone-950 border-t border-stone-800 flex items-center justify-between text-xs font-mono text-stone-500">
           <button
             type="button"
             onClick={handleManualRefresh}
-            className="text-xs text-gray-500 hover:text-orange-600 font-bold flex items-center gap-1 transition"
+            className="hover:text-stone-300 flex items-center gap-1.5 transition cursor-pointer"
           >
-            <span>🔄</span>
-            <span>Refresh QR</span>
+            <span>↻</span>
+            <span>Refresh Key</span>
           </button>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-xs font-bold uppercase tracking-wider rounded-xl transition shadow-xs"
-          >
-            Done
-          </button>
+          <span>SECURE VAPID</span>
         </div>
 
       </div>

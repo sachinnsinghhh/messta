@@ -21,7 +21,7 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b-2 border-orange-100/80 shadow-xs">
+    <header className="sticky top-0 z-50 bg-stone-950/90 backdrop-blur-md border-b border-stone-800/90 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
@@ -29,33 +29,27 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <Link
               to={activeRole === "admin" ? "/admin/finance" : activeRole === "owner" ? "/owner" : "/"}
-              className="flex items-center gap-2.5 group btn-bouncy"
+              className="flex items-center gap-2.5 group btn-minimal"
             >
               <img
                 src={messtaIcon}
                 alt="Messta Logo"
-                className="w-9 h-9 object-contain drop-shadow-xs group-hover:scale-105 transition-transform"
+                className="w-8 h-8 object-contain drop-shadow-xs group-hover:scale-105 transition-transform"
               />
-              <span className="text-xl font-black tracking-tight text-gray-900 group-hover:text-orange-600 transition-colors">
+              <span className="text-lg font-semibold tracking-tight text-white group-hover:text-amber-400 transition-colors">
                 Messta
               </span>
             </Link>
 
             {currentUser && (
               <span
-                className={`text-[11px] font-black px-2.5 py-0.5 rounded-full border shadow-2xs ${
-                  activeRole === "admin"
-                    ? "bg-purple-50 text-purple-800 border-purple-200"
-                    : activeRole === "owner"
-                    ? "bg-amber-50 text-amber-900 border-amber-300"
-                    : "bg-orange-50 text-orange-800 border-orange-200"
-                }`}
+                className="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded-md bg-stone-900 text-stone-400 border border-stone-800"
               >
                 {activeRole === "admin"
-                  ? "Admin Console"
+                  ? "Admin"
                   : activeRole === "owner"
-                  ? "Partner Kitchen"
-                  : "Student Campus"}
+                  ? "Kitchen"
+                  : "Campus"}
               </span>
             )}
           </div>
@@ -140,37 +134,37 @@ export default function Navbar() {
                 <>
                   <Link
                     to="/"
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all btn-bouncy ${
-                      isActive("/") ? "bg-orange-600 text-white shadow-sm shadow-orange-500/25" : "text-stone-700 hover:text-orange-600 hover:bg-orange-50"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono tracking-wider transition-all btn-minimal ${
+                      isActive("/") ? "bg-stone-800 text-white border border-stone-700 shadow-xs" : "text-stone-400 hover:text-white hover:bg-stone-900"
                     }`}
                   >
-                    Home 🏠
+                    HOME
                   </Link>
                   <Link
                     to="/mess"
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all btn-bouncy ${
-                      isActive("/mess") ? "bg-orange-600 text-white shadow-sm shadow-orange-500/25" : "text-stone-700 hover:text-orange-600 hover:bg-orange-50"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono tracking-wider transition-all btn-minimal ${
+                      isActive("/mess") ? "bg-stone-800 text-white border border-stone-700 shadow-xs" : "text-stone-400 hover:text-white hover:bg-stone-900"
                     }`}
                   >
-                    Find Mess 🍛
+                    OUTLETS
                   </Link>
                   <Link
                     to="/membership"
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all btn-bouncy ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono tracking-wider transition-all btn-minimal ${
                       isActive("/membership")
-                        ? "bg-orange-600 text-white shadow-sm shadow-orange-500/25"
-                        : "text-orange-600 hover:bg-orange-50"
+                        ? "bg-amber-500 text-black font-semibold shadow-xs"
+                        : "text-amber-400/90 hover:text-amber-300 hover:bg-amber-950/30"
                     }`}
                   >
-                    🎟️ Student Pass
+                    PASSES
                   </Link>
                   <Link
                     to="/profile"
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all btn-bouncy ${
-                      isActive("/profile") ? "bg-orange-600 text-white shadow-sm shadow-orange-500/25" : "text-stone-700 hover:text-orange-600 hover:bg-orange-50"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono tracking-wider transition-all btn-minimal ${
+                      isActive("/profile") ? "bg-stone-800 text-white border border-stone-700 shadow-xs" : "text-stone-400 hover:text-white hover:bg-stone-900"
                     }`}
                   >
-                    My Bookings 📋
+                    TICKETS
                   </Link>
                 </>
               )}
@@ -180,30 +174,30 @@ export default function Navbar() {
           {/* Right Action Tools: User info & Logout */}
           <div className="hidden md:flex items-center gap-3">
             {currentUser ? (
-              <div className="flex items-center gap-3 pl-2 border-l border-gray-200">
-                <div className="w-8 h-8 rounded-full bg-stone-100 border border-stone-200 text-stone-700 font-semibold text-xs flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-3 pl-3 border-l border-stone-800">
+                <div className="w-8 h-8 rounded-lg bg-stone-900 border border-stone-800 text-stone-200 font-mono font-semibold text-xs flex items-center justify-center shrink-0">
                   {(currentUser.displayName || currentUser.email || "U").charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="text-xs font-semibold text-gray-800 leading-tight">
+                  <span className="text-xs font-medium text-stone-200 leading-tight">
                     {currentUser.displayName || currentUser.email?.split("@")[0]}
                   </span>
-                  <span className="text-[11px] text-gray-400 leading-tight truncate max-w-[130px]">
+                  <span className="text-[11px] text-stone-500 font-mono leading-tight truncate max-w-[130px]">
                     {currentUser.email}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="px-2.5 py-1 text-xs font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-gray-200"
+                  className="px-2.5 py-1 text-xs font-mono text-stone-400 hover:text-rose-400 hover:bg-rose-950/20 rounded-lg transition-colors border border-stone-800 cursor-pointer"
                 >
-                  Log out
+                  Exit
                 </button>
               </div>
             ) : (
               <Link
                 to="/login"
-                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg shadow-sm transition"
+                className="px-4 py-2 bg-stone-100 hover:bg-white text-stone-950 text-xs font-semibold rounded-lg shadow-sm transition btn-minimal"
               >
                 Sign In
               </Link>

@@ -88,37 +88,37 @@ export default function UserProfile() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50/70 py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen bg-[#0B0F17] py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-8 text-stone-100 antialiased">
       
-      {/* ── PROFILE HEADER CARD ── */}
-      <div className="bg-white rounded-3xl border border-gray-200/80 p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+      {/* ── PROFILE HEADER CARD (LINEAR / APPLE MINIMALIST) ── */}
+      <div className="bg-stone-900/90 rounded-2xl border border-stone-800/90 p-6 sm:p-8 shadow-xl backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white font-black text-2xl flex items-center justify-center uppercase shadow-sm">
+          <div className="w-14 h-14 rounded-xl bg-stone-800 border border-stone-700 text-stone-200 font-mono font-bold text-xl flex items-center justify-center uppercase shadow-sm shrink-0">
             {currentUser?.email?.[0] || "S"}
           </div>
 
           <div className="space-y-1">
-            <h1 className="text-2xl font-black text-gray-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
               {currentUser?.displayName || "Student Diner"}
             </h1>
-            <p className="text-xs text-gray-500 font-medium">{currentUser?.email}</p>
+            <p className="text-xs text-stone-400 font-mono">{currentUser?.email}</p>
             <div className="flex items-center gap-2 pt-0.5 flex-wrap">
-              <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                Verified Student Account
+              <span className="text-[10px] font-mono uppercase tracking-wider bg-stone-800 text-emerald-400 px-2.5 py-0.5 rounded border border-stone-700">
+                VERIFIED DINER
               </span>
 
               {userPhone ? (
-                <span className="text-[10px] font-black uppercase tracking-wider bg-purple-50 text-purple-800 px-2.5 py-0.5 rounded-full border border-purple-200 flex items-center gap-1">
-                  <span>📱 +91 {userPhone}</span>
-                  <span className="text-emerald-600">✓ Linked</span>
+                <span className="text-[10px] font-mono tracking-wider bg-stone-800 text-stone-300 px-2.5 py-0.5 rounded border border-stone-700 flex items-center gap-1">
+                  <span>+91 {userPhone}</span>
+                  <span className="text-emerald-400 font-bold">✓</span>
                 </span>
               ) : (
                 <button
                   type="button"
                   onClick={() => setShowPhoneModal(true)}
-                  className="text-[10px] font-black uppercase tracking-wider bg-orange-100 hover:bg-orange-200 text-orange-800 px-2.5 py-0.5 rounded-full border border-orange-300 transition cursor-pointer flex items-center gap-1 shadow-2xs"
+                  className="text-[10px] font-mono tracking-wider bg-stone-800 hover:bg-stone-700 text-amber-400 px-2.5 py-0.5 rounded border border-stone-700 transition cursor-pointer flex items-center gap-1 btn-minimal"
                 >
-                  <span>⚠️ Link WhatsApp Number</span>
+                  <span>Link Mobile</span>
                 </button>
               )}
 
@@ -126,16 +126,17 @@ export default function UserProfile() {
               {isPushNotificationSupported() && (
                 <>
                   {pushStatus === "granted" ? (
-                    <div className="flex items-center gap-1.5 bg-blue-50 text-blue-800 px-2.5 py-0.5 rounded-full border border-blue-200 text-[10px] font-black uppercase tracking-wider">
-                      <span>🔔 Alerts: Active ✓</span>
+                    <div className="flex items-center gap-1.5 bg-stone-800 text-stone-300 px-2.5 py-0.5 rounded border border-stone-700 text-[10px] font-mono uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span>ALERTS ACTIVE</span>
                       <button
                         type="button"
                         disabled={pushTesting}
                         onClick={handleTestPush}
-                        className="underline hover:text-blue-950 font-bold ml-1 cursor-pointer disabled:opacity-50"
+                        className="text-amber-400 hover:text-amber-300 ml-1 cursor-pointer disabled:opacity-50"
                         title="Click to dispatch a live test notification to this device"
                       >
-                        {pushTesting ? "Testing..." : "Test Push"}
+                        {pushTesting ? "..." : "TEST"}
                       </button>
                     </div>
                   ) : (
@@ -143,16 +144,16 @@ export default function UserProfile() {
                       type="button"
                       disabled={pushTesting}
                       onClick={handleEnablePush}
-                      className="text-[10px] font-black uppercase tracking-wider bg-amber-50 hover:bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full border border-amber-300 transition cursor-pointer flex items-center gap-1"
+                      className="text-[10px] font-mono tracking-wider bg-stone-800 hover:bg-stone-700 text-stone-300 px-2.5 py-0.5 rounded border border-stone-700 transition cursor-pointer flex items-center gap-1"
                     >
-                      <span>🔔 {pushTesting ? "Enabling..." : "Enable Lockscreen Alerts"}</span>
+                      <span>{pushTesting ? "ENABLING..." : "ENABLE ALERTS"}</span>
                     </button>
                   )}
                 </>
               )}
 
               {pushMsg && (
-                <span className="text-[10px] font-bold text-stone-700 bg-stone-100 px-2 py-0.5 rounded-md animate-pulse">
+                <span className="text-[10px] font-mono text-amber-400 bg-stone-900 border border-stone-800 px-2 py-0.5 rounded">
                   {pushMsg}
                 </span>
               )}
@@ -163,15 +164,15 @@ export default function UserProfile() {
         <div className="flex flex-wrap items-center gap-2">
           <Link
             to="/membership"
-            className="px-4 py-2.5 bg-orange-50 hover:bg-orange-100 text-orange-700 font-extrabold text-xs uppercase tracking-wider rounded-xl transition"
+            className="px-4 py-2 bg-stone-800 hover:bg-stone-750 text-stone-300 hover:text-white font-mono text-xs uppercase tracking-wider rounded-lg border border-stone-700 transition btn-minimal"
           >
-            Digital Pass Vault 🎟️
+            Pass Vault
           </Link>
           <Link
             to="/mess"
-            className="px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition"
+            className="px-4 py-2 bg-stone-100 hover:bg-white text-stone-950 font-semibold text-xs uppercase tracking-wider rounded-lg transition btn-minimal"
           >
-            Book Meal Slot
+            Book Slot
           </Link>
         </div>
       </div>
@@ -194,33 +195,33 @@ export default function UserProfile() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
-                  Counter Pickups
+                <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 bg-stone-900 px-2 py-0.5 rounded border border-stone-800">
+                  COUNTER REDEMPTION
                 </span>
-                <h2 className="text-xl font-black text-gray-900 mt-1">
-                  Active Redeemable Meal Tokens
+                <h2 className="text-lg font-semibold text-white tracking-tight mt-1.5">
+                  Active Meal Tokens & Passes
                 </h2>
-                <p className="text-xs text-gray-500">Show these tokens at the mess counter to collect your food.</p>
+                <p className="text-xs text-stone-400 font-mono">Present pass at outlet counter desk for meal handover.</p>
               </div>
 
-              <span className="text-xs font-extrabold bg-orange-100 text-orange-700 px-3 py-1 rounded-full">
-                {activeTokens.length} Ready
+              <span className="text-xs font-mono font-medium bg-stone-900 text-stone-300 px-2.5 py-1 rounded-md border border-stone-800">
+                {activeTokens.length} ACTIVE
               </span>
             </div>
 
             {activeTokens.length === 0 ? (
-              <div className="bg-white rounded-3xl border border-dashed border-gray-300 p-10 text-center space-y-2">
-                <span className="text-3xl">🍽️</span>
-                <p className="text-sm font-bold text-gray-800">No active meal tokens right now</p>
-                <p className="text-xs text-gray-400 max-w-sm mx-auto">
-                  Book today's lunch or dinner, or generate a slot from your Student Membership Pass!
+              <div className="bg-stone-900/50 rounded-2xl border border-dashed border-stone-800 p-10 text-center space-y-3">
+                <span className="text-2xl text-stone-500 block">⚡</span>
+                <p className="text-sm font-semibold text-stone-300">No active meal passes</p>
+                <p className="text-xs text-stone-500 font-mono max-w-sm mx-auto">
+                  Reserve a dining slot or generate a token from your membership pass.
                 </p>
                 <div className="pt-2">
                   <Link
                     to="/mess"
-                    className="inline-block px-4 py-2 bg-orange-600 text-white font-bold text-xs rounded-xl"
+                    className="inline-block px-4 py-2 bg-stone-100 hover:bg-white text-stone-950 font-semibold text-xs rounded-lg transition btn-minimal"
                   >
-                    Explore Today's Menus →
+                    View Campus Outlets →
                   </Link>
                 </div>
               </div>
@@ -236,71 +237,68 @@ export default function UserProfile() {
                   return (
                     <div
                       key={token._id}
-                      className="group relative bg-white rounded-3xl border-2 border-orange-200 p-6 shadow-md hover:shadow-xl hover:border-orange-300 transition-all duration-300 overflow-hidden flex flex-col justify-between space-y-4 card-playful"
+                      className="group relative bg-stone-900/90 rounded-2xl border border-stone-800 p-6 shadow-2xl transition-all duration-300 overflow-hidden flex flex-col justify-between space-y-4 card-minimal"
                     >
-                      {/* Perforated ticket punch notches on sides */}
-                      <div className="ticket-notch-left bg-gray-50/90 border-r-2 border-orange-200 shadow-inner"></div>
-                      <div className="ticket-notch-right bg-gray-50/90 border-l-2 border-orange-200 shadow-inner"></div>
+                      {/* Perforated ticket punch notches on sides (Obsidian style) */}
+                      <div className="ticket-notch-left bg-[#0B0F17] border-r border-stone-800"></div>
+                      <div className="ticket-notch-right bg-[#0B0F17] border-l border-stone-800"></div>
 
                       <div className="flex justify-between items-start gap-3">
-                        <div className="space-y-1.5">
+                        <div className="space-y-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[10px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 px-2.5 py-0.5 rounded-lg border border-orange-200/60 shadow-2xs">
-                              🍛 {token.mealType?.toUpperCase()} SPREAD
-                            </span>
-                            <span className="text-[10px] font-bold text-stone-400">
-                              #{token.token}
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">
+                              PASS #{token.token}
                             </span>
                           </div>
 
-                          <h3 className="font-black text-gray-900 text-lg leading-tight group-hover:text-orange-600 transition-colors">
-                            {token.thaliName || "Standard Daily Thali"}
+                          <h3 className="font-semibold text-white text-base leading-tight">
+                            {token.messName}
                           </h3>
+                          <p className="text-xs text-stone-300 font-medium">
+                            {token.thaliName || "Standard Daily Thali"}
+                          </p>
 
-                          <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                            <span className="text-xs font-black text-stone-800 bg-amber-50 px-2.5 py-0.5 rounded-lg flex items-center gap-1 border border-amber-200/70 shadow-2xs">
-                              <span>⏰</span>
-                              <span>{effectiveTimeSlot}</span>
+                          <div className="flex items-center gap-2 flex-wrap pt-0.5 text-xs font-mono text-stone-400">
+                            <span className="text-[10px] text-amber-400 uppercase bg-amber-950/40 border border-amber-800/60 px-2 py-0.5 rounded">
+                              {token.mealType}
                             </span>
-                            <span className="text-xs text-stone-600 font-bold bg-stone-50 px-2.5 py-0.5 rounded-lg border border-stone-200/60">
-                              📍 {token.messName}
+                            <span className="text-[10px] text-stone-400 bg-stone-800 px-2 py-0.5 rounded border border-stone-700/80">
+                              {effectiveTimeSlot}
                             </span>
                           </div>
 
-                          <p className="text-[11px] text-stone-500 font-medium pt-0.5 flex items-center gap-1">
-                            <span>📅 Reserved Date:</span>
-                            <strong className="text-stone-800 font-bold">{token.bookingDate}</strong>
+                          <p className="text-[11px] font-mono text-stone-500 pt-0.5">
+                            DATE: <span className="text-stone-300">{token.bookingDate}</span>
                           </p>
                         </div>
 
-                        <span className="text-[10px] font-black uppercase px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs shrink-0 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                          <span>Ready</span>
+                        <span className="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded bg-emerald-950/40 text-emerald-400 border border-emerald-800/60 shrink-0">
+                          READY
                         </span>
                       </div>
 
                       {/* Perforated ticket perforation line */}
                       <div className="relative py-1">
-                        <div className="border-t-2 border-dashed border-orange-200/80 w-full"></div>
+                        <div className="border-t border-dashed border-stone-800 w-full"></div>
                       </div>
 
                       {/* Counter Token Box with Dynamic QR Trigger */}
-                      <div className="p-4 bg-gradient-to-br from-orange-50/80 via-amber-50/50 to-orange-50/60 border border-orange-200 rounded-2xl text-center space-y-3 shadow-2xs">
-                        <span className="text-[10px] uppercase font-black text-orange-600 tracking-wider block">
-                          Counter Pickup Token
+                      <div className="p-4 bg-black/50 border border-stone-800/80 rounded-xl text-center space-y-3">
+                        <span className="text-[10px] uppercase font-mono tracking-widest text-stone-500 block">
+                          COUNTER TOKEN
                         </span>
                         <div className="flex items-center justify-center gap-2">
-                          <span className="text-3xl sm:text-4xl font-mono font-black tracking-widest text-gray-900 block drop-shadow-2xs">
+                          <span className="text-3xl font-mono font-medium tracking-widest text-amber-400 block">
                             {token.token}
                           </span>
                           <button
                             type="button"
                             onClick={() => {
                               navigator.clipboard?.writeText(token.token);
-                              setPushMsg("✓ Token copied to clipboard!");
-                              setTimeout(() => setPushMsg(""), 2500);
+                              setPushMsg("COPIED TO CLIPBOARD");
+                              setTimeout(() => setPushMsg(""), 2000);
                             }}
-                            className="p-1.5 rounded-xl bg-white/80 hover:bg-white text-stone-600 border border-orange-200 text-xs transition btn-bouncy cursor-pointer"
+                            className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-750 text-stone-300 border border-stone-700 text-xs transition cursor-pointer btn-minimal"
                             title="Copy Token"
                           >
                             📋
@@ -329,14 +327,13 @@ export default function UserProfile() {
                               },
                             })
                           }
-                          className="w-full py-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white text-xs font-black uppercase tracking-wider rounded-xl transition shadow-md shadow-orange-500/20 flex items-center justify-center gap-2 btn-bouncy cursor-pointer"
+                          className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-black text-xs font-semibold uppercase tracking-wider rounded-lg transition shadow-sm flex items-center justify-center gap-2 btn-minimal cursor-pointer"
                         >
-                          <span>📱</span>
-                          <span>Show Dynamic QR Pass</span>
+                          <span>Display QR Code</span>
                         </button>
 
                         {/* Quick Offline Actions: WhatsApp & Save to Phone */}
-                        <div className="flex items-center justify-center gap-2 pt-1 border-t border-orange-200/60">
+                        <div className="flex items-center justify-center gap-2 pt-1 border-t border-stone-800/80">
                           <button
                             type="button"
                             onClick={() =>
@@ -350,11 +347,10 @@ export default function UserProfile() {
                                 amount: token.amount,
                               })
                             }
-                            className="flex-1 py-2 px-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition btn-bouncy cursor-pointer shadow-2xs"
+                            className="flex-1 py-1.5 px-2 bg-stone-800 hover:bg-stone-750 text-stone-300 border border-stone-700 rounded-lg text-xs font-mono flex items-center justify-center gap-1.5 transition btn-minimal cursor-pointer"
                             title="Share ticket to your WhatsApp chat"
                           >
-                            <span>💬</span>
-                            <span>WhatsApp</span>
+                            WhatsApp
                           </button>
 
                           <button
@@ -370,11 +366,10 @@ export default function UserProfile() {
                                 amount: token.amount,
                               })
                             }
-                            className="flex-1 py-2 px-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition btn-bouncy cursor-pointer shadow-2xs"
+                            className="flex-1 py-1.5 px-2 bg-stone-800 hover:bg-stone-750 text-stone-300 border border-stone-700 rounded-lg text-xs font-mono flex items-center justify-center gap-1.5 transition btn-minimal cursor-pointer"
                             title="Save offline meal pass to your phone gallery"
                           >
-                            <span>💾</span>
-                            <span>Save Pass</span>
+                            Save Pass
                           </button>
                         </div>
                       </div>

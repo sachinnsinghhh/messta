@@ -270,54 +270,54 @@ export default function BookingModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-        <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-gray-100 space-y-5 animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+        <div className="bg-stone-900 rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-stone-800 space-y-5 animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto text-stone-100">
           
           {/* ── SUCCESS STATE: TOKEN / TICKET CONFIRMED ── */}
           {confirmedBooking ? (
             <div className="text-center py-4 space-y-4">
-              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-3xl font-black">
+              <div className="w-14 h-14 bg-stone-800 text-emerald-400 border border-stone-700 rounded-xl flex items-center justify-center mx-auto text-2xl font-mono">
                 ✓
               </div>
 
               <div className="space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 bg-emerald-950/50 px-2.5 py-0.5 rounded border border-emerald-800/60">
                   {confirmedBooking.bookingType === "membership"
-                    ? "1 Token Deducted • Meal Slot Reserved"
-                    : "Payment Captured • Single-Meal Ticket"}
+                    ? "1 TOKEN DEDUCTED • SLOT CONFIRMED"
+                    : "PAYMENT VERIFIED • TICKET GENERATED"}
                 </span>
-                <h3 className="text-2xl font-black text-gray-900 tracking-tight mt-1">
-                  Booking Confirmed!
+                <h3 className="text-xl font-semibold text-white tracking-tight mt-1">
+                  Dining Reservation Confirmed
                 </h3>
-                <p className="text-xs text-gray-500">
-                  Present your counter token or dynamic QR code at the mess counter desk.
+                <p className="text-xs text-stone-400 font-mono">
+                  Display counter token or dynamic QR code at the desk.
                 </p>
               </div>
 
               {/* Counter Token Box */}
-              <div className="p-5 bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-dashed border-orange-300 rounded-2xl space-y-2">
-                <span className="text-[10px] uppercase font-black text-orange-600 tracking-wider block">
-                  Counter Pickup Token
+              <div className="p-5 bg-black/60 border border-stone-800 rounded-xl space-y-2 text-center">
+                <span className="text-[10px] uppercase font-mono tracking-widest text-stone-500 block">
+                  COUNTER PICKUP TOKEN
                 </span>
-                <span className="text-3xl sm:text-4xl font-black tracking-widest text-gray-900 font-mono block">
+                <span className="text-3xl sm:text-4xl font-mono font-medium tracking-widest text-amber-400 block">
                   {confirmedBooking.token}
                 </span>
 
-                <div className="pt-2 border-t border-orange-200/60 text-xs text-gray-700 space-y-1">
-                  <p className="font-extrabold text-gray-900">{confirmedBooking.thaliName}</p>
+                <div className="pt-2 border-t border-stone-800 text-xs text-stone-400 space-y-1 font-mono">
+                  <p className="font-semibold text-stone-200">{confirmedBooking.thaliName}</p>
                   <div className="flex items-center justify-center gap-2 flex-wrap text-[11px] pt-0.5">
-                    <span className="font-black text-orange-700 uppercase bg-orange-100 px-2 py-0.5 rounded">
-                      {confirmedBooking.mealType} Spread
+                    <span className="text-amber-400 uppercase bg-amber-950/40 border border-amber-800/60 px-2 py-0.5 rounded">
+                      {confirmedBooking.mealType}
                     </span>
-                    <span className="font-bold text-stone-800 bg-stone-100 px-2 py-0.5 rounded flex items-center gap-1 border border-stone-200">
-                      ⏰ {confirmedBooking.timeSlot || slotWindow}
+                    <span className="text-stone-300 bg-stone-800 px-2 py-0.5 rounded border border-stone-700">
+                      {confirmedBooking.timeSlot || slotWindow}
                     </span>
-                    <span className="text-stone-600 font-medium">
-                      📅 {confirmedBooking.bookingDate}
+                    <span className="text-stone-500">
+                      {confirmedBooking.bookingDate}
                     </span>
                   </div>
                   {confirmedBooking.remainingTokens !== undefined && (
-                    <p className="text-[10px] text-emerald-700 font-bold pt-1">
+                    <p className="text-[10px] text-emerald-400 font-mono pt-1">
                       Token Balance: {confirmedBooking.remainingTokens} remaining
                     </p>
                   )}
@@ -329,92 +329,91 @@ export default function BookingModal({
                 <button
                   type="button"
                   onClick={() => setQrModalOpen(true)}
-                  className="py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                  className="py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-semibold text-xs uppercase tracking-wider rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer btn-minimal"
                 >
-                  <span>📱</span>
-                  <span>Show Dynamic QR</span>
+                  <span>Display QR</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="py-3 bg-gray-900 hover:bg-black text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-xs cursor-pointer"
+                  className="py-2.5 bg-stone-800 hover:bg-stone-750 text-stone-200 font-mono text-xs uppercase tracking-wider rounded-lg border border-stone-700 transition cursor-pointer btn-minimal"
                 >
-                  Done & Return
+                  Done
                 </button>
               </div>
             </div>
           ) : (
-            /* ── CHECKOUT REVIEW: SMART DECISION ENGINE (ZOMATO/BLINKIT UX) ── */
+            /* ── CHECKOUT REVIEW: LINEAR / APPLE MINIMALIST ── */
             <div className="space-y-4">
               
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center justify-between border-b border-stone-800 pb-3">
                 <div>
-                  <span className="text-[10px] font-black uppercase text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
-                    Instant Dining Checkout
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">
+                    RESERVATION CHECKOUT
                   </span>
-                  <h3 className="font-black text-gray-900 text-base mt-0.5">
+                  <h3 className="font-semibold text-white text-base mt-0.5">
                     Confirm Dining Reservation
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 text-lg font-bold p-1 cursor-pointer"
+                  className="text-stone-500 hover:text-stone-300 text-lg font-mono p-1 cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
               {errorMsg && (
-                <div className="p-3 bg-red-50 text-red-700 text-xs font-semibold rounded-xl border border-red-200">
+                <div className="p-3 bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs font-mono rounded-lg">
                   {errorMsg}
                 </div>
               )}
 
               {/* ── 1. MEAL SPREAD & DINING SCHEDULE CARD ── */}
-              <div className="bg-gradient-to-br from-stone-50 via-orange-50/20 to-amber-50/30 rounded-2xl border border-stone-200 p-4 space-y-3">
+              <div className="bg-stone-950/70 rounded-xl border border-stone-800 p-4 space-y-3">
                 {/* Header: Outlet, Spread badge & Price */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 px-2 py-0.5 rounded-md">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 bg-amber-950/40 border border-amber-800/60 px-2 py-0.5 rounded">
                         {spreadName}
                       </span>
-                      <span className="text-[10px] font-bold text-stone-500">
-                        at {mess.name}
+                      <span className="text-[10px] text-stone-500 font-mono">
+                        {mess.name}
                       </span>
                     </div>
-                    <h4 className="text-base font-black text-stone-900 tracking-tight">
+                    <h4 className="text-base font-semibold text-white tracking-tight">
                       {thaliName}
                     </h4>
                   </div>
                   <div className="text-right shrink-0">
-                    <span className="text-2xl font-black text-stone-900 block font-mono">
-                      ₹{thaliPrice}
+                    <span className="text-2xl font-mono text-amber-400 block font-medium">
+                      ₹{thaliPrice}.00
                     </span>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded border border-emerald-200">
+                    <span className="text-[9px] font-mono uppercase tracking-wider text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 px-2 py-0.5 rounded">
                       {selectedThali?.category || "Veg"}
                     </span>
                   </div>
                 </div>
 
                 {/* Dining Timing & Service Window */}
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-stone-200/70 text-xs">
-                  <div className="bg-white/90 p-2.5 rounded-xl border border-stone-200/60">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 block">
-                      📅 Reserved For
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-stone-800 text-xs font-mono">
+                  <div className="bg-stone-900 p-2.5 rounded-lg border border-stone-800">
+                    <span className="text-[9px] uppercase tracking-wider text-stone-500 block">
+                      RESERVED DATE
                     </span>
-                    <span className="font-black text-stone-900 text-xs block mt-0.5">
+                    <span className="font-medium text-stone-200 text-xs block mt-0.5">
                       Tomorrow ({formattedTomorrow})
                     </span>
                   </div>
-                  <div className="bg-white/90 p-2.5 rounded-xl border border-stone-200/60">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 block">
-                      🍽️ Serving Hours
+                  <div className="bg-stone-900 p-2.5 rounded-lg border border-stone-800">
+                    <span className="text-[9px] uppercase tracking-wider text-stone-500 block">
+                      SERVING HOURS
                     </span>
-                    <span className="font-extrabold text-stone-900 text-xs block mt-0.5">
+                    <span className="font-medium text-stone-200 text-xs block mt-0.5">
                       {diningTiming}
                     </span>
                   </div>
@@ -422,100 +421,85 @@ export default function BookingModal({
 
                 {/* Thali Menu Composition / Included Dishes */}
                 {thaliComposition && (
-                  <div className="bg-white/90 p-2.5 rounded-xl border border-stone-200/60 space-y-1">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 block">
-                      🥘 Included In This Spread
+                  <div className="bg-stone-900 p-2.5 rounded-lg border border-stone-800 space-y-1 font-mono">
+                    <span className="text-[9px] uppercase tracking-wider text-stone-500 block">
+                      INCLUDED DISHES
                     </span>
-                    <p className="text-[11px] text-stone-700 font-medium leading-relaxed">
+                    <p className="text-[11px] text-stone-300 leading-relaxed">
                       {thaliComposition}
                     </p>
                   </div>
                 )}
               </div>
 
-              {/* ── 2. BOOKING DEADLINE & CLOSING WINDOW ── */}
-              <div className="p-3.5 bg-gradient-to-r from-amber-50 via-orange-50/70 to-amber-50 rounded-2xl border-2 border-amber-300/80 text-xs space-y-1.5 shadow-2xs">
+              {/* ── 2. BOOKING DEADLINE & CLOSING WINDOW (MINIMALIST) ── */}
+              <div className="p-3 bg-stone-950 border border-stone-800 rounded-xl text-xs space-y-1 font-mono">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-950">
-                      🟢 Booking Window Open
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span className="text-[10px] uppercase tracking-wider text-stone-300 font-semibold">
+                      DEADLINE: 22:00 IST TONIGHT
                     </span>
                   </div>
-                  <span className="text-[10px] font-black text-orange-800 bg-white px-2.5 py-0.5 rounded-full border border-orange-200 shadow-2xs">
-                    ⏰ Closes: {closingDeadlineStr}
+                  <span className="text-[10px] text-stone-400 bg-stone-900 px-2 py-0.5 rounded border border-stone-800">
+                    CLOSES: {closingDeadlineStr}
                   </span>
                 </div>
-                <p className="text-[11px] text-amber-900 leading-relaxed font-medium">
-                  Kitchen locks grocery procurement at <strong>{closingDeadlineStr}</strong> to prepare fresh rations with zero food waste.
+                <p className="text-[11px] text-stone-400 leading-relaxed pt-0.5">
+                  Kitchen locks grocery procurement at <strong>{closingDeadlineStr}</strong> for zero food waste.
                 </p>
               </div>
 
               {/* ── SMART DECISION ENGINE BANNER (SCENARIO 1 vs SCENARIO 2) ── */}
               {loadingSub ? (
-                <div className="p-4 bg-gray-50 rounded-2xl text-center text-xs text-gray-400">
+                <div className="p-4 bg-stone-950 rounded-xl text-center text-xs font-mono text-stone-500">
                   Checking active student membership passes...
                 </div>
               ) : isTokenMatch ? (
                 /* Scenario 1: Token Match! */
-                <div className="p-4 bg-emerald-50 rounded-2xl border-2 border-emerald-300 space-y-2 animate-in fade-in duration-200 shadow-2xs">
+                <div className="p-4 bg-stone-950 rounded-xl border border-emerald-800/60 space-y-2 animate-in fade-in duration-200 font-mono">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase text-emerald-800 tracking-wider flex items-center gap-1">
-                      <span>🎉</span>
-                      <span>Membership Token Match</span>
+                    <span className="text-[10px] uppercase text-emerald-400 tracking-wider">
+                      MEMBERSHIP PASS MATCH
                     </span>
-                    <span className="text-[10px] font-mono font-black bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-lg border border-emerald-200">
-                      {activeSub?.remainingTokens} Tokens Left
+                    <span className="text-[10px] font-mono text-stone-300 bg-stone-900 px-2 py-0.5 rounded border border-stone-800">
+                      {activeSub?.remainingTokens} TOKENS LEFT
                     </span>
                   </div>
-                  <p className="text-xs text-emerald-900 leading-relaxed font-medium">
-                    Your active <strong>{activeSub?.planName}</strong> ({activeSub?.category?.toUpperCase()}) natively covers this thali.
-                    {matchBadge && (
-                      <span className="block text-[11px] text-emerald-700 font-bold mt-0.5">
-                        ✓ {matchBadge}
-                      </span>
-                    )}
+                  <p className="text-xs text-stone-300 leading-relaxed">
+                    Covered by active <strong>{activeSub?.planName}</strong>.
                   </p>
-                  <div className="flex justify-between items-center pt-2 border-t border-emerald-200 text-xs">
-                    <span className="font-bold text-emerald-950">Net Amount to Pay:</span>
-                    <span className="font-black text-emerald-700 text-base">₹0 (1 Token Deducted)</span>
+                  <div className="flex justify-between items-center pt-2 border-t border-stone-800 text-xs">
+                    <span className="text-stone-400">Payable:</span>
+                    <span className="font-mono text-emerald-400 font-medium">₹0.00 (1 Token Deducted)</span>
                   </div>
                 </div>
               ) : null}
 
-              {/* Primary Action Button (Swiggy/Zomato style 1-click CTA) */}
+              {/* Primary Action Button (Minimalist Linear style CTA) */}
               <button
                 type="button"
                 onClick={handleCheckout}
                 disabled={actionLoading || (!allowDirect && !isTokenMatch)}
-                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2 btn-bouncy disabled:opacity-50 cursor-pointer ${
+                className={`w-full py-3 rounded-lg font-semibold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 btn-minimal disabled:opacity-50 cursor-pointer ${
                   isTokenMatch
-                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-600/30"
+                    ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-sm"
                     : !allowDirect
-                    ? "bg-gray-400 text-white cursor-not-allowed"
-                    : "bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-orange-500/30"
+                    ? "bg-stone-800 text-stone-500 border border-stone-700 cursor-not-allowed"
+                    : "bg-amber-500 hover:bg-amber-400 text-black shadow-sm"
                 }`}
               >
                 {actionLoading ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    <span>Opening 1-Tap Payment...</span>
+                    <span className="w-3.5 h-3.5 border-2 border-black/40 border-t-black rounded-full animate-spin" />
+                    <span>Processing Reservation...</span>
                   </>
                 ) : isTokenMatch ? (
-                  <>
-                    <span>🔒</span>
-                    <span>Lock Tomorrow's Seat (1 Membership Token)</span>
-                  </>
+                  <span>Confirm Reservation (1 Token)</span>
                 ) : !allowDirect ? (
-                  <>
-                    <span>🔒</span>
-                    <span>Member Exclusive — Subscription Pass Required</span>
-                  </>
+                  <span>Pass Required</span>
                 ) : (
-                  <>
-                    <span>⚡</span>
-                    <span>1-Tap UPI • Pay ₹{thaliPrice} & Lock Seat</span>
-                  </>
+                  <span>Confirm & Pay ₹{thaliPrice}.00</span>
                 )}
               </button>
             </div>

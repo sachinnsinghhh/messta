@@ -36,7 +36,7 @@ export default function Layout({ children }) {
   }, [currentUser, activeRole]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50/50 text-gray-900 selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#0B0F17] text-stone-100 selection:bg-amber-500 selection:text-black antialiased">
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
@@ -59,7 +59,7 @@ export default function Layout({ children }) {
         }}
       />
 
-      {/* Floating Quick Action Pass Pill for Students on Mobile/Desktop */}
+      {/* Floating Quick Action Pass Pill for Students on Mobile/Desktop (Minimalist Linear Style) */}
       {currentUser &&
         activeRole !== "owner" &&
         activeRole !== "admin" &&
@@ -67,12 +67,12 @@ export default function Layout({ children }) {
           <div className="fixed bottom-5 right-5 z-40 animate-in fade-in slide-in-from-bottom-4 duration-300">
             <Link
               to="/profile"
-              className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 hover:from-orange-500 hover:to-amber-400 text-white font-black text-xs px-4 py-2.5 rounded-full shadow-2xl shadow-orange-500/30 flex items-center gap-2 border-2 border-white/20 btn-bouncy"
+              className="bg-stone-900/95 hover:bg-stone-850 text-stone-200 hover:text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-stone-700/80 hover:border-amber-500/60 shadow-2xl backdrop-blur-md flex items-center gap-2.5 transition btn-minimal"
               title="View your active counter passes & dynamic QR tickets"
             >
-              <span className="text-sm">🎟️</span>
-              <span className="tracking-tight">My Meal Passes</span>
-              <span className="bg-white/20 px-1.5 py-0.2 rounded-full text-[10px]">→</span>
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              <span className="tracking-wide uppercase font-semibold">Pass Vault</span>
+              <span className="text-stone-500 font-mono text-[10px]">→</span>
             </Link>
           </div>
         )}
