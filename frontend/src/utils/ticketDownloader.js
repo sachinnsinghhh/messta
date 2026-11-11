@@ -41,68 +41,75 @@ export const downloadOfflineTicketImage = async ({
   canvas.height = 840;
   const ctx = canvas.getContext("2d");
 
-  // 1. Background
-  ctx.fillStyle = "#ffffff";
+  // 1. Sleek Obsidian Background (Option 1 Boarding Pass)
+  ctx.fillStyle = "#0b0f17";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // 2. Top Header Accent
-  ctx.fillStyle = "#ea580c";
+  // 2. Top Header Accent (Matte Slate with Amber Stripe)
+  ctx.fillStyle = "#18181b";
   ctx.fillRect(0, 0, canvas.width, 140);
 
-  // Header Title
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 32px sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("MESSTA MEAL TICKET", canvas.width / 2, 60);
+  ctx.fillStyle = "#f59e0b";
+  ctx.fillRect(0, 136, canvas.width, 4);
 
-  ctx.font = "bold 16px sans-serif";
-  ctx.fillStyle = "#fed7aa";
-  ctx.fillText("OFFLINE COUNTER PASS • 100% VERIFIED", canvas.width / 2, 95);
+  // Header Title
+  ctx.fillStyle = "#f59e0b";
+  ctx.font = "bold 28px monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("MESSTA BOARDING PASS", canvas.width / 2, 60);
+
+  ctx.font = "bold 14px monospace";
+  ctx.fillStyle = "#a1a1aa";
+  ctx.fillText("OFFLINE COUNTER TICKET • 100% SECURE", canvas.width / 2, 95);
 
   // 3. Outlet & Thali Details
-  ctx.fillStyle = "#78716c";
-  ctx.font = "bold 14px sans-serif";
+  ctx.fillStyle = "#a1a1aa";
+  ctx.font = "bold 13px monospace";
   ctx.fillText((messName || "MESS OUTLET").toUpperCase(), canvas.width / 2, 185);
 
-  ctx.fillStyle = "#1c1917";
+  ctx.fillStyle = "#ffffff";
   ctx.font = "bold 26px sans-serif";
   ctx.fillText(thaliName || "Standard Daily Thali", canvas.width / 2, 225);
 
   // Pill badge: Spread & Time Slot
   const spreadText = `${(mealType || "Lunch").toUpperCase()} SPREAD  •  ${timeSlot || "11:30 AM – 02:30 PM"}`;
-  ctx.fillStyle = "#ffedd5";
+  ctx.fillStyle = "#27272a";
   ctx.beginPath();
-  ctx.roundRect(canvas.width / 2 - 200, 250, 400, 36, 18);
+  ctx.roundRect(canvas.width / 2 - 210, 250, 420, 38, 19);
   ctx.fill();
 
-  ctx.fillStyle = "#9a3412";
-  ctx.font = "bold 14px sans-serif";
+  ctx.fillStyle = "#f59e0b";
+  ctx.font = "bold 13px monospace";
   ctx.fillText(spreadText, canvas.width / 2, 274);
 
   // Reserved Date
-  ctx.fillStyle = "#57534e";
-  ctx.font = "bold 16px sans-serif";
-  ctx.fillText(`📅 Reserved Date: ${bookingDate || "Tomorrow"}`, canvas.width / 2, 325);
+  ctx.fillStyle = "#d4d4d8";
+  ctx.font = "bold 15px monospace";
+  ctx.fillText(`RESERVED DATE: ${bookingDate || "Tomorrow"}`, canvas.width / 2, 325);
 
   // 4. Large Counter Token Box
-  ctx.fillStyle = "#fff7ed";
-  ctx.strokeStyle = "#fdba74";
-  ctx.lineWidth = 3;
+  ctx.fillStyle = "#18181b";
+  ctx.strokeStyle = "#f59e0b";
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.roundRect(60, 360, canvas.width - 120, 130, 24);
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = "#ea580c";
-  ctx.font = "bold 13px sans-serif";
-  ctx.fillText("COUNTER TOKEN CODE", canvas.width / 2, 400);
+  ctx.fillStyle = "#a1a1aa";
+  ctx.font = "bold 12px monospace";
+  ctx.fillText("COUNTER TOKEN CODE", canvas.width / 2, 398);
 
-  ctx.fillStyle = "#1c1917";
+  ctx.fillStyle = "#f59e0b";
   ctx.font = "bold 44px monospace";
   ctx.fillText(token || "MESSTA-0000", canvas.width / 2, 455);
 
-  // 5. QR Code Section
-  // Load QR code image from public QR server to paint onto canvas
+  // 5. QR Code Section (Pristine White Background for 100% Optical Contrast)
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.roundRect(canvas.width / 2 - 105, 510, 210, 200, 16);
+  ctx.fill();
+
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
     JSON.stringify({ token, messName, mealType, bookingDate, verified: true })
   )}`;
@@ -113,32 +120,29 @@ export const downloadOfflineTicketImage = async ({
 
   await new Promise((resolve) => {
     qrImg.onload = () => {
-      ctx.drawImage(qrImg, canvas.width / 2 - 90, 520, 180, 180);
+      ctx.drawImage(qrImg, canvas.width / 2 - 85, 520, 170, 170);
       resolve();
     };
     qrImg.onerror = () => {
-      // Fallback if network blocked: draw styled box
-      ctx.fillStyle = "#f5f5f4";
-      ctx.fillRect(canvas.width / 2 - 90, 520, 180, 180);
-      ctx.fillStyle = "#78716c";
-      ctx.font = "bold 14px sans-serif";
-      ctx.fillText("QR Code Token", canvas.width / 2, 615);
+      ctx.fillStyle = "#18181b";
+      ctx.font = "bold 14px monospace";
+      ctx.fillText("QR TOKEN CODE", canvas.width / 2, 610);
       resolve();
     };
   });
 
   // 6. Footer Notice
-  ctx.fillStyle = "#16a34a";
-  ctx.font = "bold 14px sans-serif";
-  ctx.fillText("● Verified Advance Booking (Paid in Bank)", canvas.width / 2, 740);
+  ctx.fillStyle = "#10b981";
+  ctx.font = "bold 13px monospace";
+  ctx.fillText("● 100% VERIFIED ADVANCE BOOKING (PAID)", canvas.width / 2, 755);
 
-  ctx.fillStyle = "#a8a29e";
+  ctx.fillStyle = "#71717a";
   ctx.font = "12px sans-serif";
-  ctx.fillText("Show this downloaded pass at the counter desk if network is offline.", canvas.width / 2, 770);
+  ctx.fillText("Present this offline boarding pass at the counter desk if network is weak.", canvas.width / 2, 785);
 
   // Trigger download
   const link = document.createElement("a");
-  link.download = `Messta-Ticket-${token || "Pass"}.png`;
+  link.download = `Messta-Boarding-Pass-${token || "Pass"}.png`;
   link.href = canvas.toDataURL("image/png");
   link.click();
 };

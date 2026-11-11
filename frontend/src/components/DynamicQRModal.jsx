@@ -77,19 +77,19 @@ export default function DynamicQRModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-stone-900 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border border-stone-800 animate-in zoom-in-95 duration-200 flex flex-col text-stone-100">
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-stone-950 text-stone-100 rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl border border-stone-800 animate-in zoom-in-95 duration-200 flex flex-col">
         
-        {/* Modal Header (Linear / Apple Minimalist) */}
-        <div className="p-5 text-white bg-stone-950 border-b border-stone-800 flex justify-between items-start">
+        {/* Modal Header */}
+        <div className="p-5 bg-stone-900 border-b border-stone-800 flex justify-between items-start">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">
-                {isMembership ? "MULTI-USE PASS" : "COUNTER MEAL PASS"}
+              <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/30">
+                {isMembership ? "MEMBERSHIP PASS" : "COUNTER REDEMPTION PASS"}
               </span>
             </div>
-            <h3 className="text-base font-semibold tracking-tight text-white">
+            <h3 className="text-lg font-bold tracking-tight text-white leading-tight">
               {isMembership 
                 ? (data.planName || "Student Membership Pass") 
                 : (data.messName || "Counter Meal Booking")}
@@ -97,14 +97,14 @@ export default function DynamicQRModal({
             <p className="text-xs text-stone-400 font-mono mt-0.5">
               {isMembership 
                 ? `${data.category || "Veg"} • ${data.frequency || "Daily Slots"}` 
-                : `${(data.mealType || "Lunch").toUpperCase()} • ${data.timeSlot || "11:30 AM – 02:30 PM"}`}
+                : `${(data.mealType || "Lunch").toUpperCase()} • ⏰ ${data.timeSlot || "11:30 AM – 02:30 PM"}`}
             </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-7 h-7 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 flex items-center justify-center text-xs font-mono transition cursor-pointer"
+            className="w-8 h-8 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 flex items-center justify-center text-sm font-bold transition btn-bouncy cursor-pointer"
             aria-label="Close Modal"
           >
             ✕
@@ -112,10 +112,10 @@ export default function DynamicQRModal({
         </div>
 
         {/* QR Core Container */}
-        <div className="p-6 flex flex-col items-center space-y-4 bg-stone-950/60">
+        <div className="p-6 flex flex-col items-center space-y-4 bg-stone-950">
           
           {/* Dynamic QR Canvas */}
-          <div className="p-4 bg-white rounded-xl shadow-inner border border-stone-800 relative group amber-glow">
+          <div className="p-4 bg-white rounded-2xl shadow-[0_0_35px_rgba(245,158,11,0.22)] border-2 border-amber-500/40 relative group">
             <QRCodeSVG
               value={qrPayload}
               size={180}
@@ -125,47 +125,47 @@ export default function DynamicQRModal({
             />
             
             {/* Freshness Watermark Tag */}
-            <div className="mt-3 pt-2 border-t border-stone-200 flex items-center justify-between text-[10px] font-mono">
-              <span className="flex items-center gap-1.5 text-stone-800 font-semibold">
+            <div className="mt-3 pt-2 border-t border-stone-100 flex items-center justify-between text-[10px] font-mono text-stone-600">
+              <span className="flex items-center gap-1.5 text-emerald-700 font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                ACTIVE
+                ACTIVE KEY
               </span>
-              <span className="text-stone-600 font-mono">
-                ROTATES IN {timeFormatted}
+              <span className="text-amber-800 bg-amber-50 px-2 py-0.5 rounded font-mono font-bold">
+                ROTATING IN {timeFormatted}
               </span>
             </div>
           </div>
 
           {/* Large Token Code Display */}
           <div className="w-full text-center space-y-1">
-            <span className="text-[10px] uppercase font-mono tracking-widest text-stone-500 block">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400 block">
               TOKEN IDENTIFIER
             </span>
             <div className="flex items-center justify-center gap-2">
-              <span className="font-mono text-2xl font-medium text-amber-400 tracking-widest bg-black/60 px-5 py-1.5 rounded-lg border border-stone-800 shadow-inner">
+              <span className="font-mono text-2xl sm:text-3xl font-black text-amber-400 tracking-widest bg-stone-900 px-5 py-2 rounded-2xl border border-stone-800 shadow-inner">
                 {displayToken}
               </span>
               <button
                 type="button"
                 onClick={handleCopy}
-                className="p-2 rounded-lg border border-stone-800 bg-stone-900 hover:bg-stone-800 text-stone-300 font-mono text-xs transition cursor-pointer btn-minimal"
+                className="p-2.5 rounded-2xl border border-stone-800 bg-stone-900 hover:bg-stone-800 text-xs font-bold text-stone-300 transition btn-bouncy cursor-pointer shadow-sm"
                 title="Copy Code"
               >
-                {copied ? "COPIED" : "COPY"}
+                {copied ? "✓ Copied" : "📋"}
               </button>
             </div>
           </div>
 
           {/* Context Details based on Pass Type */}
-          <div className="w-full bg-stone-900 rounded-xl p-3.5 border border-stone-800 text-xs space-y-2 font-mono">
+          <div className="w-full bg-stone-900 rounded-2xl p-3.5 border border-stone-800 text-xs font-mono space-y-2 text-stone-300">
             {isMembership ? (
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-stone-500 block">DINER</span>
-                  <span className="font-semibold text-stone-200">{data.userName || "Student"}</span>
+                  <span className="text-[10px] uppercase font-mono text-stone-500 block">DINER</span>
+                  <span className="font-bold text-white">{data.userName || "Student"}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] uppercase tracking-wider text-stone-500 block">BALANCE</span>
+                  <span className="text-[10px] uppercase font-mono text-stone-500 block">TOKEN BALANCE</span>
                   <span className="font-bold text-amber-400">
                     {data.remainingTokens ?? "Active"} {data.totalTokens ? `/ ${data.totalTokens}` : ""}
                   </span>
@@ -174,20 +174,20 @@ export default function DynamicQRModal({
             ) : (
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-stone-500 block">DINER</span>
-                  <span className="font-semibold text-stone-200">{data.userName || data.customerName || "Student"}</span>
+                  <span className="text-[10px] uppercase font-mono text-stone-500 block">DINER</span>
+                  <span className="font-bold text-white">{data.userName || data.customerName || "Student"}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] uppercase tracking-wider text-stone-500 block">STATUS</span>
+                  <span className="text-[10px] uppercase font-mono text-stone-500 block">STATUS</span>
                   <span className="font-bold text-emerald-400">₹{data.amount || 0} • PAID</span>
                 </div>
               </div>
             )}
 
-            <div className="pt-2 border-t border-stone-800 flex items-center justify-between text-[11px] text-stone-400">
-              <span className="truncate max-w-[200px]">OUTLET: {data.messName || "Messta Partner"}</span>
+            <div className="pt-2 border-t border-stone-800 flex items-center justify-between text-[11px] text-stone-400 font-mono">
+              <span>📍 {data.messName || "Messta Partner Mess"}</span>
               <span className="font-mono text-[10px] text-stone-500">
-                #{String(data.subscriptionId || data.orderId || "").slice(-6).toUpperCase()}
+                ID: {String(data.subscriptionId || data.orderId || "").slice(-6).toUpperCase()}
               </span>
             </div>
           </div>
@@ -207,9 +207,10 @@ export default function DynamicQRModal({
                   amount: data.amount,
                 })
               }
-              className="flex-1 py-2 px-3 bg-stone-800 hover:bg-stone-750 text-stone-200 border border-stone-700 rounded-lg text-xs font-mono flex items-center justify-center gap-1.5 transition btn-minimal cursor-pointer"
+              className="flex-1 py-2.5 px-3 bg-stone-900 hover:bg-stone-850 text-stone-200 border border-stone-800 rounded-xl text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition btn-bouncy cursor-pointer shadow-sm"
             >
-              WhatsApp
+              <span>💬</span>
+              <span>WhatsApp</span>
             </button>
 
             <button
@@ -225,25 +226,33 @@ export default function DynamicQRModal({
                   amount: data.amount,
                 })
               }
-              className="flex-1 py-2 px-3 bg-amber-500 hover:bg-amber-400 text-black font-semibold font-mono rounded-lg text-xs flex items-center justify-center gap-1.5 transition btn-minimal cursor-pointer shadow-sm"
+              className="flex-1 py-2.5 px-3 bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold font-mono text-xs rounded-xl transition btn-bouncy cursor-pointer shadow-lg shadow-amber-500/20"
             >
-              Save Image
+              <span>💾</span>
+              <span>Save Pass</span>
             </button>
           </div>
 
         </div>
 
         {/* Modal Footer Controls */}
-        <div className="p-3 bg-stone-950 border-t border-stone-800 flex items-center justify-between text-xs font-mono text-stone-500">
+        <div className="p-4 bg-stone-900 border-t border-stone-800 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={handleManualRefresh}
-            className="hover:text-stone-300 flex items-center gap-1.5 transition cursor-pointer"
+            className="text-xs text-stone-400 hover:text-amber-400 font-mono font-bold flex items-center gap-1.5 transition cursor-pointer"
           >
-            <span>↻</span>
-            <span>Refresh Key</span>
+            <span>🔄</span>
+            <span>Refresh QR</span>
           </button>
-          <span>SECURE VAPID</span>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-mono font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
+          >
+            Close
+          </button>
         </div>
 
       </div>
