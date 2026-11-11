@@ -148,18 +148,20 @@ export default function PhoneVerificationModal({ isOpen, onClose, onVerified, ro
         {/* STEP 1: ENTER PHONE NUMBER */}
         {step === "enter_phone" && (
           <form onSubmit={handleSendOtp} className="space-y-4">
-            <div className="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">
-              📱
+            <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center mx-auto">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-lg font-black text-stone-900 tracking-tight">
-                {role === "owner" || role === "admin" ? "Link Mess Partner Mobile" : "Link Your WhatsApp Number"}
+              <h3 className="text-lg font-bold text-gray-900 tracking-tight">
+                {role === "owner" || role === "admin" ? "Link Mess Partner Mobile" : "Verify Your Mobile Number"}
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed">
+              <p className="text-xs text-gray-500 leading-relaxed">
                 {role === "owner" || role === "admin"
-                  ? "Receive daily 10:00 PM kitchen closing summaries, bank payout confirmations, and counter desk alerts."
-                  : "Receive pickup tokens, meal ready alerts, and offline counter passes directly."}
+                  ? "Receive daily kitchen closing summaries, bank payout confirmations, and counter desk alerts."
+                  : "Receive pickup tokens, meal ready alerts, and offline counter passes directly on your phone."}
               </p>
             </div>
 
@@ -170,8 +172,8 @@ export default function PhoneVerificationModal({ isOpen, onClose, onVerified, ro
             )}
 
             <div className="flex items-center gap-2">
-              <span className="px-3 py-2.5 bg-stone-100 border border-stone-300 rounded-xl font-bold text-xs text-stone-700">
-                🇮🇳 +91
+              <span className="px-3 py-2.5 bg-gray-100 border border-gray-300 rounded-xl font-medium text-xs text-gray-700">
+                +91
               </span>
               <input
                 type="tel"
@@ -181,14 +183,14 @@ export default function PhoneVerificationModal({ isOpen, onClose, onVerified, ro
                 placeholder="98765 43210"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
-                className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl font-mono text-stone-900 text-sm font-bold focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none tracking-wider"
+                className="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading || phone.replace(/[^0-9]/g, "").length !== 10}
-              className="w-full py-3 bg-stone-900 hover:bg-black disabled:opacity-40 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition cursor-pointer flex items-center justify-center gap-2"
+              className="w-full py-3 bg-orange-600 hover:bg-orange-700 disabled:opacity-40 text-white font-semibold text-xs uppercase tracking-wider rounded-xl shadow-xs transition cursor-pointer flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -196,14 +198,14 @@ export default function PhoneVerificationModal({ isOpen, onClose, onVerified, ro
                   <span>Sending Code...</span>
                 </>
               ) : (
-                <span>Send Verification OTP →</span>
+                <span>Send Verification Code</span>
               )}
             </button>
 
             <button
               type="button"
               onClick={onClose}
-              className="text-stone-400 hover:text-stone-600 text-[11px] font-semibold underline cursor-pointer"
+              className="text-gray-400 hover:text-gray-600 text-[11px] font-medium underline cursor-pointer"
             >
               Skip for now
             </button>
@@ -213,22 +215,24 @@ export default function PhoneVerificationModal({ isOpen, onClose, onVerified, ro
         {/* STEP 2: ENTER OTP CODE */}
         {step === "enter_otp" && (
           <form onSubmit={handleVerifyOtp} className="space-y-4">
-            <div className="w-14 h-14 bg-purple-100 text-purple-700 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">
-              🔒
+            <div className="w-12 h-12 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center mx-auto">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-lg font-black text-stone-900 tracking-tight">
+              <h3 className="text-lg font-bold text-gray-900 tracking-tight">
                 Enter Verification Code
               </h3>
-              <p className="text-xs text-stone-500">
+              <p className="text-xs text-gray-500">
                 Code sent to <strong>+91 {phone}</strong>
               </p>
             </div>
 
             {demoCode ? (
               <div className="p-2 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-900 font-medium">
-                💡 Zero-Fee Sandbox Active! Enter code: <strong className="font-mono text-amber-950 font-black">{demoCode}</strong>
+                Enter verification code: <strong className="font-mono text-amber-950 font-bold">{demoCode}</strong>
               </div>
             ) : null}
 
@@ -247,14 +251,14 @@ export default function PhoneVerificationModal({ isOpen, onClose, onVerified, ro
                 placeholder="• • • • • •"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
-                className="w-full p-3 bg-stone-50 border border-stone-300 rounded-xl font-mono text-center text-stone-900 text-2xl font-black tracking-widest focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none"
+                className="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl font-mono text-center text-gray-900 text-2xl font-bold tracking-widest focus:bg-white focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading || otp.length !== 6}
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition cursor-pointer flex items-center justify-center gap-2"
+              className="w-full py-3 bg-green-700 hover:bg-green-800 disabled:opacity-40 text-white font-semibold text-xs uppercase tracking-wider rounded-xl shadow-xs transition cursor-pointer flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -262,7 +266,7 @@ export default function PhoneVerificationModal({ isOpen, onClose, onVerified, ro
                   <span>Verifying...</span>
                 </>
               ) : (
-                <span>✓ Confirm &amp; Link Number</span>
+                <span>Confirm &amp; Link Number</span>
               )}
             </button>
 

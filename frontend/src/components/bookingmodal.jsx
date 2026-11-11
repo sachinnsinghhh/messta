@@ -294,30 +294,30 @@ export default function BookingModal({
                 </p>
               </div>
 
-              {/* Obsidian Counter Boarding Pass Box (Option 1) */}
-              <div className="relative p-5 bg-stone-900 text-stone-100 border border-stone-800 rounded-3xl space-y-3 shadow-2xl overflow-hidden">
-                <span className="text-[10px] uppercase font-mono tracking-widest text-amber-400 block">
-                  COUNTER BOARDING TOKEN
+              {/* Clean Humanized Counter Pickup Token Card */}
+              <div className="relative p-6 bg-orange-50/60 border border-orange-200 rounded-2xl space-y-3">
+                <span className="text-[11px] font-semibold text-gray-500 block uppercase tracking-wider">
+                  Pickup Token
                 </span>
-                <span className="text-3xl sm:text-4xl font-black tracking-widest text-amber-400 font-mono block drop-shadow-sm">
-                  {confirmedBooking.token}
+                <span className="text-4xl sm:text-5xl font-extrabold tracking-wider text-orange-600 block">
+                  #{confirmedBooking.token}
                 </span>
 
-                <div className="pt-2 border-t border-stone-800 text-xs space-y-1.5 font-mono">
-                  <p className="font-bold text-white text-sm">{confirmedBooking.thaliName}</p>
-                  <div className="flex items-center justify-center gap-2 flex-wrap text-[11px] pt-0.5">
-                    <span className="font-bold text-amber-400 uppercase bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                      {confirmedBooking.mealType} Spread
+                <div className="pt-3 border-t border-orange-200/70 text-xs space-y-1.5">
+                  <p className="font-bold text-gray-900 text-sm">{confirmedBooking.thaliName}</p>
+                  <div className="flex items-center justify-center gap-2 flex-wrap text-xs pt-0.5">
+                    <span className="font-semibold text-gray-700 bg-white px-2.5 py-1 rounded-md border border-gray-200">
+                      {confirmedBooking.mealType}
                     </span>
-                    <span className="font-bold text-stone-300 bg-stone-800 px-2 py-0.5 rounded flex items-center gap-1 border border-stone-700">
-                      ⏰ {confirmedBooking.timeSlot || slotWindow}
+                    <span className="font-semibold text-gray-700 bg-white px-2.5 py-1 rounded-md border border-gray-200">
+                      {confirmedBooking.timeSlot || slotWindow}
                     </span>
-                    <span className="text-stone-400">
-                      📅 {confirmedBooking.bookingDate}
+                    <span className="text-gray-500">
+                      {confirmedBooking.bookingDate}
                     </span>
                   </div>
                   {confirmedBooking.remainingTokens !== undefined && (
-                    <p className="text-[10px] text-emerald-400 font-bold pt-1">
+                    <p className="text-xs text-emerald-700 font-semibold pt-1">
                       Token Balance: {confirmedBooking.remainingTokens} remaining
                     </p>
                   )}
@@ -329,34 +329,36 @@ export default function BookingModal({
                 <button
                   type="button"
                   onClick={() => setQrModalOpen(true)}
-                  className="py-3 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-stone-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-1.5 btn-bouncy cursor-pointer"
+                  className="py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>📱</span>
-                  <span>Show Dynamic QR</span>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                  </svg>
+                  <span>Show QR Code</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="py-3 bg-stone-800 hover:bg-stone-700 text-white font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition shadow-xs btn-bouncy cursor-pointer"
+                  className="py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition cursor-pointer"
                 >
-                  Done & Return
+                  Done
                 </button>
               </div>
             </div>
           ) : (
-            /* ── CHECKOUT REVIEW: SMART DECISION ENGINE (ZOMATO/BLINKIT UX) ── */
+            /* ── CHECKOUT REVIEW ── */
             <div className="space-y-4">
               
               {/* Header */}
               <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                 <div>
-                  <span className="text-[10px] font-black uppercase text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
-                    Instant Dining Checkout
-                  </span>
-                  <h3 className="font-black text-gray-900 text-base mt-0.5">
-                    Confirm Dining Reservation
+                  <h3 className="font-bold text-gray-900 text-base">
+                    Confirm Meal Reservation
                   </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Advance booking for tomorrow&rsquo;s meal
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -374,47 +376,47 @@ export default function BookingModal({
               )}
 
               {/* ── 1. MEAL SPREAD & DINING SCHEDULE CARD ── */}
-              <div className="bg-gradient-to-br from-stone-50 via-orange-50/20 to-amber-50/30 rounded-2xl border border-stone-200 p-4 space-y-3">
+              <div className="bg-white rounded-2xl border border-gray-200 p-4 space-y-3">
                 {/* Header: Outlet, Spread badge & Price */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 px-2 py-0.5 rounded-md">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-100">
                         {spreadName}
                       </span>
-                      <span className="text-[10px] font-bold text-stone-500">
+                      <span className="text-xs font-medium text-gray-500">
                         at {mess.name}
                       </span>
                     </div>
-                    <h4 className="text-base font-black text-stone-900 tracking-tight">
+                    <h4 className="text-base font-bold text-gray-900 tracking-tight">
                       {thaliName}
                     </h4>
                   </div>
                   <div className="text-right shrink-0">
-                    <span className="text-2xl font-black text-stone-900 block font-mono">
+                    <span className="text-2xl font-extrabold text-gray-900 block">
                       ₹{thaliPrice}
                     </span>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded border border-emerald-200">
+                    <span className="text-[10px] font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-200">
                       {selectedThali?.category || "Veg"}
                     </span>
                   </div>
                 </div>
 
                 {/* Dining Timing & Service Window */}
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-stone-200/70 text-xs">
-                  <div className="bg-white/90 p-2.5 rounded-xl border border-stone-200/60">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 block">
-                      📅 Reserved For
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 text-xs">
+                  <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                    <span className="text-[10px] font-medium text-gray-500 block">
+                      Date
                     </span>
-                    <span className="font-black text-stone-900 text-xs block mt-0.5">
+                    <span className="font-semibold text-gray-900 text-xs block mt-0.5">
                       Tomorrow ({formattedTomorrow})
                     </span>
                   </div>
-                  <div className="bg-white/90 p-2.5 rounded-xl border border-stone-200/60">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 block">
-                      🍽️ Serving Hours
+                  <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                    <span className="text-[10px] font-medium text-gray-500 block">
+                      Serving Hours
                     </span>
-                    <span className="font-extrabold text-stone-900 text-xs block mt-0.5">
+                    <span className="font-semibold text-gray-900 text-xs block mt-0.5">
                       {diningTiming}
                     </span>
                   </div>
@@ -422,100 +424,81 @@ export default function BookingModal({
 
                 {/* Thali Menu Composition / Included Dishes */}
                 {thaliComposition && (
-                  <div className="bg-white/90 p-2.5 rounded-xl border border-stone-200/60 space-y-1">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400 block">
-                      🥘 Included In This Spread
+                  <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100 space-y-1">
+                    <span className="text-[10px] font-medium text-gray-500 block">
+                      Included In This Thali
                     </span>
-                    <p className="text-[11px] text-stone-700 font-medium leading-relaxed">
+                    <p className="text-xs text-gray-700 leading-relaxed">
                       {thaliComposition}
                     </p>
                   </div>
                 )}
               </div>
 
-              {/* ── 2. BOOKING DEADLINE & CLOSING WINDOW ── */}
-              <div className="p-3.5 bg-gradient-to-r from-amber-50 via-orange-50/70 to-amber-50 rounded-2xl border-2 border-amber-300/80 text-xs space-y-1.5 shadow-2xs">
+              {/* ── 2. BOOKING DEADLINE NOTICE ── */}
+              <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs space-y-1">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-950">
-                      🟢 Booking Window Open
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-black text-orange-800 bg-white px-2.5 py-0.5 rounded-full border border-orange-200 shadow-2xs">
-                    ⏰ Closes: {closingDeadlineStr}
+                  <span className="font-semibold text-amber-900">
+                    Advance Booking Notice
+                  </span>
+                  <span className="text-[11px] font-bold text-amber-800 bg-white px-2 py-0.5 rounded border border-amber-200">
+                    Closes {closingDeadlineStr}
                   </span>
                 </div>
-                <p className="text-[11px] text-amber-900 leading-relaxed font-medium">
-                  Kitchen locks grocery procurement at <strong>{closingDeadlineStr}</strong> to prepare fresh rations with zero food waste.
+                <p className="text-[11px] text-amber-800 leading-relaxed">
+                  Reserve in advance so the kitchen can prepare fresh rations and guarantee your meal.
                 </p>
               </div>
 
-              {/* ── SMART DECISION ENGINE BANNER (SCENARIO 1 vs SCENARIO 2) ── */}
+              {/* ── MEMBERSHIP TOKEN MATCH BANNER ── */}
               {loadingSub ? (
                 <div className="p-4 bg-gray-50 rounded-2xl text-center text-xs text-gray-400">
-                  Checking active student membership passes...
+                  Checking active student meal passes...
                 </div>
               ) : isTokenMatch ? (
-                /* Scenario 1: Token Match! */
-                <div className="p-4 bg-emerald-50 rounded-2xl border-2 border-emerald-300 space-y-2 animate-in fade-in duration-200 shadow-2xs">
+                <div className="p-4 bg-green-50 rounded-2xl border border-green-200 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase text-emerald-800 tracking-wider flex items-center gap-1">
-                      <span>🎉</span>
-                      <span>Membership Token Match</span>
+                    <span className="text-xs font-bold text-green-900">
+                      Meal Pass Applied
                     </span>
-                    <span className="text-[10px] font-mono font-black bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-lg border border-emerald-200">
-                      {activeSub?.remainingTokens} Tokens Left
+                    <span className="text-xs font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded-md">
+                      {activeSub?.remainingTokens} Tokens Available
                     </span>
                   </div>
-                  <p className="text-xs text-emerald-900 leading-relaxed font-medium">
-                    Your active <strong>{activeSub?.planName}</strong> ({activeSub?.category?.toUpperCase()}) natively covers this thali.
-                    {matchBadge && (
-                      <span className="block text-[11px] text-emerald-700 font-bold mt-0.5">
-                        ✓ {matchBadge}
-                      </span>
-                    )}
+                  <p className="text-xs text-green-800">
+                    Your <strong>{activeSub?.planName}</strong> pass covers this thali.
                   </p>
-                  <div className="flex justify-between items-center pt-2 border-t border-emerald-200 text-xs">
-                    <span className="font-bold text-emerald-950">Net Amount to Pay:</span>
-                    <span className="font-black text-emerald-700 text-base">₹0 (1 Token Deducted)</span>
+                  <div className="flex justify-between items-center pt-2 border-t border-green-200 text-xs">
+                    <span className="font-medium text-green-950">Amount to pay:</span>
+                    <span className="font-bold text-green-800 text-sm">₹0 (1 Token)</span>
                   </div>
                 </div>
               ) : null}
 
-              {/* Primary Action Button (Swiggy/Zomato style 1-click CTA) */}
+              {/* Primary Action Button */}
               <button
                 type="button"
                 onClick={handleCheckout}
                 disabled={actionLoading || (!allowDirect && !isTokenMatch)}
-                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2 btn-bouncy disabled:opacity-50 cursor-pointer ${
+                className={`w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 ${
                   isTokenMatch
-                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-600/30"
+                    ? "bg-green-700 hover:bg-green-800 text-white"
                     : !allowDirect
                     ? "bg-gray-400 text-white cursor-not-allowed"
-                    : "bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-orange-500/30"
+                    : "bg-orange-600 hover:bg-orange-700 text-white"
                 }`}
               >
                 {actionLoading ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    <span>Opening 1-Tap Payment...</span>
+                    <span>Processing...</span>
                   </>
                 ) : isTokenMatch ? (
-                  <>
-                    <span>🔒</span>
-                    <span>Lock Tomorrow's Seat (1 Membership Token)</span>
-                  </>
+                  <span>Confirm with Meal Pass (1 Token)</span>
                 ) : !allowDirect ? (
-                  <>
-                    <span>🔒</span>
-                    <span>Member Exclusive — Subscription Pass Required</span>
-                  </>
+                  <span>Members Only — Active Pass Required</span>
                 ) : (
-                  <>
-                    <span>⚡</span>
-                    <span>1-Tap UPI • Pay ₹{thaliPrice} & Lock Seat</span>
-                  </>
+                  <span>Pay ₹{thaliPrice} via UPI</span>
                 )}
               </button>
             </div>

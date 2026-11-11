@@ -135,62 +135,41 @@ export default function Login() {
   };
 
   return (
-    <div className="relative min-h-[92vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-stone-950 overflow-hidden select-none">
+    <div className="min-h-[92vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#FAF7F2]">
       
-      {/* ── CINEMATIC HIGH-RES CULINARY BACKGROUND ── */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Real Food Atmosphere Photo with Slow Breathing Pan/Zoom */}
-        <img
-          src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=1920&auto=format&fit=crop&q=80"
-          alt="Culinary Atmosphere"
-          className="w-full h-full object-cover object-center animate-bg-zoom opacity-30 filter saturate-120"
-        />
-
-        {/* Deep Vignette & Dark Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/85 to-stone-950/70" />
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-950/90 via-transparent to-stone-950/90" />
-        <div className="absolute inset-0 culinary-pattern pointer-events-none" />
-
-        {/* Ambient Culinary Embers / Light Orbs */}
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-orange-600/25 rounded-full blur-3xl pointer-events-none animate-float" />
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-500/20 rounded-full blur-3xl pointer-events-none animate-float-delayed" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/10 rounded-full blur-[140px] pointer-events-none" />
-      </div>
-
-      {/* ── 3D GLASS LOGIN CARD ── */}
-      <div className="relative z-20 max-w-md w-full bg-stone-900/90 rounded-2xl border border-stone-800 shadow-2xl p-7 sm:p-9 space-y-6 backdrop-blur-2xl card-minimal text-stone-100">
+      {/* ── HUMANIZED FOOD-TECH LOGIN CARD (ZOMATO/SWIGGY STANDARD) ── */}
+      <div className="w-full max-w-md bg-white rounded-3xl border border-gray-100 shadow-xl p-7 sm:p-9 space-y-6">
         
-        {/* Brand & Dynamic Welcome Header */}
+        {/* Official Brand Logo & Welcome */}
         <div className="text-center space-y-2">
-          <div className="relative inline-flex justify-center items-center">
-            <div className="absolute -inset-2 bg-amber-500/10 rounded-full blur-md pointer-events-none" />
+          <div className="inline-flex justify-center items-center">
             <img
               src={messtaIcon}
               alt="Messta Logo"
-              className="relative w-12 h-12 object-contain drop-shadow-md hover:scale-105 transition-transform duration-300"
+              className="w-14 h-14 object-contain hover:scale-105 transition-transform duration-200"
             />
           </div>
 
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              {isSignup ? "Create Your Account" : "Welcome Back"}
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+              {isSignup ? "Create an Account" : "Welcome Back"}
             </h1>
-            <p className="text-xs text-stone-400 mt-1 font-mono">
+            <p className="text-xs text-gray-500 mt-1 font-medium">
               {selectedPortal === "user"
-                ? "Access student meal passes & daily canteens."
+                ? "Daily student meal passes & canteens in Pune."
                 : selectedPortal === "admin"
-                ? "Enter platform administration console."
-                : "Manage counter tokens, prep headcounts & menu."}
+                ? "Messta administration and finance console."
+                : "Manage counter tokens, daily menus & prep headcount."}
             </p>
           </div>
         </div>
 
-        {/* ── STEP 1: INTERACTIVE ROLE CARDS (Student vs Mess Owner vs Admin) ── */}
-        <div className="space-y-2 font-mono">
+        {/* ── STEP 1: ROLE SELECTION (Student vs Mess Owner vs Admin) ── */}
+        <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <label className="text-stone-400 text-xs">ACCOUNT TYPE</label>
-            <span className="text-[10px] text-amber-400 uppercase tracking-wider">
-              {selectedPortal === "user" ? "Student Diner" : selectedPortal === "admin" ? "SuperAdmin" : "Mess Partner"}
+            <label className="font-bold text-gray-700">Select Account Type</label>
+            <span className="text-[10px] font-semibold text-orange-600 uppercase tracking-wide">
+              {selectedPortal === "user" ? "Student" : selectedPortal === "admin" ? "Admin" : "Mess Partner"}
             </span>
           </div>
 
@@ -203,18 +182,18 @@ export default function Login() {
                 setSelectedPortal("user");
                 setMessMode("owner");
               }}
-              className={`p-3 rounded-xl border text-left transition-all duration-200 flex flex-col justify-between cursor-pointer btn-minimal ${
+              className={`p-3 rounded-2xl border text-left transition-all duration-150 flex flex-col justify-between cursor-pointer ${
                 selectedPortal === "user"
-                  ? "border-amber-500/80 bg-amber-950/20 text-white shadow-sm ring-1 ring-amber-500/30"
-                  : "border-stone-800 bg-stone-950/70 hover:bg-stone-900 text-stone-400"
+                  ? "border-orange-500 bg-orange-50/60 ring-2 ring-orange-500/20 text-gray-900 shadow-xs"
+                  : "border-gray-200 bg-gray-50/50 hover:bg-gray-100 hover:border-gray-300 text-gray-600"
               }`}
             >
               <div className="flex items-center justify-between w-full mb-2">
                 <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
                     selectedPortal === "user"
-                      ? "bg-amber-500 text-stone-950 shadow-xs"
-                      : "bg-stone-900 text-stone-400"
+                      ? "bg-orange-600 text-white shadow-xs"
+                      : "bg-gray-200 text-gray-600"
                   }`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -222,13 +201,10 @@ export default function Login() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                   </svg>
                 </div>
-                {selectedPortal === "user" && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                )}
               </div>
               <div>
-                <span className="font-semibold text-xs block text-stone-200">Student</span>
-                <span className="text-[10px] text-stone-500 block leading-tight">Meal Passes</span>
+                <span className="font-bold text-xs block text-gray-900">Student</span>
+                <span className="text-[10px] text-gray-500 block leading-tight">Meal Passes</span>
               </div>
             </button>
 
@@ -236,31 +212,28 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setSelectedPortal("owner")}
-              className={`p-3 rounded-xl border text-left transition-all duration-200 flex flex-col justify-between cursor-pointer btn-minimal ${
+              className={`p-3 rounded-2xl border text-left transition-all duration-150 flex flex-col justify-between cursor-pointer ${
                 selectedPortal === "owner"
-                  ? "border-amber-500/80 bg-amber-950/20 text-white shadow-sm ring-1 ring-amber-500/30"
-                  : "border-stone-800 bg-stone-950/70 hover:bg-stone-900 text-stone-400"
+                  ? "border-orange-500 bg-orange-50/60 ring-2 ring-orange-500/20 text-gray-900 shadow-xs"
+                  : "border-gray-200 bg-gray-50/50 hover:bg-gray-100 hover:border-gray-300 text-gray-600"
               }`}
             >
               <div className="flex items-center justify-between w-full mb-2">
                 <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
                     selectedPortal === "owner"
-                      ? "bg-amber-500 text-stone-950 shadow-xs"
-                      : "bg-stone-900 text-stone-400"
+                      ? "bg-orange-600 text-white shadow-xs"
+                      : "bg-gray-200 text-gray-600"
                   }`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
-                {selectedPortal === "owner" && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                )}
               </div>
               <div>
-                <span className="font-semibold text-xs block text-stone-200">Mess Owner</span>
-                <span className="text-[10px] text-stone-500 block leading-tight">Kitchen Studio</span>
+                <span className="font-bold text-xs block text-gray-900">Mess Owner</span>
+                <span className="text-[10px] text-gray-500 block leading-tight">Partner Portal</span>
               </div>
             </button>
 
@@ -268,86 +241,83 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setSelectedPortal("admin")}
-              className={`p-3 rounded-xl border text-left transition-all duration-200 flex flex-col justify-between cursor-pointer btn-minimal ${
+              className={`p-3 rounded-2xl border text-left transition-all duration-150 flex flex-col justify-between cursor-pointer ${
                 selectedPortal === "admin"
-                  ? "border-stone-600 bg-stone-800 text-white shadow-sm ring-1 ring-stone-600/50"
-                  : "border-stone-800 bg-stone-950/70 hover:bg-stone-900 text-stone-400"
+                  ? "border-gray-900 bg-gray-100 ring-2 ring-gray-900/20 text-gray-900 shadow-xs"
+                  : "border-gray-200 bg-gray-50/50 hover:bg-gray-100 hover:border-gray-300 text-gray-600"
               }`}
             >
               <div className="flex items-center justify-between w-full mb-2">
                 <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
                     selectedPortal === "admin"
-                      ? "bg-stone-100 text-stone-950 shadow-xs"
-                      : "bg-stone-900 text-stone-400"
+                      ? "bg-gray-900 text-white shadow-xs"
+                      : "bg-gray-200 text-gray-600"
                   }`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
-                {selectedPortal === "admin" && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                )}
               </div>
               <div>
-                <span className="font-semibold text-xs block text-stone-200">Admin</span>
-                <span className="text-[10px] text-stone-500 block leading-tight">Master Keys</span>
+                <span className="font-bold text-xs block text-gray-900">Admin</span>
+                <span className="text-[10px] text-gray-500 block leading-tight">Platform</span>
               </div>
             </button>
           </div>
 
           {/* ── MESS OWNER SUB-MODE SELECTOR: STANDARD OWNER vs. SUPERADMIN ── */}
           {selectedPortal === "owner" && (
-            <div className="bg-stone-950/80 border border-stone-800 rounded-xl p-3 space-y-2.5 animate-in fade-in duration-200">
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 space-y-2.5 animate-in fade-in duration-150">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-stone-300 font-mono text-xs">MESS PORTAL ROLE</span>
-                <span className="text-[10px] text-stone-500 font-mono">
-                  {messMode === "owner" ? "Direct Canteen Owner" : "SuperAdmin Key Required"}
+                <span className="font-bold text-gray-700">Mess Portal Role</span>
+                <span className="text-[10px] font-semibold text-gray-500">
+                  {messMode === "owner" ? "Assigned Canteen" : "SuperAdmin Key Required"}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 font-mono">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setMessMode("owner")}
-                  className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer btn-minimal ${
+                  className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                     messMode === "owner"
-                      ? "bg-stone-900 border-amber-500/80 text-white shadow-xs"
-                      : "bg-stone-950 border-stone-800 text-stone-400 hover:text-white"
+                      ? "bg-white border-orange-500 text-gray-900 shadow-xs ring-1 ring-orange-500/20"
+                      : "bg-white/70 border-gray-200 text-gray-500 hover:bg-white"
                   }`}
                 >
-                  <span className="text-xs font-semibold block text-stone-200">Standard Owner</span>
-                  <p className="text-[10px] text-stone-500 mt-0.5 leading-snug">
-                    Manage your assigned branch.
+                  <span className="text-xs font-bold block text-gray-900">Standard Owner</span>
+                  <p className="text-[10px] text-gray-500 mt-0.5 leading-snug">
+                    Manage your branch.
                   </p>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setMessMode("admin_in_owner")}
-                  className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer btn-minimal ${
+                  className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                     messMode === "admin_in_owner"
-                      ? "bg-stone-900 border-stone-600 text-white shadow-xs"
-                      : "bg-stone-950 border-stone-800 text-stone-400 hover:text-white"
+                      ? "bg-white border-gray-900 text-gray-900 shadow-xs ring-1 ring-gray-900/20"
+                      : "bg-white/70 border-gray-200 text-gray-500 hover:bg-white"
                   }`}
                 >
-                  <span className="text-xs font-semibold block text-stone-200">SuperAdmin</span>
-                  <p className="text-[10px] text-stone-500 mt-0.5 leading-snug">
-                    Manage all + add mess branches.
+                  <span className="text-xs font-bold block text-gray-900">SuperAdmin</span>
+                  <p className="text-[10px] text-gray-500 mt-0.5 leading-snug">
+                    Manage all outlets.
                   </p>
                 </button>
               </div>
 
               {/* Master Security Key Input inside Mess Owner Portal */}
               {messMode === "admin_in_owner" && (
-                <div className="bg-stone-900 border border-stone-800 rounded-lg p-3 space-y-1.5 text-xs animate-in fade-in duration-200">
+                <div className="bg-white border border-gray-300 rounded-xl p-3 space-y-1.5 text-xs animate-in fade-in duration-150">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-mono text-stone-300">
+                    <label className="block text-xs font-bold text-gray-800">
                       Master Security Key
                     </label>
-                    <span className="text-[10px] font-mono text-purple-400 bg-purple-950/60 border border-purple-800 px-2 py-0.5 rounded">
-                      SUPERADMIN PASSKEY
+                    <span className="text-[10px] text-purple-700 bg-purple-50 px-2 py-0.5 rounded font-semibold">
+                      SuperAdmin Passkey
                     </span>
                   </div>
                   <div className="relative">
@@ -356,12 +326,12 @@ export default function Login() {
                       value={adminPasskey}
                       onChange={(e) => setAdminPasskey(e.target.value)}
                       placeholder="Enter Master Security Key..."
-                      className="w-full px-3 py-2 pr-10 text-xs bg-stone-950 border border-stone-800 rounded-lg focus:border-stone-600 font-mono text-white transition focus:outline-none"
+                      className="w-full px-3 py-2 pr-10 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 font-mono text-gray-900 transition"
                     />
                     <button
                       type="button"
                       onClick={() => setShowAdminPasskey(!showAdminPasskey)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white p-1 transition cursor-pointer"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1 cursor-pointer"
                       title={showAdminPasskey ? "Hide key" : "Show key"}
                       aria-label={showAdminPasskey ? "Hide key" : "Show key"}
                     >
@@ -384,8 +354,8 @@ export default function Login() {
 
           {/* ── FOR SUPERADMIN PORTAL: DIRECT PASSKEY GATE ── */}
           {selectedPortal === "admin" && (
-            <div className="bg-stone-950/80 border border-stone-800 rounded-xl p-3 space-y-1.5 text-xs animate-in fade-in duration-200">
-              <label className="block text-xs font-mono text-stone-300">
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 space-y-1.5 text-xs animate-in fade-in duration-150">
+              <label className="block text-xs font-bold text-gray-800">
                 Admin Master Security Key
               </label>
               <div className="relative">
@@ -394,12 +364,12 @@ export default function Login() {
                   value={adminPasskey}
                   onChange={(e) => setAdminPasskey(e.target.value)}
                   placeholder="Enter Master Security Key..."
-                  className="w-full px-3 py-2 pr-10 text-xs bg-stone-950 border border-stone-800 rounded-lg focus:border-stone-600 font-mono text-white transition focus:outline-none"
+                  className="w-full px-3 py-2 pr-10 text-xs bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-500/20 focus:border-gray-700 font-mono text-gray-900 transition"
                 />
                 <button
                   type="button"
                   onClick={() => setShowAdminPasskey(!showAdminPasskey)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white p-1 transition cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1 cursor-pointer"
                   title={showAdminPasskey ? "Hide key" : "Show key"}
                   aria-label={showAdminPasskey ? "Hide key" : "Show key"}
                 >
@@ -415,17 +385,17 @@ export default function Login() {
                   )}
                 </button>
               </div>
-              <p className="text-[11px] text-stone-500 font-mono">
-                Authorizes access to the platform-wide administrative console.
+              <p className="text-[11px] text-gray-500">
+                Authorizes access to platform-wide administration.
               </p>
             </div>
           )}
         </div>
 
-        {/* Error Alert with Warm Badge */}
+        {/* Error Alert */}
         {error && (
-          <div className="p-3 bg-rose-950/60 text-rose-300 text-xs font-mono rounded-xl border border-rose-800 flex items-start gap-2 animate-in fade-in duration-200">
-            <span className="text-rose-400 mt-0.5">!</span>
+          <div className="p-3 bg-red-50 text-red-700 text-xs font-semibold rounded-xl border border-red-200 flex items-start gap-2">
+            <span>⚠️</span>
             <span>{error}</span>
           </div>
         )}
@@ -435,7 +405,7 @@ export default function Login() {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full py-2.5 px-4 bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-200 font-mono text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer btn-minimal"
+          className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
@@ -447,21 +417,21 @@ export default function Login() {
         </button>
 
         <div className="relative flex py-0.5 items-center">
-          <div className="flex-grow border-t border-stone-800" />
-          <span className="flex-shrink mx-3 text-stone-500 text-[10px] font-mono uppercase tracking-wider">
-            or with credentials
+          <div className="flex-grow border-t border-gray-200" />
+          <span className="flex-shrink mx-3 text-gray-400 text-[11px] font-semibold uppercase tracking-wider">
+            or with email
           </span>
-          <div className="flex-grow border-t border-stone-800" />
+          <div className="flex-grow border-t border-gray-200" />
         </div>
 
         {/* ── EMAIL & PASSWORD FORM ── */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-mono text-stone-300 mb-1">
-              EMAIL ADDRESS
+            <label className="block text-xs font-bold text-gray-700 mb-1">
+              Email Address
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" />
                 </svg>
@@ -472,17 +442,17 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={role === "owner" ? "owner@canteen.com" : "student@college.edu"}
-                className="w-full pl-10 pr-4 py-2.5 text-xs bg-stone-950 border border-stone-800 rounded-xl text-white placeholder-stone-600 focus:border-stone-600 font-mono transition focus:outline-none"
+                className="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 font-medium transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-mono text-stone-300 mb-1">
-              PASSWORD
+            <label className="block text-xs font-bold text-gray-700 mb-1">
+              Password
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
@@ -493,12 +463,12 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-10 py-2.5 text-xs bg-stone-950 border border-stone-800 rounded-xl text-white placeholder-stone-600 focus:border-stone-600 font-mono transition focus:outline-none"
+                className="w-full pl-10 pr-10 py-2.5 text-xs bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 font-medium transition"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white p-1 transition cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1 cursor-pointer"
                 title={showPassword ? "Hide password" : "Show password"}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
@@ -519,36 +489,36 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-stone-100 hover:bg-white text-stone-950 font-semibold text-xs font-mono uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer btn-minimal"
+            className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             {loading ? (
               <>
-                <span className="w-4 h-4 border-2 border-stone-950/40 border-t-stone-950 rounded-full animate-spin" />
-                <span>Authenticating...</span>
+                <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <span>Signing in...</span>
               </>
             ) : isSignup ? (
-              <span>Create Account &bull; Get Started</span>
+              <span>Create Account</span>
             ) : (
-              <span>Sign In &rarr;</span>
+              <span>Sign In to Messta</span>
             )}
           </button>
         </form>
 
         {/* ── FOOTER TOGGLE & CAMPUS LINK ── */}
-        <div className="text-center pt-2 border-t border-stone-800 flex flex-col gap-2 font-mono">
+        <div className="text-center pt-2 border-t border-gray-100 flex flex-col gap-2">
           <button
             type="button"
             onClick={() => setIsSignup(!isSignup)}
-            className="text-xs text-stone-400 hover:text-amber-400 transition cursor-pointer"
+            className="text-xs font-semibold text-gray-600 hover:text-orange-600 transition cursor-pointer"
           >
             {isSignup
-              ? "Already have an account? Sign in here"
-              : "Don't have an account yet? Create one now"}
+              ? "Already have an account? Sign in"
+              : "Don't have an account yet? Create one"}
           </button>
 
           <Link
             to="/"
-            className="text-[11px] text-stone-500 hover:text-stone-300 transition"
+            className="text-[11px] text-gray-400 hover:text-gray-600 transition"
           >
             &larr; Back to Campus Dining Directory
           </Link>

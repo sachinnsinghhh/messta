@@ -327,49 +327,41 @@ export default function Home() {
   }, [allMesses, userLocation, radiusKm, selectedCategory]);
 
   return (
-    <div className="min-h-screen pb-24 space-y-12 text-stone-100">
+    <div className="min-h-screen bg-white pb-24 space-y-12">
       
-      {/* ── HIGH-ENERGY CULINARY HERO SECTION ── */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-stone-950 via-[#0B0F17] to-[#0B0F17] text-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-b border-stone-800/80">
-        
-        {/* Subtle Ambient Embers */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10">
+      {/* ── HUMANIZED CLEAN FOOD HERO SECTION (ZOMATO STYLE) ── */}
+      <section className="bg-gradient-to-b from-orange-50/70 via-orange-50/30 to-white text-gray-900 py-12 sm:py-16 px-4 sm:px-6 lg:px-8 border-b border-gray-100">
+        <div className="max-w-4xl mx-auto text-center space-y-6">
 
-          {/* Logo Showcase with Ambient Glow */}
+          {/* Logo Showcase */}
           <div className="flex justify-center items-center">
-            <div className="relative group inline-flex justify-center items-center">
-              <div className="absolute -inset-8 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-full blur-2xl pointer-events-none" />
-              <img
-                src={messtaLogo}
-                alt="Messta Logo"
-                className="relative h-24 sm:h-32 object-contain drop-shadow-[0_16px_32px_rgba(0,0,0,0.7)] group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
+            <img
+              src={messtaLogo}
+              alt="Messta Logo"
+              className="h-20 sm:h-24 object-contain"
+            />
           </div>
 
-          {/* Relatable Student Meme Catchphrase & Subtitle */}
-          <div className="space-y-3 max-w-3xl mx-auto">
-            <h1 className="text-3xl sm:text-5xl font-bold text-white tracking-tight leading-tight min-h-[3.5rem] sm:min-h-[4rem] flex items-center justify-center transition-all duration-300">
+          {/* Natural, Grounded Headline */}
+          <div className="space-y-2 max-w-2xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
               {STUDENT_PUNCHLINES[punchlineIndex].title}
             </h1>
-            <p className="text-xs sm:text-sm text-stone-400 max-w-2xl mx-auto leading-relaxed font-mono min-h-[2.5rem] flex items-center justify-center transition-all duration-300">
+            <p className="text-sm sm:text-base text-gray-600 leading-relaxed font-normal">
               {STUDENT_PUNCHLINES[punchlineIndex].sub}
             </p>
 
-            {/* Quick-tap relatable mood indicators */}
+            {/* Subtle truth switcher dots */}
             <div className="pt-2 flex justify-center items-center gap-1.5">
               {STUDENT_PUNCHLINES.map((_, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => setPunchlineIndex(idx)}
-                  className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
+                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
                     punchlineIndex === idx
-                      ? "w-6 bg-amber-400"
-                      : "w-2 bg-stone-700 hover:bg-stone-500"
+                      ? "w-6 bg-orange-600"
+                      : "w-2 bg-gray-300 hover:bg-gray-400"
                   }`}
                   aria-label={`Student truth ${idx + 1}`}
                 />
@@ -377,43 +369,52 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Search Bar with Tactile Button */}
+          {/* Real Zomato-style Search Bar */}
           <form
             onSubmit={handleSearchSubmit}
-            className="mt-6 max-w-xl mx-auto flex items-center bg-stone-900/90 rounded-xl p-1.5 border border-stone-800 focus-within:border-stone-700 transition-all duration-300 shadow-xl"
+            className="mt-6 max-w-2xl mx-auto flex flex-col sm:flex-row items-center bg-white rounded-2xl p-2 shadow-lg shadow-gray-200/50 border border-gray-200 gap-2"
           >
-            <div className="pl-3.5 pr-2 text-stone-500">
-              <svg className="w-4 h-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-gray-700 border-b sm:border-b-0 sm:border-r border-gray-200 w-full sm:w-auto shrink-0">
+              <svg className="w-4 h-4 text-orange-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Pune, MH</span>
+            </div>
+
+            <div className="flex items-center flex-1 w-full px-2">
+              <svg className="w-4 h-4 text-gray-400 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
+              <input
+                type="text"
+                placeholder="Search by area (Kothrud, FC Road, Hinjewadi) or mess name..."
+                value={searchArea}
+                onChange={(e) => setSearchArea(e.target.value)}
+                className="w-full py-2 text-xs sm:text-sm text-gray-900 focus:outline-none placeholder:text-gray-400"
+              />
+              {searchArea && (
+                <button
+                  type="button"
+                  onClick={() => setSearchArea("")}
+                  className="p-1 text-gray-400 hover:text-gray-600 text-xs font-bold"
+                >
+                  ✕
+                </button>
+              )}
             </div>
-            <input
-              type="text"
-              placeholder="Search area (Kothrud, FC Road, Hinjewadi) or mess..."
-              value={searchArea}
-              onChange={(e) => setSearchArea(e.target.value)}
-              className="w-full px-2 py-2.5 text-xs sm:text-sm bg-transparent text-white rounded-lg focus:outline-none placeholder:text-stone-600 font-mono"
-            />
-            {searchArea && (
-              <button
-                type="button"
-                onClick={() => setSearchArea("")}
-                className="p-1.5 text-stone-400 hover:text-white text-xs font-bold mr-1"
-              >
-                &times;
-              </button>
-            )}
+
             <button
               type="submit"
-              className="bg-stone-100 hover:bg-white text-stone-950 text-xs font-semibold px-4 py-2.5 rounded-lg transition btn-minimal whitespace-nowrap cursor-pointer font-mono"
+              className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold px-6 py-3 rounded-xl transition shadow-sm whitespace-nowrap cursor-pointer"
             >
-              SEARCH
+              Search
             </button>
           </form>
 
-          {/* Quick Pune Campus Locality Chips */}
-          <div className="pt-2 flex flex-wrap justify-center items-center gap-2 text-xs font-mono">
-            <span className="text-stone-400 text-xs">POPULAR:</span>
+          {/* Campus Hub Links */}
+          <div className="pt-2 flex flex-wrap justify-center items-center gap-2 text-xs">
+            <span className="text-gray-500 font-medium text-xs">Popular Areas:</span>
             {["FC Road", "Kothrud (MIT)", "Karve Nagar", "Viman Nagar", "Hinjewadi", "Katraj"].map((area) => (
               <button
                 key={area}
@@ -422,7 +423,7 @@ export default function Home() {
                   const clean = area.split(" ")[0];
                   navigate(`/mess?search=${encodeURIComponent(clean)}`);
                 }}
-                className="bg-stone-900/70 hover:bg-stone-800 text-stone-400 hover:text-stone-200 text-xs uppercase px-2.5 py-1 rounded-md transition border border-stone-800 cursor-pointer btn-minimal"
+                className="bg-white hover:bg-orange-50 hover:text-orange-600 text-gray-600 text-xs font-medium px-3 py-1 rounded-full transition border border-gray-200 cursor-pointer"
               >
                 {area}
               </button>
@@ -432,180 +433,124 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 5KM PROXIMITY RADAR INTERACTIVE CONTROL ── */}
+      {/* ── CLEAN PROXIMITY SECTION ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {!userLocation ? (
-          // UNGRANTED STATE: High-energy radar invitation
-          <div className="relative overflow-hidden bg-stone-900/90 rounded-2xl p-6 sm:p-8 border border-stone-800 shadow-xl space-y-4 card-minimal">
-            
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-              <div className="flex items-start sm:items-center gap-4">
-                
-                {/* Visual Animated Radar Dish */}
-                <div className="relative w-12 h-12 rounded-xl bg-stone-950 border border-stone-800 text-amber-400 flex items-center justify-center shrink-0">
-                  <div className="absolute inset-0 rounded-xl bg-amber-500/10 animate-radar pointer-events-none" />
-                  <svg className="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 bg-stone-950 px-2 py-0.5 rounded-md border border-stone-800">
-                      LIVE RADAR
-                    </span>
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 bg-stone-950 px-2 py-0.5 rounded-md border border-stone-800">
-                      5 KM WALKING MATCH
-                    </span>
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-                    Find Collaborated Messes Within 5 km of You
-                  </h3>
-                  <p className="text-xs text-stone-400 max-w-xl font-mono">
-                    Allow location permission so Messta can instantly detect your hostel or college and surface verified canteens within short walking distance.
-                  </p>
-                </div>
-              </div>
-
-              {/* Action Button: GPS Access */}
-              <div className="shrink-0">
-                <button
-                  type="button"
-                  onClick={handleRequestLocation}
-                  disabled={locationStatus === "requesting"}
-                  className="w-full sm:w-auto px-5 py-3 bg-amber-500 hover:bg-amber-400 text-stone-950 font-semibold font-mono text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50 btn-minimal cursor-pointer"
-                >
-                  {locationStatus === "requesting" ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-stone-950/30 border-t-stone-950 rounded-full animate-spin" />
-                      <span>Detecting GPS...</span>
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4 text-stone-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004 11m0 0a8 8 0 008 8" />
-                      </svg>
-                      <span>Enable 5 km GPS Match</span>
-                    </>
-                  )}
-                </button>
-              </div>
+          <div className="bg-orange-50/60 rounded-2xl p-6 border border-orange-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-[11px] font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded">
+                Nearby Canteens
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900">
+                Find messes within walking distance of your hostel
+              </h3>
+              <p className="text-xs text-gray-600">
+                Share your location to see Pune student messes sorted by distance from you.
+              </p>
             </div>
 
-            {/* Optional Location Feedback Message */}
-            {locationFeedback && (
-              <div className="text-xs font-mono text-stone-300 bg-stone-950 p-3 rounded-xl border border-stone-800">
-                {locationFeedback}
-              </div>
-            )}
-
-            {/* One-click College Campus Presets */}
-            <div className="pt-3 border-t border-stone-800 flex flex-wrap items-center gap-2 text-xs font-mono">
-              <span className="text-stone-500 text-xs">CAMPUS PRESETS:</span>
-              {["FC Road", "Kothrud", "Karve Nagar", "Viman Nagar", "Hinjewadi", "Katraj"].map((hub) => (
-                <button
-                  key={hub}
-                  type="button"
-                  onClick={() => handleSelectAreaLocation(hub)}
-                  className="px-2.5 py-1 bg-stone-950 hover:bg-stone-800 text-stone-400 hover:text-white text-xs font-mono rounded-md border border-stone-800 transition cursor-pointer btn-minimal"
-                >
-                  {hub}
-                </button>
-              ))}
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={handleRequestLocation}
+                disabled={locationStatus === "requesting"}
+                className="px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {locationStatus === "requesting" ? "Detecting location..." : "Use current location"}
+              </button>
             </div>
           </div>
         ) : (
           // ACTIVE STATE: GPS Granted & Interactive Radius Bar
-          <div className="bg-stone-900/90 rounded-2xl p-5 sm:p-6 border border-stone-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 card-minimal">
+          <div className="bg-white rounded-3xl p-5 sm:p-6 border border-stone-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-stone-950 border border-stone-800 text-emerald-400 flex items-center justify-center text-lg shrink-0">
-                <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-xl shadow-xs shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 bg-stone-950 px-2 py-0.5 rounded-md border border-stone-800 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>GPS ACTIVE</span>
+                  <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>GPS Active</span>
                   </span>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 bg-stone-950 px-2 py-0.5 rounded-md border border-stone-800">
-                    RADIUS: {radiusKm} KM
+                  <span className="text-[11px] font-bold text-orange-800 bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200">
+                    Radius: {radiusKm} km
                   </span>
                 </div>
-                <h3 className="text-sm sm:text-base font-semibold text-white mt-1">
+                <h3 className="text-base font-bold text-stone-900 mt-1">
                   {userLocation.label || "Live Position"} &bull;{" "}
-                  <span className="text-amber-400 font-mono">{countWithin5km} messes found</span>
+                  <span className="text-orange-600">{countWithin5km} messes found</span>
                 </h3>
               </div>
             </div>
 
             {/* Radius Switcher & Action Controls */}
-            <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-              <div className="inline-flex p-1 bg-stone-950 rounded-xl border border-stone-800">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex p-1 bg-stone-100 rounded-xl border border-stone-200">
                 <button
                   type="button"
                   onClick={() => setRadiusKm(3)}
-                  className={`px-3 py-1 text-xs rounded-lg transition cursor-pointer btn-minimal ${
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
                     radiusKm === 3
-                      ? "bg-stone-800 text-white font-semibold"
-                      : "text-stone-400 hover:text-white"
+                      ? "bg-white text-orange-600 shadow-xs"
+                      : "text-stone-600 hover:text-stone-900"
                   }`}
                 >
-                  3 KM
+                  3 km
                 </button>
                 <button
                   type="button"
                   onClick={() => setRadiusKm(5)}
-                  className={`px-3 py-1 text-xs rounded-lg transition cursor-pointer btn-minimal ${
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
                     radiusKm === 5
-                      ? "bg-amber-500 text-stone-950 font-semibold"
-                      : "text-stone-400 hover:text-white"
+                      ? "bg-white text-orange-600 shadow-xs"
+                      : "text-stone-600 hover:text-stone-900"
                   }`}
                 >
-                  5 KM
+                  5 km (Standard)
                 </button>
                 <button
                   type="button"
                   onClick={() => setRadiusKm(10)}
-                  className={`px-3 py-1 text-xs rounded-lg transition cursor-pointer btn-minimal ${
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
                     radiusKm === 10
-                      ? "bg-stone-800 text-white font-semibold"
-                      : "text-stone-400 hover:text-white"
+                      ? "bg-white text-orange-600 shadow-xs"
+                      : "text-stone-600 hover:text-stone-900"
                   }`}
                 >
-                  10 KM
+                  10 km
                 </button>
                 <button
                   type="button"
                   onClick={() => setRadiusKm(50)}
-                  className={`px-3 py-1 text-xs rounded-lg transition cursor-pointer btn-minimal ${
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
                     radiusKm > 10
-                      ? "bg-stone-800 text-white font-semibold"
-                      : "text-stone-400 hover:text-white"
+                      ? "bg-white text-orange-600 shadow-xs"
+                      : "text-stone-600 hover:text-stone-900"
                   }`}
                 >
-                  ALL PUNE
+                  All Pune
                 </button>
               </div>
 
               <button
                 type="button"
                 onClick={handleRequestLocation}
-                className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-300 text-xs rounded-lg transition cursor-pointer btn-minimal font-mono"
+                className="px-3 py-2 bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-700 text-xs font-semibold rounded-xl transition cursor-pointer"
                 title="Refresh GPS Coordinates"
               >
-                REFRESH
+                Refresh
               </button>
 
               <button
                 type="button"
                 onClick={handleClearLocation}
-                className="px-3 py-1.5 text-stone-500 hover:text-rose-400 text-xs rounded-lg transition cursor-pointer font-mono"
+                className="px-3 py-2 text-stone-400 hover:text-stone-700 text-xs font-semibold rounded-xl transition cursor-pointer"
                 title="Reset Location"
               >
-                CLEAR
+                Clear
               </button>
             </div>
           </div>
@@ -614,19 +559,19 @@ export default function Home() {
 
       {/* ── CUISINE & CATEGORY PILLS BAR ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none font-mono text-xs">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           {[
-            { id: "all", label: "ALL MESSES" },
-            { id: "veg", label: "PURE VEG ONLY" },
+            { id: "all", label: "All Messes" },
+            { id: "veg", label: "Veg Only Mess" },
           ].map((cat) => (
             <button
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer btn-minimal ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 selectedCategory === cat.id
-                  ? "bg-amber-500 text-stone-950 font-semibold shadow-xs"
-                  : "bg-stone-900 text-stone-400 hover:text-white border border-stone-800"
+                  ? "bg-stone-900 text-white shadow-sm"
+                  : "bg-white hover:bg-stone-100 text-stone-700 border border-stone-200"
               }`}
             >
               {cat.label}
@@ -639,41 +584,41 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 bg-stone-950 px-2 py-0.5 rounded-md border border-stone-800">
-              {userLocation ? "PROXIMITY RADAR" : "VERIFIED LISTINGS"}
+            <span className="text-[11px] font-bold text-orange-700 bg-orange-50 px-2.5 py-0.5 rounded-md">
+              {userLocation ? "Proximity Results" : "Verified Listings"}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1.5 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-stone-900 mt-1 tracking-tight">
               {userLocation
                 ? radiusKm <= 10
                   ? `Messes Within ${radiusKm} km of ${userLocation.label || "You"}`
                   : `All Messes around ${userLocation.label || "You"}`
                 : "Top Student Messes in Pune"}
             </h2>
-            <p className="text-xs text-stone-400 mt-0.5 font-mono">
+            <p className="text-xs text-stone-500 mt-0.5">
               {userLocation
-                ? "Sorted by nearest walking and commute distance."
+                ? "Sorted by nearest walking and commute distance from your location."
                 : "Verified kitchens offering wholesome daily thalis and guaranteed meal slots."}
             </p>
           </div>
 
           <Link
             to="/mess"
-            className="text-xs font-mono uppercase tracking-wider text-amber-400 hover:text-amber-300 flex items-center gap-1 group self-start sm:self-auto"
+            className="text-xs font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 group self-start sm:self-auto"
           >
-            <span>EXPLORE DIRECTORY</span>
+            <span>Explore Complete Directory</span>
             <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
           </Link>
         </div>
 
         {/* Fallback Notice if no messes strictly <= 5 km */}
         {isFallbackClosest && (
-          <div className="p-4 bg-stone-900/80 rounded-xl border border-stone-800 text-xs text-stone-300 font-mono flex items-center justify-between gap-3">
+          <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 font-medium flex items-center justify-between gap-3">
             <span>
-              No messes found strictly within {radiusKm} km. Showing the closest available messes below:
+              📍 No collaborated messes found strictly within {radiusKm} km of this point. Showing the closest available messes across Pune below:
             </span>
             <Link
               to="/mess"
-              className="text-amber-400 underline font-semibold shrink-0 hover:text-amber-300"
+              className="text-orange-700 underline font-bold shrink-0 hover:text-orange-900"
             >
               Browse All
             </Link>
@@ -686,18 +631,18 @@ export default function Home() {
             {[1, 2, 3].map((n) => (
               <div
                 key={n}
-                className="bg-stone-900/60 rounded-2xl h-80 animate-pulse border border-stone-800"
+                className="bg-white rounded-3xl h-80 animate-pulse border border-stone-200"
               />
             ))}
           </div>
         ) : displayedMesses.length === 0 ? (
-          <div className="p-12 text-center bg-stone-900/60 rounded-2xl border border-stone-800 shadow-xs space-y-4">
-            <div className="w-12 h-12 rounded-xl bg-stone-950 border border-stone-800 text-stone-400 flex items-center justify-center mx-auto text-xl">
-              ∅
+          <div className="p-12 text-center bg-white rounded-3xl border border-stone-200 shadow-xs space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center mx-auto text-2xl">
+              🔍
             </div>
             <div className="space-y-1">
-              <h3 className="text-base font-semibold text-white">No Messes Found in This Filter</h3>
-              <p className="text-xs text-stone-400 max-w-md mx-auto font-mono">
+              <h3 className="text-lg font-bold text-stone-900">No Messes Found in This Filter</h3>
+              <p className="text-xs text-stone-500 max-w-md mx-auto">
                 No outlets currently match the selected radius or category. You can browse all verified partner kitchens across Pune.
               </p>
             </div>
@@ -708,9 +653,9 @@ export default function Home() {
                   setSelectedCategory("all");
                   setRadiusKm(50);
                 }}
-                className="px-4 py-2 bg-stone-100 hover:bg-white text-stone-950 font-semibold text-xs rounded-lg transition btn-minimal font-mono"
+                className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded-xl transition"
               >
-                RESET FILTERS & SHOW ALL
+                Reset Filters & Show All
               </button>
             </div>
           </div>

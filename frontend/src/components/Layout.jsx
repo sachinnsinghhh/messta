@@ -36,7 +36,7 @@ export default function Layout({ children }) {
   }, [currentUser, activeRole]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0B0F17] text-stone-100 selection:bg-amber-500 selection:text-black antialiased">
+    <div className="min-h-screen flex flex-col bg-gray-50/50 text-gray-900 selection:bg-orange-500 selection:text-white">
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
@@ -59,20 +59,21 @@ export default function Layout({ children }) {
         }}
       />
 
-      {/* Floating Quick Action Pass Pill for Students on Mobile/Desktop (Minimalist Linear Style) */}
+      {/* Floating Quick Action Pass Pill for Students on Mobile/Desktop */}
       {currentUser &&
         activeRole !== "owner" &&
         activeRole !== "admin" &&
         location.pathname !== "/profile" && (
-          <div className="fixed bottom-5 right-5 z-40 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="fixed bottom-5 right-5 z-40 animate-in fade-in slide-in-from-bottom-3 duration-200">
             <Link
               to="/profile"
-              className="bg-stone-900/95 hover:bg-stone-850 text-stone-200 hover:text-white text-xs font-mono px-3.5 py-2.5 rounded-xl border border-stone-700/80 hover:border-amber-500/60 shadow-2xl backdrop-blur-md flex items-center gap-2.5 transition btn-minimal"
-              title="View your active counter passes & dynamic QR tickets"
+              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 transition"
+              title="View your active meal tokens"
             >
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-              <span className="tracking-wide uppercase font-semibold">Pass Vault</span>
-              <span className="text-stone-500 font-mono text-[10px]">→</span>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+              </svg>
+              <span>My Tokens</span>
             </Link>
           </div>
         )}

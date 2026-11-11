@@ -211,37 +211,37 @@ export default function StudentMembership() {
   const activeMessObj = messes.find((m) => (m._id || m.id) === selectedMessId);
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 text-stone-100">
+    <div className="min-h-screen bg-gray-50/70 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
       
       {/* ── TOP HERO HEADER & OUTLET SELECTION ── */}
-      <div className="bg-stone-900/90 rounded-2xl p-6 sm:p-8 border border-stone-800 shadow-xl space-y-6 card-minimal">
+      <div className="bg-gradient-to-br from-orange-600 via-orange-700 to-amber-700 text-white rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider bg-stone-950 text-amber-400 px-2.5 py-1 rounded-md border border-stone-800">
-              PASS VAULT // STUDENT DINING
+            <span className="text-[10px] font-black uppercase tracking-widest bg-white/20 text-white px-2.5 py-1 rounded-full backdrop-blur-sm">
+              Student Dining Passport
             </span>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1">
-              Membership Pass & Token Vault
+            <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
+              Digital Membership Pass & Token Vault
             </h1>
-            <p className="text-xs sm:text-sm text-stone-400 max-w-xl font-mono">
-              Track active token balances, lock next-day meal slots before 22:00 IST, and present digital dynamic boarding passes.
+            <p className="text-xs sm:text-sm text-orange-100 max-w-xl">
+              Enjoy flexible, transparent dining across Pune messes. Track your remaining tokens, reserve tomorrow&rsquo;s meals, and show dynamic counter QR codes.
             </p>
           </div>
 
           {/* Outlet Switcher for Student */}
-          <div className="bg-stone-950 p-4 rounded-xl border border-stone-800 space-y-1.5 font-mono">
-            <label className="block text-[10px] uppercase text-stone-400">
-              SELECT MESS OUTLET:
+          <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 space-y-1">
+            <label className="block text-[10px] font-black uppercase text-orange-200">
+              Select Mess Outlet:
             </label>
             <select
               value={selectedMessId}
               onChange={(e) => setSelectedMessId(e.target.value)}
               aria-label="Select Mess Outlet"
-              className="bg-stone-900 text-stone-200 text-xs font-mono py-2 px-3 rounded-lg border border-stone-800 focus:outline-none cursor-pointer"
+              className="bg-white text-gray-900 text-xs font-bold py-2 px-3 rounded-xl focus:outline-none cursor-pointer shadow-sm"
             >
               {messes.map((m) => (
                 <option key={m._id || m.id} value={m._id || m.id}>
-                  {m.name} ({m.locality})
+                  📍 {m.name} ({m.locality})
                 </option>
               ))}
             </select>
@@ -251,17 +251,17 @@ export default function StudentMembership() {
 
       {/* Switcher Helper: If user has an active pass at another mess */}
       {otherPass && otherPass.messId && (
-        <div className="p-3.5 bg-stone-900/80 rounded-xl border border-stone-800 text-xs font-mono flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="p-3.5 bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-50 rounded-2xl border border-purple-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-amber-400">ℹ</span>
-            <span className="text-stone-300">
-              You have an active pass (<strong className="text-white">{otherPass.planName}</strong>) at another mess.
+            <span className="text-lg">💡</span>
+            <span className="text-purple-950 font-medium">
+              You have an active pass (<strong className="font-bold">{otherPass.planName}</strong>) at another mess.
             </span>
           </div>
           <button
             type="button"
             onClick={() => setSelectedMessId(otherPass.messId?._id || otherPass.messId)}
-            className="px-3 py-1.5 bg-stone-100 hover:bg-white text-stone-950 text-[11px] font-semibold rounded-lg transition cursor-pointer self-start sm:self-auto btn-minimal"
+            className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-extrabold rounded-xl transition cursor-pointer self-start sm:self-auto"
           >
             Switch to Active Pass Mess →
           </button>
@@ -271,17 +271,17 @@ export default function StudentMembership() {
       {/* Feedback Banner */}
       {feedback.text && (
         <div
-          className={`p-4 rounded-xl border text-xs font-mono flex items-center justify-between ${
+          className={`p-4 rounded-2xl border text-xs font-semibold flex items-center justify-between ${
             feedback.type === "success"
-              ? "bg-emerald-950/60 border-emerald-800 text-emerald-300"
-              : "bg-rose-950/60 border-rose-800 text-rose-300"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+              : "bg-red-50 border-red-200 text-red-800"
           }`}
         >
           <span>{feedback.text}</span>
           <button
             type="button"
             onClick={() => setFeedback({ text: "", type: "" })}
-            className="text-stone-400 hover:text-white font-bold"
+            className="text-gray-400 hover:text-gray-600 font-bold"
           >
             ✕
           </button>
@@ -290,9 +290,9 @@ export default function StudentMembership() {
 
       {/* Loading State */}
       {loading ? (
-        <div className="bg-stone-900/60 rounded-2xl p-12 border border-stone-800 text-center space-y-3 font-mono">
-          <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-xs text-stone-400">Loading student pass vault & token balances...</p>
+        <div className="bg-white rounded-3xl p-12 border border-gray-200/80 shadow-xs text-center space-y-3">
+          <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-xs font-bold text-gray-600">Loading student membership pass and tokens...</p>
         </div>
       ) : mySubscription ? (
         /* ── BALANCED 2-COLUMN LAYOUT: DIGITAL PASS & SEAT RESERVATION ── */
@@ -302,36 +302,36 @@ export default function StudentMembership() {
           <div className="lg:col-span-6 space-y-6">
             
             {/* DIGITAL PASS CARD */}
-            <div className="bg-stone-900/90 rounded-2xl p-6 sm:p-7 border border-stone-800 shadow-xl space-y-5 card-minimal">
-              <div className="flex justify-between items-center font-mono">
-                <span className="text-[10px] uppercase tracking-wider text-amber-400 bg-stone-950 px-2.5 py-1 rounded-md border border-stone-800">
-                  ACTIVE DIGITAL PASS
+            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs space-y-5">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-1 rounded-md">
+                  Active Digital Pass
                 </span>
-                <span className="text-[10px] text-stone-400 bg-stone-950 px-2.5 py-1 rounded-md border border-stone-800">
+                <span className="text-[10px] font-mono font-bold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-md">
                   {mySubscription.passCode}
                 </span>
               </div>
 
               {/* Visual Holographic Digital Card */}
-              <div className="relative overflow-hidden rounded-xl bg-stone-950 text-white p-5 shadow-md border border-stone-800 space-y-4">
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-orange-950 text-white p-5 shadow-md border border-gray-700/60 space-y-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-[10px] uppercase font-mono text-amber-400 tracking-wider">
+                    <span className="text-[10px] uppercase font-bold text-orange-400 tracking-wider">
                       {activeMessObj?.name || "Messta Partner Outlet"}
                     </span>
-                    <h3 className="text-lg font-bold tracking-tight mt-0.5 text-white">
+                    <h3 className="text-lg font-black tracking-tight mt-0.5">
                       {mySubscription.planName}
                     </h3>
-                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-stone-900 text-stone-300 rounded border border-stone-800">
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 bg-orange-500/20 text-orange-300 rounded border border-orange-500/30">
                       {mySubscription.category} • {mySubscription.frequency}
                     </span>
                   </div>
 
                   <span
-                    className={`text-[9px] uppercase font-mono px-2.5 py-0.5 rounded-md border ${
+                    className={`text-[9px] uppercase font-black px-2.5 py-0.5 rounded-full ${
                       mySubscription.status === "active"
-                        ? "bg-emerald-950/60 text-emerald-400 border-emerald-800"
-                        : "bg-rose-950/60 text-rose-400 border-rose-800"
+                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                        : "bg-red-500/20 text-red-400 border border-red-500/30"
                     }`}
                   >
                     {mySubscription.status}
@@ -339,16 +339,16 @@ export default function StudentMembership() {
                 </div>
 
                 {/* Token Burn-down Progress Meter */}
-                <div className="space-y-1.5 pt-2 font-mono">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-stone-400 text-[10px] uppercase tracking-wider">REMAINING BALANCE</span>
-                    <span className="text-amber-400 font-semibold">
-                      {mySubscription.remainingTokens} / {mySubscription.totalTokens} TOKENS
+                <div className="space-y-1.5 pt-2">
+                  <div className="flex justify-between text-xs font-black">
+                    <span className="text-gray-400 text-[10px] uppercase tracking-wider">Remaining Balance</span>
+                    <span className="text-orange-400">
+                      {mySubscription.remainingTokens} / {mySubscription.totalTokens} Tokens
                     </span>
                   </div>
-                  <div className="w-full bg-stone-900 h-1.5 rounded-full overflow-hidden border border-stone-800">
+                  <div className="w-full bg-gray-700/80 h-2.5 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-amber-400 rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full transition-all duration-500"
                       style={{
                         width: `${(mySubscription.remainingTokens / mySubscription.totalTokens) * 100}%`,
                       }}
@@ -356,10 +356,10 @@ export default function StudentMembership() {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-end pt-2 text-[10px] text-stone-400 border-t border-stone-800 font-mono">
+                <div className="flex justify-between items-end pt-2 text-[10px] text-gray-400 border-t border-gray-700/50">
                   <div>
-                    <span className="block text-[8px] uppercase tracking-wider text-stone-500">CARDHOLDER</span>
-                    <span className="font-semibold text-stone-200">{mySubscription.userName}</span>
+                    <span className="block text-[8px] uppercase tracking-wider text-gray-500">Cardholder</span>
+                    <span className="font-bold text-gray-200">{mySubscription.userName}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -381,23 +381,24 @@ export default function StudentMembership() {
                           frequency: mySubscription.frequency,
                         }
                       })}
-                      className="px-2.5 py-1 bg-stone-100 hover:bg-white text-stone-950 font-semibold text-xs rounded-md transition flex items-center gap-1 cursor-pointer btn-minimal font-mono"
+                      className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white font-bold rounded-lg border border-white/20 transition flex items-center gap-1 shadow-2xs backdrop-blur-xs cursor-pointer"
                       title="Show Dynamic Pass QR"
                     >
-                      <span>PASS QR</span>
+                      <span>📱</span>
+                      <span>Pass QR</span>
                     </button>
-                    <span className="font-mono text-stone-400 font-semibold">{mySubscription.passCode}</span>
+                    <span className="font-mono text-gray-300 font-bold">{mySubscription.passCode}</span>
                   </div>
                 </div>
               </div>
 
               {/* Instant Counter Token Result Banner */}
               {generatedCode && (
-                <div className="p-4 bg-stone-950 border border-stone-800 rounded-xl text-center space-y-2 font-mono">
-                  <span className="text-[10px] uppercase text-amber-400 tracking-wider">
-                    COUNTER CODE GENERATED
+                <div className="p-4 bg-emerald-50 border border-emerald-300 rounded-2xl text-center space-y-2 animate-in zoom-in-95 duration-200">
+                  <span className="text-[10px] font-black uppercase text-emerald-700 tracking-wider">
+                    Counter Code Ready
                   </span>
-                  <p className="text-2xl font-mono font-bold text-white tracking-widest">
+                  <p className="text-2xl font-mono font-black text-emerald-900 tracking-widest">
                     {generatedCode}
                   </p>
                   <button
@@ -420,22 +421,23 @@ export default function StudentMembership() {
                         frequency: mySubscription.frequency,
                       }
                     })}
-                    className="px-4 py-2 bg-stone-100 hover:bg-white text-stone-950 font-semibold text-xs rounded-lg transition flex items-center justify-center gap-1.5 mx-auto cursor-pointer btn-minimal font-mono"
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 mx-auto cursor-pointer"
                   >
-                    <span>SHOW DYNAMIC QR CODE</span>
+                    <span>📱</span>
+                    <span>Show Dynamic QR Code</span>
                   </button>
-                  <p className="text-[10px] text-stone-400 font-mono">
-                    Present dynamic QR at the counter to redeem.
+                  <p className="text-[11px] text-emerald-700">
+                    Show this dynamic QR code to the mess staff at the counter to collect your meal!
                   </p>
                 </div>
               )}
 
               {/* ── TODAY'S COUNTER ACCESS STATUS ── */}
-              <div className="space-y-2 pt-2 border-t border-stone-800 font-mono">
-                <span className="text-[10px] uppercase text-stone-400 tracking-wider flex items-center justify-between">
-                  <span>TODAY&rsquo;S ACCESS // {todayStr}</span>
-                  <span className="text-[9px] bg-stone-950 text-stone-400 border border-stone-800 px-2 py-0.5 rounded">
-                    LIVE STATUS
+              <div className="space-y-2 pt-2 border-t border-gray-100">
+                <span className="text-[10px] font-black uppercase text-gray-500 tracking-wider flex items-center justify-between">
+                  <span>Today&rsquo;s Counter Access ({todayStr})</span>
+                  <span className="text-[9px] bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded-full">
+                    Live Check
                   </span>
                 </span>
 
@@ -450,20 +452,20 @@ export default function StudentMembership() {
                         {todayBookings.map((b, idx) => (
                           <div
                             key={idx}
-                            className="p-3.5 bg-stone-950 border border-stone-800 rounded-xl flex items-center justify-between gap-3 text-xs font-mono"
+                            className="p-3.5 bg-emerald-50 border border-emerald-300 rounded-2xl flex items-center justify-between gap-3 text-xs"
                           >
                             <div>
                               <div className="flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                <strong className="font-semibold text-white">
-                                  CONFIRMED SEAT
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <strong className="font-extrabold text-emerald-950">
+                                  Confirmed Seat for Today
                                 </strong>
                               </div>
-                              <p className="text-[11px] text-stone-400 mt-0.5">
+                              <p className="text-[11px] text-emerald-800 mt-0.5">
                                 {b.mealType} {b.timeSlot ? `• ${b.timeSlot}` : ""}
                               </p>
-                              <span className="font-mono text-amber-400 text-xs">
-                                TOKEN: {b.tokenCode}
+                              <span className="font-mono font-black text-emerald-900 text-xs">
+                                Token: {b.tokenCode}
                               </span>
                             </div>
                             <button
@@ -488,9 +490,10 @@ export default function StudentMembership() {
                                   },
                                 })
                               }
-                              className="px-3 py-1.5 bg-stone-100 hover:bg-white text-stone-950 font-semibold text-[10px] uppercase rounded-lg transition cursor-pointer btn-minimal"
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase rounded-xl transition cursor-pointer flex items-center gap-1 shadow-xs"
                             >
-                              <span>COUNTER QR</span>
+                              <span>📱</span>
+                              <span>Counter QR</span>
                             </button>
                           </div>
                         ))}
@@ -499,13 +502,13 @@ export default function StudentMembership() {
                   }
 
                   return (
-                    <div className="p-3 rounded-xl bg-stone-950 border border-stone-800 text-stone-400 text-xs space-y-1 font-mono">
-                      <div className="flex items-center gap-1.5 text-[11px] text-amber-400 font-semibold">
-                        <span>!</span>
+                    <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-300 text-amber-950 text-xs space-y-1">
+                      <div className="flex items-center gap-1.5 font-black text-[11px] text-amber-900">
+                        <span>⚠️</span>
                         <span>No Advance Slot Booked for Today</span>
                       </div>
-                      <p className="text-[10px] text-stone-400 leading-snug">
-                        Kitchen rations were finalized yesterday at 22:00 IST. Please reserve tomorrow&rsquo;s slot using the advance seat locker.
+                      <p className="text-[10px] text-amber-800 leading-snug">
+                        Kitchen rations were finalized yesterday night. Without an advance seat reservation, meal tokens cannot be generated on the spot. Please reserve your slot for <strong>Tomorrow</strong> using the reservation box!
                       </p>
                     </div>
                   );
@@ -514,19 +517,19 @@ export default function StudentMembership() {
 
               {/* ── RECENT MEAL REDEMPTIONS ── */}
               {mySubscription.dailyRedemptions?.length > 0 && (
-                <div className="pt-2 border-t border-stone-800 space-y-2 font-mono">
-                  <span className="text-[10px] uppercase tracking-wider text-stone-500 block">
-                    RECENT REDEMPTIONS
+                <div className="pt-2 border-t border-gray-100 space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
+                    Recent Meal Redemptions
                   </span>
                   <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                     {mySubscription.dailyRedemptions.slice(-5).reverse().map((r, i) => (
                       <div
                         key={i}
-                        className="p-2.5 bg-stone-950 rounded-xl border border-stone-800 text-xs flex justify-between items-center"
+                        className="p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-xs flex justify-between items-center"
                       >
                         <div>
-                          <span className="font-mono text-stone-200 block">{r.tokenCode}</span>
-                          <span className="text-[10px] text-stone-500 font-mono">
+                          <span className="font-mono font-bold text-gray-900 block">{r.tokenCode}</span>
+                          <span className="text-[10px] text-gray-500 font-medium">
                             {r.mealType} • {r.date}
                           </span>
                         </div>
@@ -552,16 +555,17 @@ export default function StudentMembership() {
                                 frequency: mySubscription.frequency,
                               }
                             })}
-                            className="px-2 py-0.5 bg-stone-900 hover:bg-stone-800 text-stone-200 text-[10px] rounded border border-stone-800 flex items-center gap-1 transition cursor-pointer btn-minimal"
+                            className="px-2 py-0.5 bg-white hover:bg-gray-100 text-gray-700 text-[10px] font-bold rounded-lg border border-gray-200 shadow-2xs flex items-center gap-1 transition active:scale-95 cursor-pointer"
                             title="Show Dynamic QR Ticket"
                           >
+                            <span>📱</span>
                             <span>QR</span>
                           </button>
                           <span
-                            className={`text-[9px] uppercase px-2 py-0.5 rounded border ${
+                            className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
                               r.status === "served"
-                                ? "bg-emerald-950/60 text-emerald-400 border-emerald-800"
-                                : "bg-amber-950/60 text-amber-400 border-amber-800"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-amber-100 text-amber-800"
                             }`}
                           >
                             {r.status || "pending"}
@@ -580,39 +584,39 @@ export default function StudentMembership() {
           {/* ════ RIGHT COLUMN: ADVANCE RESERVATION ENGINE & COMMUNITY BROADCASTS ════ */}
           <div className="lg:col-span-6 space-y-6">
 
-            {/* ── ADVANCE SEAT RESERVATION & CUT-OFF TIMING ENGINE ── */}
+            {/* ── ADVANCE SEAT RESERVATION & CUT-OFF TIMING (HUMANIZED) ── */}
             {mySubscription.status === "active" && mySubscription.remainingTokens > 0 ? (
-              <div className="p-6 rounded-2xl bg-stone-900/90 text-white space-y-4 border border-stone-800 shadow-xl card-minimal font-mono">
+              <div className="p-6 rounded-2xl bg-white text-gray-900 space-y-4 border border-gray-200 shadow-xs">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[9px] uppercase tracking-wider text-amber-400 bg-stone-950 px-2.5 py-0.5 rounded border border-stone-800 block w-max">
-                      ADVANCE SEAT LOCKER
-                    </span>
-                    <h4 className="font-bold text-base text-white mt-1">
-                      Lock Tomorrow&rsquo;s Slot ({tomorrowStr})
+                    <h4 className="font-bold text-base text-gray-900">
+                      Reserve Tomorrow&rsquo;s Meal
                     </h4>
+                    <span className="text-xs text-gray-500 block mt-0.5">
+                      Date: {tomorrowStr}
+                    </span>
                   </div>
-                  <span className="text-xs font-mono text-amber-400 bg-stone-950 border border-stone-800 px-2.5 py-1 rounded-lg">
-                    {mySubscription.remainingTokens} TOKENS LEFT
+                  <span className="text-xs font-semibold text-green-800 bg-green-50 border border-green-200 px-2.5 py-1 rounded-lg">
+                    {mySubscription.remainingTokens} Tokens Left
                   </span>
                 </div>
 
                 {/* Cut-off Timers */}
-                <div className="grid grid-cols-2 gap-3 text-[11px] font-mono">
-                  <div className="p-3 rounded-xl bg-stone-950 border border-stone-800">
-                    <span className="text-stone-400 block text-[9px] uppercase">LUNCH CUT-OFF</span>
-                    <strong className="text-amber-400">TONIGHT 22:00 IST</strong>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-gray-50 border border-gray-100">
+                    <span className="text-gray-500 block text-[10px] uppercase font-semibold">Lunch Cut-off</span>
+                    <strong className="text-gray-900 text-xs">Tonight 10:00 PM</strong>
                   </div>
-                  <div className="p-3 rounded-xl bg-stone-950 border border-stone-800">
-                    <span className="text-stone-400 block text-[9px] uppercase">DINNER CUT-OFF</span>
-                    <strong className="text-stone-200">TOMORROW 14:00 IST</strong>
+                  <div className="p-3 rounded-xl bg-gray-50 border border-gray-100">
+                    <span className="text-gray-500 block text-[10px] uppercase font-semibold">Dinner Cut-off</span>
+                    <strong className="text-gray-900 text-xs">Tomorrow 2:00 PM</strong>
                   </div>
                 </div>
 
                 {/* Meal Period Toggle */}
                 <div>
-                  <label className="block text-[10px] text-stone-400 uppercase mb-1.5">
-                    SELECT MEAL SPREAD
+                  <label className="block text-[11px] font-semibold text-gray-600 uppercase tracking-wider mb-1.5">
+                    Select Meal
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <button
@@ -621,13 +625,13 @@ export default function StudentMembership() {
                         setAdvanceMeal("lunch");
                         setAdvanceTimeSlot("12:30 PM – 01:00 PM");
                       }}
-                      className={`py-2 px-3 rounded-lg text-xs font-mono uppercase transition cursor-pointer flex items-center justify-center gap-1.5 btn-minimal ${
+                      className={`py-2.5 px-3 rounded-xl font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 ${
                         advanceMeal === "lunch"
-                          ? "bg-stone-100 text-stone-950 font-semibold"
-                          : "bg-stone-950 text-stone-400 hover:text-white border border-stone-800"
+                          ? "bg-orange-600 text-white shadow-xs"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
-                      <span>LUNCH SPREAD</span>
+                      <span>Lunch</span>
                     </button>
                     <button
                       type="button"
@@ -635,26 +639,26 @@ export default function StudentMembership() {
                         setAdvanceMeal("dinner");
                         setAdvanceTimeSlot("08:00 PM – 08:30 PM");
                       }}
-                      className={`py-2 px-3 rounded-lg text-xs font-mono uppercase transition cursor-pointer flex items-center justify-center gap-1.5 btn-minimal ${
+                      className={`py-2.5 px-3 rounded-xl font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 ${
                         advanceMeal === "dinner"
-                          ? "bg-stone-100 text-stone-950 font-semibold"
-                          : "bg-stone-950 text-stone-400 hover:text-white border border-stone-800"
+                          ? "bg-orange-600 text-white shadow-xs"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
-                      <span>DINNER SPREAD</span>
+                      <span>Dinner</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Time Slot Selection */}
                 <div>
-                  <label className="block text-[10px] text-stone-400 uppercase mb-1.5">
-                    SELECT TIME WINDOW
+                  <label className="block text-[11px] font-semibold text-gray-600 uppercase tracking-wider mb-1.5">
+                    Preferred Time Slot
                   </label>
                   <select
                     value={advanceTimeSlot}
                     onChange={(e) => setAdvanceTimeSlot(e.target.value)}
-                    className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-200 font-mono focus:outline-none cursor-pointer"
+                    className="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-xs text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 cursor-pointer"
                   >
                     {advanceMeal === "lunch" ? (
                       <>
@@ -679,64 +683,64 @@ export default function StudentMembership() {
                   type="button"
                   disabled={actionLoading}
                   onClick={() => handleLockAdvanceSlot()}
-                  className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-stone-950 font-semibold text-xs font-mono uppercase tracking-wider rounded-xl shadow-md transition disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 btn-minimal"
+                  className="w-full py-3 bg-green-700 hover:bg-green-800 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                 >
                   {actionLoading ? (
                     <>
-                      <span className="w-3.5 h-3.5 border-2 border-stone-950/40 border-t-stone-950 rounded-full animate-spin"></span>
-                      <span>Locking Seat...</span>
+                      <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                      <span>Reserving Seat...</span>
                     </>
                   ) : (
-                    <span>Confirm Reservation (1 Token • ₹0.00)</span>
+                    <span>Reserve Seat (1 Token)</span>
                   )}
                 </button>
               </div>
             ) : (
-              <div className="p-5 bg-stone-900/90 border border-stone-800 text-stone-400 text-xs rounded-2xl text-center space-y-2 card-minimal font-mono">
-                <span className="text-xl block">∅</span>
-                <p className="font-semibold text-white">All tokens consumed on this pass.</p>
+              <div className="p-5 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-2xl text-center space-y-2">
+                <span className="text-2xl block">🎟️</span>
+                <p className="font-bold">All tokens consumed on this membership pass.</p>
                 {selectedMessId && (
                   <Link
                     to={`/mess/${selectedMessId}#passes`}
-                    className="inline-block px-4 py-2 bg-stone-100 hover:bg-white text-stone-950 font-semibold text-xs rounded-lg transition btn-minimal"
+                    className="inline-block px-4 py-2 bg-orange-600 text-white font-bold text-xs rounded-xl hover:bg-orange-700 transition"
                   >
-                    Renew or Purchase Pass →
+                    Renew or Purchase Pass on Mess Page →
                   </Link>
                 )}
               </div>
             )}
 
             {/* ── COMMUNITY BROADCASTS FEED ── */}
-            <div className="bg-stone-900/90 rounded-2xl p-6 sm:p-7 border border-stone-800 shadow-xl space-y-4 card-minimal font-mono">
+            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-amber-400 bg-stone-950 px-2 py-0.5 rounded border border-stone-800">
-                    MESS DISPATCH
+                  <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
+                    Community Feed
                   </span>
-                  <h3 className="text-base font-bold text-white mt-1">
+                  <h3 className="text-base font-black text-gray-900 mt-1">
                     Daily Notes & Specials
                   </h3>
                 </div>
-                <span className="text-xs text-stone-500 font-mono">
-                  {broadcasts.length} NOTES
+                <span className="text-xs font-bold text-gray-400">
+                  {broadcasts.length} notes
                 </span>
               </div>
 
-              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+              <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
                 {broadcasts.length === 0 ? (
-                  <p className="text-xs text-stone-500 py-6 text-center font-mono">
+                  <p className="text-xs text-gray-400 py-6 text-center">
                     No announcements from mess owner today.
                   </p>
                 ) : (
                   broadcasts.map((b) => (
-                    <div key={b._id} className="p-3 bg-stone-950 rounded-xl border border-stone-800 text-xs space-y-1">
+                    <div key={b._id} className="p-3 bg-orange-50/50 rounded-2xl border border-orange-100 text-xs space-y-1">
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-mono uppercase text-amber-400">
+                        <span className="text-[10px] font-black uppercase text-orange-600">
                           {b.tag || "Daily Special"}
                         </span>
-                        <span className="text-[10px] text-stone-500 font-mono">{b.date}</span>
+                        <span className="text-[10px] text-gray-400 font-semibold">{b.date}</span>
                       </div>
-                      <p className="text-stone-300 font-sans">{b.message}</p>
+                      <p className="font-semibold text-gray-800">{b.message}</p>
                     </div>
                   ))
                 )}
@@ -745,17 +749,17 @@ export default function StudentMembership() {
 
             {/* ── QUICK OUTLET LINK ── */}
             {activeMessObj && (
-              <div className="p-4 bg-stone-900/90 rounded-xl border border-stone-800 flex items-center justify-between gap-3 text-xs font-mono card-minimal">
+              <div className="p-4 bg-white rounded-2xl border border-gray-200/80 flex items-center justify-between gap-3 text-xs">
                 <div>
-                  <span className="text-[10px] uppercase text-stone-500 block">CURRENT OUTLET</span>
-                  <strong className="text-white font-semibold">{activeMessObj.name}</strong>
-                  <span className="text-stone-400 block text-[11px]">{activeMessObj.locality || activeMessObj.address}</span>
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Current Outlet</span>
+                  <strong className="text-gray-900 font-bold">{activeMessObj.name}</strong>
+                  <span className="text-gray-500 block text-[11px]">{activeMessObj.locality || activeMessObj.address}</span>
                 </div>
                 <Link
                   to={`/mess/${activeMessObj._id || activeMessObj.id}`}
-                  className="px-3.5 py-2 bg-stone-950 hover:bg-stone-800 text-stone-200 text-xs rounded-lg border border-stone-800 transition shrink-0 btn-minimal"
+                  className="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl transition shrink-0"
                 >
-                  View Outlet →
+                  View Mess Page →
                 </Link>
               </div>
             )}
@@ -766,19 +770,19 @@ export default function StudentMembership() {
       ) : (
         /* ── WHEN USER HAS NO ACTIVE PASS FOR THIS MESS ── */
         <div className="space-y-6">
-          <div className="bg-stone-900/90 rounded-2xl p-8 sm:p-12 border border-stone-800 shadow-xl text-center max-w-2xl mx-auto space-y-5 card-minimal font-mono">
-            <div className="w-12 h-12 rounded-xl bg-stone-950 border border-stone-800 text-amber-400 flex items-center justify-center text-xl mx-auto">
-              ∅
+          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-gray-200/80 shadow-xs text-center max-w-2xl mx-auto space-y-5">
+            <div className="w-16 h-16 rounded-3xl bg-orange-100 text-orange-600 flex items-center justify-center text-3xl mx-auto shadow-inner">
+              🎟️
             </div>
             <div className="space-y-2">
-              <span className="text-[10px] uppercase tracking-wider text-amber-400 bg-stone-950 px-2.5 py-0.5 rounded border border-stone-800">
-                NO ACTIVE PASS
+              <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-md">
+                No Active Pass
               </span>
-              <h3 className="text-xl sm:text-2xl font-bold text-white">
+              <h3 className="text-xl sm:text-2xl font-black text-gray-900">
                 No Active Pass for {activeMessObj?.name || "this Mess"}
               </h3>
-              <p className="text-xs sm:text-sm text-stone-400 max-w-md mx-auto leading-relaxed">
-                You don&rsquo;t have an active membership pass for this outlet. All dining passes can be explored and purchased directly with each mess.
+              <p className="text-xs sm:text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
+                You don&rsquo;t have an active membership pass for this outlet. All dining passes can be checked and purchased directly with each mess!
               </p>
             </div>
 
@@ -786,48 +790,48 @@ export default function StudentMembership() {
               {selectedMessId && (
                 <Link
                   to={`/mess/${selectedMessId}#passes`}
-                  className="w-full sm:w-auto px-5 py-2.5 bg-stone-100 hover:bg-white text-stone-950 font-semibold text-xs uppercase tracking-wider rounded-lg transition btn-minimal flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xs transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>View {activeMessObj?.name || "Mess"} Passes</span>
+                  <span>View {activeMessObj?.name || "Mess"} Passes & Menu</span>
                   <span>→</span>
                 </Link>
               )}
               <Link
                 to="/mess"
-                className="w-full sm:w-auto px-4 py-2.5 bg-stone-950 hover:bg-stone-800 text-stone-300 font-semibold text-xs uppercase tracking-wider rounded-lg border border-stone-800 transition cursor-pointer btn-minimal"
+                className="w-full sm:w-auto px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer"
               >
-                Browse Outlets
+                Browse All Messes
               </Link>
             </div>
           </div>
 
           {/* If announcements exist for this mess, student can still read them */}
           {broadcasts.length > 0 && (
-            <div className="max-w-2xl mx-auto bg-stone-900/90 rounded-2xl p-6 sm:p-7 border border-stone-800 shadow-xl space-y-4 card-minimal font-mono">
+            <div className="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-amber-400 bg-stone-950 px-2 py-0.5 rounded border border-stone-800">
-                    MESS DISPATCH
+                  <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
+                    Community Feed
                   </span>
-                  <h3 className="text-base font-bold text-white mt-1">
+                  <h3 className="text-base font-black text-gray-900 mt-1">
                     Daily Notes from {activeMessObj?.name || "Mess"}
                   </h3>
                 </div>
-                <span className="text-xs text-stone-500 font-mono">
-                  {broadcasts.length} NOTES
+                <span className="text-xs font-bold text-gray-400">
+                  {broadcasts.length} notes
                 </span>
               </div>
 
-              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+              <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
                 {broadcasts.map((b) => (
-                  <div key={b._id} className="p-3 bg-stone-950 rounded-xl border border-stone-800 text-xs space-y-1">
+                  <div key={b._id} className="p-3 bg-orange-50/50 rounded-2xl border border-orange-100 text-xs space-y-1">
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-mono uppercase text-amber-400">
+                      <span className="text-[10px] font-black uppercase text-orange-600">
                         {b.tag || "Daily Special"}
                       </span>
-                      <span className="text-[10px] text-stone-500 font-mono">{b.date}</span>
+                      <span className="text-[10px] text-gray-400 font-semibold">{b.date}</span>
                     </div>
-                    <p className="text-stone-300 font-sans">{b.message}</p>
+                    <p className="font-semibold text-gray-800">{b.message}</p>
                   </div>
                 ))}
               </div>

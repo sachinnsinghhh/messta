@@ -236,77 +236,64 @@ export default function UserProfile() {
                   return (
                     <div
                       key={token._id}
-                      className="group relative bg-stone-900 text-stone-100 rounded-3xl border border-stone-800 p-6 shadow-2xl hover:border-amber-500/50 transition-all duration-300 overflow-hidden flex flex-col justify-between space-y-4 card-playful"
+                      className="bg-white rounded-2xl border border-gray-200 p-5 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between space-y-4"
                     >
-                      {/* Perforated boarding pass punch notches on sides */}
-                      <div className="ticket-notch-left bg-gray-50/90 border-r border-stone-700 shadow-inner"></div>
-                      <div className="ticket-notch-right bg-gray-50/90 border-l border-stone-700 shadow-inner"></div>
-
+                      {/* Top Header: Mess, Thali, Status */}
                       <div className="flex justify-between items-start gap-3">
-                        <div className="space-y-1.5">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-md border border-amber-500/30">
-                              PASS #{token.token}
-                            </span>
-                            <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400">
-                              {token.mealType} SPREAD
-                            </span>
-                          </div>
-
-                          <h3 className="font-bold text-white text-lg tracking-tight leading-tight group-hover:text-amber-400 transition-colors">
+                        <div className="space-y-1">
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block">
+                            {token.messName}
+                          </span>
+                          <h3 className="font-bold text-gray-900 text-lg leading-snug">
                             {token.thaliName || "Standard Daily Thali"}
                           </h3>
 
-                          <div className="flex items-center gap-2 flex-wrap pt-0.5 text-xs font-mono">
-                            <span className="text-stone-300 bg-stone-800/80 px-2.5 py-1 rounded-lg border border-stone-700 flex items-center gap-1.5">
-                              <span className="text-amber-400">⏰</span>
-                              <span>{effectiveTimeSlot}</span>
+                          <div className="flex items-center gap-2 text-xs text-gray-600 font-medium pt-0.5">
+                            <span className="font-semibold text-orange-600 capitalize">
+                              {token.mealType || "Lunch"}
                             </span>
-                            <span className="text-stone-400 bg-stone-800/50 px-2.5 py-1 rounded-lg border border-stone-800">
-                              📍 {token.messName}
-                            </span>
+                            <span>•</span>
+                            <span>{effectiveTimeSlot}</span>
+                            <span>•</span>
+                            <span>{token.bookingDate}</span>
                           </div>
-
-                          <p className="text-[11px] text-stone-400 font-mono pt-0.5 flex items-center gap-1">
-                            <span>RESERVED FOR:</span>
-                            <strong className="text-stone-200 font-bold">{token.bookingDate}</strong>
-                          </p>
                         </div>
 
-                        <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-2xs shrink-0 flex items-center gap-1.5 font-bold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                          <span>READY</span>
+                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-700 border border-green-200 shrink-0 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-600"></span>
+                          <span>Ready</span>
                         </span>
                       </div>
 
-                      {/* Perforated ticket perforation dashed line */}
-                      <div className="relative py-1">
-                        <div className="border-t border-dashed border-stone-800 w-full"></div>
-                      </div>
-
-                      {/* Obsidian Counter Token Box with Dynamic QR Trigger */}
-                      <div className="p-4 bg-stone-950/90 border border-stone-800/90 rounded-2xl text-center space-y-3 shadow-inner">
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400 block">
-                          COUNTER REDEMPTION CODE
+                      {/* Clean Counter Token Box */}
+                      <div className="p-4 bg-orange-50/50 border border-orange-200/70 rounded-xl text-center space-y-2">
+                        <span className="text-[11px] font-semibold text-orange-700 uppercase tracking-wider block">
+                          Counter Pickup Token
                         </span>
                         <div className="flex items-center justify-center gap-2">
-                          <span className="text-3xl sm:text-4xl font-mono font-black tracking-widest text-amber-400 block drop-shadow-sm">
+                          <span className="text-3xl font-mono font-extrabold tracking-wider text-gray-900 block">
                             {token.token}
                           </span>
                           <button
                             type="button"
                             onClick={() => {
                               navigator.clipboard?.writeText(token.token);
-                              setPushMsg("✓ Token copied to clipboard!");
-                              setTimeout(() => setPushMsg(""), 2500);
+                              setPushMsg("✓ Copied!");
+                              setTimeout(() => setPushMsg(""), 2000);
                             }}
-                            className="p-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 text-xs transition btn-bouncy cursor-pointer"
+                            className="p-1.5 rounded-lg bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 text-xs transition cursor-pointer"
                             title="Copy Token"
                           >
-                            📋
+                            Copy
                           </button>
                         </div>
+                        <p className="text-[11px] text-gray-500">
+                          Show this token or QR at the counter desk to collect your plate.
+                        </p>
+                      </div>
 
+                      {/* Actions */}
+                      <div className="space-y-2 pt-1">
                         <button
                           type="button"
                           onClick={() =>
@@ -329,14 +316,12 @@ export default function UserProfile() {
                               },
                             })
                           }
-                          className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-stone-950 text-xs font-black uppercase tracking-wider rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 btn-bouncy cursor-pointer"
+                          className="w-full py-2.5 bg-orange-600 hover:bg-orange-700 active:scale-98 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                         >
-                          <span>📱</span>
-                          <span>Show Dynamic QR Pass</span>
+                          <span>Show QR Code</span>
                         </button>
 
-                        {/* Quick Offline Actions: WhatsApp & Save to Phone */}
-                        <div className="flex items-center justify-center gap-2 pt-1 border-t border-stone-800">
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
                             onClick={() =>
@@ -350,10 +335,9 @@ export default function UserProfile() {
                                 amount: token.amount,
                               })
                             }
-                            className="flex-1 py-2 px-2.5 bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 rounded-xl text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition btn-bouncy cursor-pointer"
-                            title="Share ticket to your WhatsApp chat"
+                            className="flex-1 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
                           >
-                            <span>💬 WhatsApp</span>
+                            <span>Share to WhatsApp</span>
                           </button>
 
                           <button
@@ -369,10 +353,9 @@ export default function UserProfile() {
                                 amount: token.amount,
                               })
                             }
-                            className="flex-1 py-2 px-2.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition btn-bouncy cursor-pointer"
-                            title="Save offline meal pass to your phone gallery"
+                            className="flex-1 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
                           >
-                            <span>💾 Save Pass</span>
+                            <span>Save Offline</span>
                           </button>
                         </div>
                       </div>
