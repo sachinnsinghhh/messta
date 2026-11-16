@@ -3,7 +3,11 @@ import { createContext, useContext, useState, useEffect } from "react";
 const PwaContext = createContext(null);
 
 export function PwaProvider({ children }) {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [deferredPrompt, setDeferredPrompt] = useState(() => {
+    return typeof window !== "undefined" && window.messtaDeferredPrompt
+      ? window.messtaDeferredPrompt
+      : null;
+  });
   const [isStandalone, setIsStandalone] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [instructionModalOpen, setInstructionModalOpen] = useState(false);
@@ -64,6 +68,7 @@ export function PwaProvider({ children }) {
     // this event fires again in browser, automatically resetting isInstalled to false!
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
+      window.messtaDeferredPrompt = e;
       setDeferredPrompt(e);
       setIsInstalled(false);
       try {
@@ -71,10 +76,17 @@ export function PwaProvider({ children }) {
       } catch (_) {}
     };
 
+    window.__onMesstaPromptReady = handleBeforeInstallPrompt;
+
+    if (window.messtaDeferredPrompt) {
+      handleBeforeInstallPrompt(window.messtaDeferredPrompt);
+    }
+
     // 5. Capture appinstalled event (Fires as soon as user accepts install)
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setDeferredPrompt(null);
+      window.messtaDeferredPrompt = null;
       setInstructionModalOpen(false);
       try {
         localStorage.setItem("messta_app_installed_hint", "true");
@@ -102,32 +114,56 @@ export function PwaProvider({ children }) {
       if (mediaQuery.removeEventListener) {
         mediaQuery.removeEventListener("change", handleMediaChange);
       }
+      delete window.__onMesstaPromptReady;
     };
   }, []);
 
-  // Trigger installation logic
+  // Directly trigger native installation on the user's device
   const installApp = async () => {
-    // If native prompt is available (Chrome Android, Chrome Desktop, Edge)
-    if (deferredPrompt) {
+    let promptToUse = deferredPrompt || window.messtaDeferredPrompt;
+
+    // If native prompt is not yet ready on Android, wait up to 800ms for Chrome's prompt event
+    if (!promptToUse && deviceType === "android") {
+      promptToUse = await new Promise((resolve) => {
+        const handler = (e) => {
+          e.preventDefault();
+          window.messtaDeferredPrompt = e;
+          setDeferredPrompt(e);
+          window.removeEventListener("beforeinstallprompt", handler);
+          resolve(e);
+        };
+        window.addEventListener("beforeinstallprompt", handler, { once: true });
+        setTimeout(() => {
+          window.removeEventListener("beforeinstallprompt", handler);
+          resolve(window.messtaDeferredPrompt || null);
+        }, 800);
+      });
+    }
+
+    // If native prompt is available (Chrome Android, Chrome Desktop, Edge):
+    // Directly popup the device's native installation prompt!
+    if (promptToUse) {
       try {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === "accepted") {
+        await promptToUse.prompt();
+        const choiceResult = await promptToUse.userChoice;
+        if (choiceResult && choiceResult.outcome === "accepted") {
           setIsInstalled(true);
           try {
             localStorage.setItem("messta_app_installed_hint", "true");
           } catch (_) {}
         }
         setDeferredPrompt(null);
+        window.messtaDeferredPrompt = null;
       } catch (err) {
-        console.warn("PWA prompt error:", err);
-        setInstructionModalOpen(true);
+        console.warn("Direct install prompt error:", err);
       }
       return;
     }
 
-    // If native prompt is not available (iOS Safari, or prompt not yet captured), show friendly instructions
-    setInstructionModalOpen(true);
+    // Only on iOS Safari (where Apple has no native prompt API, require 3-step share guide)
+    if (deviceType === "ios") {
+      setInstructionModalOpen(true);
+    }
   };
 
   const closeInstructions = () => {
@@ -146,8 +182,8 @@ export function PwaProvider({ children }) {
     >
       {children}
 
-      {/* Manual Installation Instructions Modal (For iOS Safari or Chrome manual install) */}
-      {instructionModalOpen && (
+      {/* Manual Installation Instructions Modal (Strictly for iOS Safari, where Apple provides no install API) */}
+      {instructionModalOpen && deviceType === "ios" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="relative w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-gray-100 text-center space-y-4">
             <button
@@ -164,72 +200,47 @@ export function PwaProvider({ children }) {
 
             <div className="space-y-1">
               <h3 className="text-base font-bold text-gray-900">
-                Install Messta App
+                Install Messta on iPhone
               </h3>
               <p className="text-xs text-gray-500">
                 Fast 1-tap counter passes & offline meal tickets
               </p>
             </div>
 
-            {deviceType === "ios" ? (
-              <div className="bg-gray-50 rounded-2xl p-4 text-left text-xs space-y-2.5 border border-gray-200/80">
-                <div className="flex items-start gap-2.5">
-                  <span className="w-5 h-5 rounded-full bg-orange-600 text-white font-bold flex items-center justify-center text-[10px] shrink-0">
-                    1
+            <div className="bg-gray-50 rounded-2xl p-4 text-left text-xs space-y-2.5 border border-gray-200/80">
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-orange-600 text-white font-bold flex items-center justify-center text-[10px] shrink-0">
+                  1
+                </span>
+                <p className="text-gray-700">
+                  Tap the <strong>Share</strong> button (
+                  <span className="inline-block px-1 bg-gray-200 rounded font-mono text-[10px]">
+                    ⎋
                   </span>
-                  <p className="text-gray-700">
-                    Tap the <strong>Share</strong> button (
-                    <span className="inline-block px-1 bg-gray-200 rounded font-mono text-[10px]">
-                      ⎋
-                    </span>
-                    ) at the bottom of your Safari screen.
-                  </p>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <span className="w-5 h-5 rounded-full bg-orange-600 text-white font-bold flex items-center justify-center text-[10px] shrink-0">
-                    2
-                  </span>
-                  <p className="text-gray-700">
-                    Scroll down and tap <strong>&ldquo;Add to Home Screen&rdquo;</strong> (
-                    <span className="inline-block px-1 bg-gray-200 rounded font-mono text-[10px]">
-                      +
-                    </span>
-                    ).
-                  </p>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <span className="w-5 h-5 rounded-full bg-orange-600 text-white font-bold flex items-center justify-center text-[10px] shrink-0">
-                    3
-                  </span>
-                  <p className="text-gray-700">
-                    Tap <strong>&ldquo;Add&rdquo;</strong> in the top right corner.
-                  </p>
-                </div>
+                  ) at the bottom of your Safari screen.
+                </p>
               </div>
-            ) : (
-              <div className="bg-gray-50 rounded-2xl p-4 text-left text-xs space-y-2.5 border border-gray-200/80">
-                <div className="flex items-start gap-2.5">
-                  <span className="w-5 h-5 rounded-full bg-orange-600 text-white font-bold flex items-center justify-center text-[10px] shrink-0">
-                    1
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-orange-600 text-white font-bold flex items-center justify-center text-[10px] shrink-0">
+                  2
+                </span>
+                <p className="text-gray-700">
+                  Scroll down and tap <strong>&ldquo;Add to Home Screen&rdquo;</strong> (
+                  <span className="inline-block px-1 bg-gray-200 rounded font-mono text-[10px]">
+                    +
                   </span>
-                  <p className="text-gray-700">
-                    Tap the <strong>menu icon</strong> (
-                    <span className="inline-block px-1 bg-gray-200 rounded font-mono text-[10px]">
-                      ⋮
-                    </span>
-                    ) in your browser.
-                  </p>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <span className="w-5 h-5 rounded-full bg-orange-600 text-white font-bold flex items-center justify-center text-[10px] shrink-0">
-                    2
-                  </span>
-                  <p className="text-gray-700">
-                    Select <strong>&ldquo;Install app&rdquo;</strong> or <strong>&ldquo;Add to Home screen&rdquo;</strong>.
-                  </p>
-                </div>
+                  ).
+                </p>
               </div>
-            )}
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-orange-600 text-white font-bold flex items-center justify-center text-[10px] shrink-0">
+                  3
+                </span>
+                <p className="text-gray-700">
+                  Tap <strong>&ldquo;Add&rdquo;</strong> in the top right corner.
+                </p>
+              </div>
+            </div>
 
             <button
               type="button"

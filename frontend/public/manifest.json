@@ -4,6 +4,7 @@
   "short_name": "Messta",
   "description": "Book advance mess thalis, membership passes, and dynamic counter QR tickets.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ea580c",
@@ -13,19 +14,25 @@
       "src": "/messta-icon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/messta-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/messta-icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "related_applications": [
+      "purpose": "any"
+    },
     {
-      "platform": "webapp",
-      "url": "/manifest.json"
+      "src": "/messta-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

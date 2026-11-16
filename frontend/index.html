@@ -9,9 +9,29 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Messta" />
+    <meta name="application-name" content="Messta" />
     <link rel="apple-touch-icon" href="/messta-icon.png" />
     <link rel="manifest" href="/manifest.json" />
     <title>Messta | Digital Mess & Dining Operating System</title>
+    <script>
+      // Early capture of beforeinstallprompt so direct 1-tap install prompt is never missed
+      window.messtaDeferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.messtaDeferredPrompt = e;
+        if (typeof window.__onMesstaPromptReady === 'function') {
+          window.__onMesstaPromptReady(e);
+        }
+      });
+      // Register service worker to ensure instant Chrome PWA installability eligibility
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').catch(function(err) {
+            console.warn('SW registration:', err);
+          });
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
