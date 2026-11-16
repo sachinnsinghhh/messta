@@ -15,6 +15,7 @@ import SuperAdminFinance from "./pages/SuperAdminFinance";
 import PaymentStatus from "./pages/PaymentStatus";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
+import { PwaProvider } from "./context/PwaContext";
 import { useAuth } from "./context/useAuth";
 
 // Root Gateway: Directs unauthenticated visitors to Login first,
@@ -54,8 +55,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Layout>
-          <Routes>
+        <PwaProvider>
+          <Layout>
+            <Routes>
             {/* First Screen Gateway: redirects to Login if unauthenticated */}
             <Route path="/" element={<RootGateway />} />
 
@@ -160,7 +162,8 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>
-      </AuthProvider>
-    </BrowserRouter>
+      </PwaProvider>
+    </AuthProvider>
+  </BrowserRouter>
   );
 }

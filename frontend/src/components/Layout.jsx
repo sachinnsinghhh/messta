@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import PwaInstallPrompt from "./PwaInstallPrompt";
 import NotificationPermissionBanner from "./NotificationPermissionBanner";
 import PhoneVerificationModal from "./PhoneVerificationModal";
 import { useAuth } from "../context/useAuth";
@@ -40,7 +39,6 @@ export default function Layout({ children }) {
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
-      <PwaInstallPrompt />
       <NotificationPermissionBanner />
 
       {/* Automatic Post-Login Phone Verification Prompt */}

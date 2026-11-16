@@ -1,6 +1,7 @@
 import { API_BASE_URL } from "../config/api";
 import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { usePwa } from "../context/PwaContext";
 import MessCard from "../components/MessCard";
 import messtaLogo from "../assets/messta-logo.png";
 
@@ -74,6 +75,7 @@ const STUDENT_PUNCHLINES = [
 ];
 
 export default function Home() {
+  const { canInstall, installApp } = usePwa();
   const [allMesses, setAllMesses] = useState([]);
   const [searchArea, setSearchArea] = useState("");
   const [loading, setLoading] = useState(true);
@@ -430,6 +432,36 @@ export default function Home() {
             ))}
           </div>
 
+          {/* Quick Install Banner for Students on Home Screen */}
+          {canInstall && (
+            <div className="pt-3 max-w-lg mx-auto animate-in fade-in duration-200">
+              <div className="bg-white/95 hover:bg-white border border-orange-200/90 rounded-2xl p-3 sm:p-3.5 shadow-sm flex items-center justify-between gap-3 text-left transition">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-600 shrink-0">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                      Install Messta App
+                    </h4>
+                    <p className="text-[11px] text-gray-500 leading-tight">
+                      Fast 1-tap counter passes & offline meal tickets
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={installApp}
+                  className="px-4 py-2 bg-orange-600 hover:bg-orange-700 active:scale-95 text-white font-semibold text-xs rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap shrink-0"
+                >
+                  Install App
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       </section>
 
@@ -664,6 +696,29 @@ export default function Home() {
             {displayedMesses.map((m) => (
               <MessCard key={m._id || m.id} mess={m} />
             ))}
+          </div>
+        )}
+        {/* PWA App Download Banner at Bottom of Home (Auto-hides if installed) */}
+        {canInstall && (
+          <div className="mt-14 bg-gradient-to-r from-orange-600 to-amber-600 rounded-3xl p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl shadow-orange-600/15">
+            <div className="space-y-2 text-center sm:text-left">
+              <span className="text-[11px] font-bold uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full text-orange-100 inline-block">
+                Install on Phone
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black tracking-tight">
+                Get Messta on your Home Screen
+              </h3>
+              <p className="text-xs sm:text-sm text-orange-100 max-w-md">
+                Fast 1-tap counter passes, daily menu updates, and offline meal tokens with zero App Store download needed.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={installApp}
+              className="px-6 py-3.5 bg-white hover:bg-orange-50 text-orange-600 font-bold text-xs uppercase tracking-wider rounded-2xl shadow-md transition cursor-pointer whitespace-nowrap active:scale-95"
+            >
+              Install App Now
+            </button>
           </div>
         )}
       </section>

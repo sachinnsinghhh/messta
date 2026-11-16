@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
+import { usePwa } from "../context/PwaContext";
 import messtaIcon from "../assets/messta-icon.png";
 
 export default function Navbar() {
   const { currentUser, activeRole, logout } = useAuth();
+  const { canInstall, installApp } = usePwa();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -161,33 +163,61 @@ export default function Navbar() {
             </nav>
           )}
 
-          {/* Right Action Tools: User info & Logout */}
-          <div className="hidden md:flex items-center gap-3">
-            {currentUser ? (
-              <div className="flex items-center gap-3 pl-2 border-l border-gray-200">
-                <div className="w-8 h-8 rounded-full bg-stone-100 border border-stone-200 text-stone-700 font-semibold text-xs flex items-center justify-center shrink-0">
-                  {(currentUser.displayName || currentUser.email || "U").charAt(0).toUpperCase()}
+          {/* Right Action Tools: User info, Logout & Install App */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Direct PWA Install Button (automatically disappears if installed or in standalone mode) */}
+            {canInstall && (
+              <button
+                type="button"
+                onClick={installApp}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-semibold rounded-lg border border-orange-200 transition cursor-pointer shadow-2xs"
+                title="Install Messta on your device"
+              >
+                <svg className="w-3.5 h-3.5 text-orange-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span className="hidden sm:inline">Install App</span>
+                <span className="sm:hidden">Install</span>
+              </button>
+            )}
+
+            <div className="hidden md:flex items-center gap-3">
+              {currentUser ? (
+                <div className="flex items-center gap-3 pl-2 border-l border-gray-200">
+                  <div className="w-8 h-8 rounded-full bg-stone-100 border border-stone-200 text-stone-700 font-semibold text-xs flex items-center justify-center shrink-0">
+                    {(currentUser.displayName || currentUser.email || "U").charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-xs font-semibold text-gray-800 leading-tight">
+                      {currentUser.displayName || currentUser.email?.split("@")[0]}
+                    </span>
+                    <span className="text-[11px] text-gray-400 leading-tight truncate max-w-[130px]">
+                      {currentUser.email}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="px-2.5 py-1 text-xs font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-gray-200"
+                  >
+                    Log out
+                  </button>
                 </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-xs font-semibold text-gray-800 leading-tight">
-                    {currentUser.displayName || currentUser.email?.split("@")[0]}
-                  </span>
-                  <span className="text-[11px] text-gray-400 leading-tight truncate max-w-[130px]">
-                    {currentUser.email}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="px-2.5 py-1 text-xs font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-gray-200"
+              ) : (
+                <Link
+                  to="/login"
+                  className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg shadow-sm transition"
                 >
-                  Log out
-                </button>
-              </div>
-            ) : (
+                  Sign In
+                </Link>
+              )}
+            </div>
+
+            {/* Mobile Sign In button when unauthenticated */}
+            {!currentUser && (
               <Link
                 to="/login"
-                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg shadow-sm transition"
+                className="md:hidden px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg shadow-sm transition"
               >
                 Sign In
               </Link>
@@ -307,6 +337,24 @@ export default function Navbar() {
               >
                 My Bookings
               </Link>
+            </div>
+          )}
+
+          {canInstall && (
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  installApp();
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-orange-600 hover:bg-orange-700 active:scale-95 text-white text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Install Messta App</span>
+              </button>
             </div>
           )}
 
