@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Messta - Digital Campus Dining",
   "short_name": "Messta",
   "description": "Book advance mess thalis, membership passes, and dynamic counter QR tickets.",
@@ -19,6 +20,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "/manifest.json"
     }
   ]
 }

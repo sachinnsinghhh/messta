@@ -11,17 +11,16 @@ export function PwaProvider({ children }) {
 
   useEffect(() => {
     // 1. Detect operating system / device
-    const userAgent = window.navigator.userAgent.toLowerCase();
+    const userAgent = (window.navigator.userAgent || "").toLowerCase();
     const isIos = /iphone|ipad|ipod/.test(userAgent);
     const isAndroid = /android/.test(userAgent);
     setDeviceType(isIos ? "ios" : isAndroid ? "android" : "desktop");
 
-    // 2. Check if running in standalone display mode (currently open as installed PWA)
+    // 2. Strict check for standalone mode (ONLY true when actively running inside installed app window)
     const checkStandalone = () => {
       const isStandaloneMode =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        window.navigator.standalone === true ||
-        document.referrer.includes("android-app://");
+        Boolean(window.matchMedia("(display-mode: standalone)").matches) ||
+        window.navigator.standalone === true;
       setIsStandalone(isStandaloneMode);
       if (isStandaloneMode) {
         setIsInstalled(true);
@@ -29,36 +28,57 @@ export function PwaProvider({ children }) {
       return isStandaloneMode;
     };
 
-    const standaloneNow = checkStandalone();
+    const isRunningStandalone = checkStandalone();
 
-    // 3. Check getInstalledRelatedApps API (Supported in modern Chromium / Android)
-    if (!standaloneNow && "getInstalledRelatedApps" in navigator) {
+    // Check localStorage hint if set previously by appinstalled event
+    try {
+      if (!isRunningStandalone && localStorage.getItem("messta_app_installed_hint") === "true") {
+        setIsInstalled(true);
+      }
+    } catch (_) {}
+
+    // 3. Check getInstalledRelatedApps API (Available on modern Chromium & Android Chrome)
+    // If user uninstalled, this returns [] and automatically marks isInstalled = false
+    if (!isRunningStandalone && "getInstalledRelatedApps" in navigator) {
       navigator
         .getInstalledRelatedApps()
         .then((apps) => {
           if (apps && apps.length > 0) {
             setIsInstalled(true);
+            try {
+              localStorage.setItem("messta_app_installed_hint", "true");
+            } catch (_) {}
           } else {
-            // Not installed or was recently uninstalled
             setIsInstalled(false);
+            try {
+              localStorage.removeItem("messta_app_installed_hint");
+            } catch (_) {}
           }
         })
         .catch(() => {});
     }
 
-    // 4. Capture native beforeinstallprompt (Fires only if app is NOT currently installed)
+    // 4. Capture native beforeinstallprompt
+    // NOTE: Browsers ONLY fire beforeinstallprompt if the app is NOT installed!
+    // If the user previously had the app installed but deleted/uninstalled it,
+    // this event fires again in browser, automatically resetting isInstalled to false!
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      // If the browser fires beforeinstallprompt, the app is definitely not installed
       setIsInstalled(false);
+      try {
+        localStorage.removeItem("messta_app_installed_hint");
+      } catch (_) {}
     };
 
-    // 5. Capture appinstalled event (Fires when installation completes)
+    // 5. Capture appinstalled event (Fires as soon as user accepts install)
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setDeferredPrompt(null);
       setInstructionModalOpen(false);
+      try {
+        localStorage.setItem("messta_app_installed_hint", "true");
+      } catch (_) {}
     };
 
     // 6. Listen for display-mode standalone changes
@@ -94,6 +114,9 @@ export function PwaProvider({ children }) {
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === "accepted") {
           setIsInstalled(true);
+          try {
+            localStorage.setItem("messta_app_installed_hint", "true");
+          } catch (_) {}
         }
         setDeferredPrompt(null);
       } catch (err) {
@@ -103,7 +126,7 @@ export function PwaProvider({ children }) {
       return;
     }
 
-    // If native prompt is not available (iOS Safari, Firefox, or prompt consumed), show friendly instructions
+    // If native prompt is not available (iOS Safari, or prompt not yet captured), show friendly instructions
     setInstructionModalOpen(true);
   };
 
@@ -111,22 +134,19 @@ export function PwaProvider({ children }) {
     setInstructionModalOpen(false);
   };
 
-  // The button should be shown whenever the user is NOT in standalone mode AND app is not installed
-  const canInstall = !isStandalone && !isInstalled;
-
   return (
     <PwaContext.Provider
       value={{
-        canInstall,
         isInstalled,
         isStandalone,
+        canInstall: !isInstalled,
         installApp,
         deviceType,
       }}
     >
       {children}
 
-      {/* Manual Installation Instructions Modal (For iOS Safari or fallback) */}
+      {/* Manual Installation Instructions Modal (For iOS Safari or Chrome manual install) */}
       {instructionModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="relative w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-gray-100 text-center space-y-4">
@@ -229,9 +249,9 @@ export function usePwa() {
   const context = useContext(PwaContext);
   if (!context) {
     return {
-      canInstall: false,
       isInstalled: false,
       isStandalone: false,
+      canInstall: true,
       installApp: () => {},
       deviceType: "other",
     };

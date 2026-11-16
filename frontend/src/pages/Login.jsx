@@ -6,7 +6,7 @@ import messtaIcon from "../assets/messta-icon.png";
 import { SUPER_ADMIN_KEY } from "../config/adminSecurity";
 
 export default function Login() {
-  const { canInstall, installApp } = usePwa();
+  const { isInstalled, installApp } = usePwa();
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -166,33 +166,55 @@ export default function Login() {
           </div>
         </div>
 
-        {/* ── HIGH-CONVERSION PWA INSTALL CALLOUT (AUTO-HIDES ONCE INSTALLED) ── */}
-        {canInstall && (
-          <div className="bg-gradient-to-r from-orange-50 via-amber-50/60 to-orange-50 border border-orange-200/90 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-xs animate-in fade-in duration-200">
-            <div className="flex items-center gap-2.5 text-left">
-              <div className="w-9 h-9 rounded-xl bg-orange-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
+        {/* ── PWA INSTALL CALLOUT (Always visible: enabled to install, or disabled if installed) ── */}
+        <div className={`rounded-2xl p-3 flex items-center justify-between gap-3 shadow-xs border transition ${
+          isInstalled
+            ? "bg-gray-50/90 border-gray-200"
+            : "bg-gradient-to-r from-orange-50 via-amber-50/60 to-orange-50 border-orange-200/90"
+        }`}>
+          <div className="flex items-center gap-2.5 text-left">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 shadow-xs ${
+              isInstalled
+                ? "bg-green-100 text-green-700 border border-green-200"
+                : "bg-orange-600 text-white"
+            }`}>
+              {isInstalled ? (
+                <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
-              </div>
-              <div>
-                <span className="text-xs font-bold text-gray-900 block leading-tight">
-                  Install Messta App
-                </span>
-                <span className="text-[11px] text-gray-500 block leading-tight">
-                  1-tap meal passes & offline QR tokens
-                </span>
-              </div>
+              )}
             </div>
+            <div>
+              <span className="text-xs font-bold text-gray-900 block leading-tight">
+                {isInstalled ? "Messta App Installed" : "Install Messta App"}
+              </span>
+              <span className="text-[11px] text-gray-500 block leading-tight">
+                {isInstalled ? "Active on your device screen" : "1-tap meal passes & offline QR tokens"}
+              </span>
+            </div>
+          </div>
+          {isInstalled ? (
+            <button
+              type="button"
+              disabled
+              className="px-3 py-1.5 bg-gray-100 text-gray-500 font-semibold text-xs rounded-xl border border-gray-200 cursor-default opacity-85 shrink-0 flex items-center gap-1"
+            >
+              <span>Installed ✓</span>
+            </button>
+          ) : (
             <button
               type="button"
               onClick={installApp}
               className="px-3.5 py-1.5 bg-orange-600 hover:bg-orange-700 active:scale-95 text-white font-semibold text-xs rounded-xl shadow-xs transition cursor-pointer shrink-0"
             >
-              Install
+              Install App
             </button>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* ── STEP 1: ROLE SELECTION (Student vs Mess Owner vs Admin) ── */}
         <div className="space-y-2">
@@ -553,7 +575,14 @@ export default function Login() {
             &larr; Back to Campus Dining Directory
           </Link>
 
-          {canInstall && (
+          {isInstalled ? (
+            <div className="text-xs font-medium text-gray-400 flex items-center justify-center gap-1.5 pt-1 cursor-default">
+              <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>App Installed on Device ✓</span>
+            </div>
+          ) : (
             <button
               type="button"
               onClick={installApp}

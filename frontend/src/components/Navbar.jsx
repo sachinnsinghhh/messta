@@ -6,7 +6,7 @@ import messtaIcon from "../assets/messta-icon.png";
 
 export default function Navbar() {
   const { currentUser, activeRole, logout } = useAuth();
-  const { canInstall, installApp } = usePwa();
+  const { isInstalled, installApp } = usePwa();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -165,12 +165,25 @@ export default function Navbar() {
 
           {/* Right Action Tools: User info, Logout & Install App */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Direct PWA Install Button (automatically disappears if installed or in standalone mode) */}
-            {canInstall && (
+            {/* Direct PWA Install Button (Always visible: active to install, or disabled if already installed) */}
+            {isInstalled ? (
+              <button
+                type="button"
+                disabled
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-500 text-xs font-semibold rounded-lg border border-gray-200 cursor-default opacity-85"
+                title="Messta App is already installed on this device"
+              >
+                <svg className="w-3.5 h-3.5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="hidden sm:inline">Installed ✓</span>
+                <span className="sm:hidden">Installed ✓</span>
+              </button>
+            ) : (
               <button
                 type="button"
                 onClick={installApp}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-semibold rounded-lg border border-orange-200 transition cursor-pointer shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 active:scale-95 text-orange-700 text-xs font-semibold rounded-lg border border-orange-200 transition cursor-pointer shadow-2xs"
                 title="Install Messta on your device"
               >
                 <svg className="w-3.5 h-3.5 text-orange-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -340,8 +353,19 @@ export default function Navbar() {
             </div>
           )}
 
-          {canInstall && (
-            <div className="pt-2">
+          <div className="pt-2">
+            {isInstalled ? (
+              <button
+                type="button"
+                disabled
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-gray-100 text-gray-500 text-xs font-semibold rounded-xl border border-gray-200 cursor-default opacity-85"
+              >
+                <svg className="w-4 h-4 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>App Installed on Device ✓</span>
+              </button>
+            ) : (
               <button
                 type="button"
                 onClick={() => {
@@ -355,8 +379,8 @@ export default function Navbar() {
                 </svg>
                 <span>Install Messta App</span>
               </button>
-            </div>
-          )}
+            )}
+          </div>
 
           <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
             <span className="text-xs text-gray-500 truncate max-w-[180px]">{currentUser.email}</span>

@@ -75,7 +75,7 @@ const STUDENT_PUNCHLINES = [
 ];
 
 export default function Home() {
-  const { canInstall, installApp } = usePwa();
+  const { isInstalled, installApp } = usePwa();
   const [allMesses, setAllMesses] = useState([]);
   const [searchArea, setSearchArea] = useState("");
   const [loading, setLoading] = useState(true);
@@ -433,24 +433,46 @@ export default function Home() {
           </div>
 
           {/* Quick Install Banner for Students on Home Screen */}
-          {canInstall && (
-            <div className="pt-3 max-w-lg mx-auto animate-in fade-in duration-200">
-              <div className="bg-white/95 hover:bg-white border border-orange-200/90 rounded-2xl p-3 sm:p-3.5 shadow-sm flex items-center justify-between gap-3 text-left transition">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-600 shrink-0">
+          <div className="pt-3 max-w-lg mx-auto">
+            <div className={`rounded-2xl p-3 sm:p-3.5 shadow-2xs flex items-center justify-between gap-3 text-left border transition ${
+              isInstalled
+                ? "bg-gray-50/90 border-gray-200"
+                : "bg-white/95 hover:bg-white border-orange-200/90 shadow-sm"
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                  isInstalled
+                    ? "bg-green-50 border border-green-200 text-green-600"
+                    : "bg-orange-50 border border-orange-100 text-orange-600"
+                }`}>
+                  {isInstalled ? (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
-                  </div>
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
-                      Install Messta App
-                    </h4>
-                    <p className="text-[11px] text-gray-500 leading-tight">
-                      Fast 1-tap counter passes & offline meal tickets
-                    </p>
-                  </div>
+                  )}
                 </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                    {isInstalled ? "Messta App Installed" : "Install Messta App"}
+                  </h4>
+                  <p className="text-[11px] text-gray-500 leading-tight">
+                    {isInstalled ? "Ready to launch from your device screen" : "Fast 1-tap counter passes & offline meal tickets"}
+                  </p>
+                </div>
+              </div>
+              {isInstalled ? (
+                <button
+                  type="button"
+                  disabled
+                  className="px-4 py-2 bg-gray-100 text-gray-500 font-semibold text-xs rounded-xl border border-gray-200 cursor-default whitespace-nowrap shrink-0 opacity-85 flex items-center gap-1"
+                >
+                  <span>Installed ✓</span>
+                </button>
+              ) : (
                 <button
                   type="button"
                   onClick={installApp}
@@ -458,9 +480,9 @@ export default function Home() {
                 >
                   Install App
                 </button>
-              </div>
+              )}
             </div>
-          )}
+          </div>
 
         </div>
       </section>
@@ -698,20 +720,36 @@ export default function Home() {
             ))}
           </div>
         )}
-        {/* PWA App Download Banner at Bottom of Home (Auto-hides if installed) */}
-        {canInstall && (
-          <div className="mt-14 bg-gradient-to-r from-orange-600 to-amber-600 rounded-3xl p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl shadow-orange-600/15">
-            <div className="space-y-2 text-center sm:text-left">
-              <span className="text-[11px] font-bold uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full text-orange-100 inline-block">
-                Install on Phone
-              </span>
-              <h3 className="text-xl sm:text-2xl font-black tracking-tight">
-                Get Messta on your Home Screen
-              </h3>
-              <p className="text-xs sm:text-sm text-orange-100 max-w-md">
-                Fast 1-tap counter passes, daily menu updates, and offline meal tokens with zero App Store download needed.
-              </p>
-            </div>
+        {/* PWA App Download Banner at Bottom of Home (Always visible: active or installed state) */}
+        <div className={`mt-14 rounded-3xl p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl ${
+          isInstalled
+            ? "bg-gradient-to-r from-stone-800 to-stone-900 shadow-stone-900/10"
+            : "bg-gradient-to-r from-orange-600 to-amber-600 shadow-orange-600/15"
+        }`}>
+          <div className="space-y-2 text-center sm:text-left">
+            <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full inline-flex items-center gap-1 ${
+              isInstalled ? "bg-white/20 text-green-300" : "bg-white/20 text-orange-100"
+            }`}>
+              {isInstalled ? "✓ Installed on Device" : "Install on Phone"}
+            </span>
+            <h3 className="text-xl sm:text-2xl font-black tracking-tight">
+              {isInstalled ? "Messta is on your Home Screen" : "Get Messta on your Home Screen"}
+            </h3>
+            <p className="text-xs sm:text-sm text-orange-100 max-w-md">
+              {isInstalled
+                ? "Open directly from your device screen for instant counter passes and offline meal tickets."
+                : "Fast 1-tap counter passes, daily menu updates, and offline meal tokens with zero App Store download needed."}
+            </p>
+          </div>
+          {isInstalled ? (
+            <button
+              type="button"
+              disabled
+              className="px-6 py-3.5 bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-2xl cursor-default whitespace-nowrap opacity-90"
+            >
+              Installed ✓
+            </button>
+          ) : (
             <button
               type="button"
               onClick={installApp}
@@ -719,8 +757,8 @@ export default function Home() {
             >
               Install App Now
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </section>
 
     </div>
